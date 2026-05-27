@@ -1,71 +1,71 @@
-# Codee — Fase 1: Design (Dados + Dashboard)
+# Codee — Phase 1: Design (Data + Dashboard)
 
-**Data:** 2026-05-27
-**Autor:** Alexandre (Codee) + Claude
-**Status:** Spec aprovado em brainstorming, aguardando review final antes do plano de implementação
-**Projeto:** `F:\codefee\AAVE_STRAT` (separado do Volume_tracker; integração futura opcional)
-
----
-
-## 1. Propósito
-
-Codee é um bot/dashboard de yield DeFi. **A Fase 1 entrega a fundação de dados:** puxa rates de empréstimo do DefiLlama em cadência fixa, calcula spreads e rotas (passive supply + leveraged loops), persiste history, e expõe tudo via API REST consumida por um dashboard.
-
-A Fase 1 **não executa transações** — é a camada de inteligência que informa decisões de capital. Execução on-chain, Binance e alertas são Fases 2-3.
+**Date:** 2026-05-27
+**Author:** Alexandre (Codee) + Claude
+**Status:** Spec approved in brainstorming, pending final review before implementation plan
+**Project:** `F:\codefee\AAVE_STRAT` (separate from Volume_tracker; future integration optional)
 
 ---
 
-## 2. Achado crítico que moldou este design (reality check 25-mai-2026)
+## 1. Purpose
 
-Antes de fechar o design, rodamos `demo_routes.py` contra a API real do DefiLlama. Resultado refuta a tese central do documento de contexto (`codee_strategy_context.md`):
+Codee is a DeFi yield bot/dashboard. **Phase 1 delivers the data foundation:** it pulls lending rates from DefiLlama on a fixed cadence, computes spreads and routes (passive supply + leveraged loops), persists history, and exposes everything via a REST API consumed by a dashboard.
 
-| Métrica | Contexto (snapshot abr/2026) | Live (25-mai-2026) |
+Phase 1 **does not execute transactions** — it is the intelligence layer that informs capital decisions. On-chain execution, Binance, and alerts are Phases 2-3.
+
+---
+
+## 2. Critical finding that shaped this design (reality check 2026-05-25)
+
+Before finalizing the design, we ran `demo_routes.py` against the live DefiLlama API. The result refutes the central thesis of the context document (`codee_strategy_context.md`):
+
+| Metric | Context (Apr/2026 snapshot) | Live (2026-05-25) |
 |---|---|---|
-| BSC Venus USDT supply | 8,0% (com rewards XVS) | **2,00% (apyReward = 0)** |
-| Spread estrutural BSC | ~5% | **negativo (−1,86%)** |
-| Pools globais com `apyReward > 0` | (muitos, implícito) | **134 de 4.134 (3,2%)** |
-| Loops com spread positivo | "sempre BSC/Base" | **2, ambos em Ethereum** |
-| Melhor oportunidade hoje | leveraged loop ~25% | **passive supply 17,9% (Base yearn USDC)** |
+| BSC Venus USDT supply | 8.0% (with XVS rewards) | **2.00% (apyReward = 0)** |
+| BSC structural spread | ~5% | **negative (−1.86%)** |
+| Global pools with `apyReward > 0` | (many, implied) | **134 of 4,134 (3.2%)** |
+| Loops with positive spread | "always BSC/Base" | **2, both on Ethereum** |
+| Best opportunity today | leveraged loop ~25% | **passive supply 17.9% (Base yearn USDC)** |
 
-**Conclusões que viraram requisitos:**
+**Conclusions that became requirements:**
 
-1. **Passive supply > leveraged loops no mercado atual** (17,9% vs 7,3% no melhor loop). A Strategy 1 do contexto (BSC ping-pong) hoje **perde dinheiro** (−3,27% net APY).
-2. **Programas de incentivo (XVS/Merit) provavelmente pausaram ou migraram** (USD1 migrou de BSC pra Ethereum Dolomite, $43M TVL).
-3. O Codee precisa ser **discovery-first** (onde existe spread, em qualquer chain), não chain-anchored (rankear BSC).
-4. **Detectar o retorno do regime de rewards** é a função primária — `reward_active_pools` subindo de 0 é o sinal de timing.
+1. **Passive supply > leveraged loops in the current market** (17.9% vs 7.3% on the best loop). The context's Strategy 1 (BSC ping-pong) currently **loses money** (−3.27% net APY).
+2. **Incentive programs (XVS/Merit) likely paused or migrated** (USD1 migrated from BSC to Ethereum Dolomite, $43M TVL).
+3. Codee needs to be **discovery-first** (where does spread exist, on any chain), not chain-anchored (ranking BSC).
+4. **Detecting the return of the reward regime** is the primary function — `reward_active_pools` rising from 0 is the timing signal.
 
-O framework do contexto (LAV buckets, matemática de loop, escada de risco) continua válido. Os **números** do contexto são ilustrativos, não correntes.
+The context's framework (LAV buckets, loop math, risk ladder) remains valid. The context's **numbers** are illustrative, not current.
 
 ---
 
-## 3. Escopo da Fase 1
+## 3. Phase 1 scope
 
-**Inclui:** ingestão DefiLlama (2 endpoints), validação de sanidade, persistência SQLite com history, agregados 7d/30d, ranking passive + loops, API REST, dashboard Streamlit, reward token prices + classificação LAV.
+**Includes:** DefiLlama ingestion (2 endpoints), sanity validation, SQLite persistence with history, 7d/30d aggregates, passive + loop ranking, REST API, Streamlit dashboard, reward token prices + LAV classification.
 
-**Fora (Fases futuras):**
-- Execução on-chain (Aave/Venus/Morpho contracts) — Fase 3
-- Binance API — Fase 3
-- Alertas Telegram/Slack — Fase 2 (health endpoint já expõe os dados)
-- Sub-hour RPC polling — Fase 4
-- Backtesting — Fase 4
-- `liquidation_threshold`, `oracle_source`, `e_mode_enabled` (exigem integração on-chain) — Fase 2/3
+**Out of scope (future phases):**
+- On-chain execution (Aave/Venus/Morpho contracts) — Phase 3
+- Binance API — Phase 3
+- Telegram/Slack alerts — Phase 2 (health endpoint already exposes the data)
+- Sub-hour RPC polling — Phase 4
+- Backtesting — Phase 4
+- `liquidation_threshold`, `oracle_source`, `e_mode_enabled` (require on-chain integration) — Phase 2/3
 
 ---
 
 ## 4. Stack
 
-| Camada | Tecnologia | Razão |
+| Layer | Technology | Reason |
 |---|---|---|
-| Backend | Python 3.13 + FastAPI + APScheduler | Ecossistema DeFi/quant; APScheduler para cron in-process |
-| ORM/DB | SQLAlchemy + SQLite (aiosqlite) | Prototipagem rápida; abstração para migrar a QuestDB depois |
-| Dashboard | Streamlit (agora) → dash HTML existente (depois) | Streamlit consome a API; migração futura só troca o front |
-| Testes | pytest + pytest-asyncio + httpx | TDD na implementação |
+| Backend | Python 3.13 + FastAPI + APScheduler | DeFi/quant ecosystem; APScheduler for in-process cron |
+| ORM/DB | SQLAlchemy + SQLite (aiosqlite) | Fast prototyping; abstraction to migrate to QuestDB later |
+| Dashboard | Streamlit (now) → existing HTML dash (later) | Streamlit consumes the API; future migration only swaps the front-end |
+| Tests | pytest + pytest-asyncio + httpx | TDD during implementation |
 
-**Decisão arquitetural:** o dashboard **nunca** acessa o DB direto — só `/api/codee/*`. Garante que a migração Streamlit→HTML não reescreve lógica.
+**Architectural decision:** the dashboard **never** accesses the DB directly — only `/api/codee/*`. This guarantees the Streamlit→HTML migration does not rewrite logic.
 
 ---
 
-## 5. Arquitetura (3 camadas + orquestração)
+## 5. Architecture (3 layers + orchestration)
 
 ```
 INGESTION   →   STORAGE + DERIVATION   →   PRESENTATION
@@ -73,27 +73,27 @@ INGESTION   →   STORAGE + DERIVATION   →   PRESENTATION
 ```
 
 - **Ingestion:** DefiLlama poller (60min), reward token prices (15min).
-- **Storage + derivation:** SQLite via SQLAlchemy; validação de sanidade; agregados 7d/30d.
-- **Presentation:** FastAPI `/api/codee/*` (JSON); Streamlit consome a API.
+- **Storage + derivation:** SQLite via SQLAlchemy; sanity validation; 7d/30d aggregates.
+- **Presentation:** FastAPI `/api/codee/*` (JSON); Streamlit consumes the API.
 
-**Orquestração:** `main.py` faz `asyncio.gather` de todos os loops (padrão Volume_tracker). FastAPI roda no mesmo event loop via uvicorn.Server. Streamlit roda em processo separado.
+**Orchestration:** `main.py` runs `asyncio.gather` over all loops (Volume_tracker pattern). FastAPI runs in the same event loop via uvicorn.Server. Streamlit runs in a separate process.
 
-### Estrutura de pastas
+### Folder structure
 
 ```
 AAVE_STRAT/
-├── main.py                          # asyncio.gather de todos os loops
+├── main.py                          # asyncio.gather over all loops
 ├── requirements.txt / pyproject.toml
 ├── .env.example
 ├── config/
-│   ├── config.py                    # Config class, lê .env
-│   ├── chains.json                  # gas_per_tx, excluded flag por chain
-│   ├── stable_symbols.json          # whitelist de stables
+│   ├── config.py                    # Config class, reads .env
+│   ├── chains.json                  # gas_per_tx, excluded flag per chain
+│   ├── stable_symbols.json          # stables whitelist
 │   ├── lav_buckets.json             # token symbol -> A/B/C
 │   └── projects.json                # project -> reward token, display name
 ├── db/
 │   ├── sqlite_client.py             # aiosqlite + SQLAlchemy async
-│   ├── models.py                    # tabelas declarative
+│   ├── models.py                    # declarative tables
 │   └── migrations/001_initial_schema.sql
 ├── sources/
 │   ├── defillama/client.py          # /pools + /lendBorrow + /chart
@@ -102,32 +102,32 @@ AAVE_STRAT/
 ├── services/
 │   ├── pools/
 │   │   ├── ingestor.py              # async run() 60min: fetch+JOIN+validate+persist
-│   │   ├── validators.py            # regras de sanidade -> quality_flag
+│   │   ├── validators.py            # sanity rules -> quality_flag
 │   │   ├── aggregator.py            # 7d/30d rolling
 │   │   └── snapshot.py              # upsert snapshot + insert history
 │   ├── rewards/
 │   │   ├── ingestor.py              # async run() 15min: prices
 │   │   └── lav.py                   # bucket_for_token(), discount()
 │   ├── routes/
-│   │   └── analyzer.py              # PURO: effective rates, loops, ranking
+│   │   └── analyzer.py              # PURE: effective rates, loops, ranking
 │   └── api/
 │       ├── router.py                # FastAPI endpoints
 │       └── models.py                # Pydantic response schemas
 ├── web/
 │   └── dashboard.py                 # Streamlit
 ├── scripts/
-│   ├── bootstrap_db.py              # schema + configs + dispara backfill
-│   └── backfill_history.py          # /chart/{uuid} para 90d
+│   ├── bootstrap_db.py              # schema + configs + triggers backfill
+│   └── backfill_history.py          # /chart/{uuid} for 90d
 └── tests/
-    ├── fixtures/                    # payloads DefiLlama capturados (offline)
+    ├── fixtures/                    # captured DefiLlama payloads (offline)
     ├── test_defillama_client.py
     ├── test_validators.py
     ├── test_pools_ingestor.py
-    ├── test_analyzer.py             # coração da suíte
+    ├── test_analyzer.py             # heart of the suite
     └── test_api.py
 ```
 
-### Direção de dependências (sem ciclos)
+### Dependency direction (no cycles)
 
 ```
 config → sources → services → api → web
@@ -135,79 +135,79 @@ config → sources → services → api → web
                db ←──────┘
 ```
 
-- `sources/`: só HTTP. Sem DB, sem config (injetada).
-- `services/pools` + `services/rewards`: usam `sources/`, escrevem em `db/`.
-- `services/routes/analyzer.py`: **100% puro** — lê do `db/`, sem I/O, sem state. Testável sem rede.
-- `services/api`: lê `db/` ou chama `analyzer`. Retorna JSON.
-- `web/dashboard.py`: só consome `/api/codee/*`.
+- `sources/`: HTTP only. No DB, no config (injected).
+- `services/pools` + `services/rewards`: use `sources/`, write to `db/`.
+- `services/routes/analyzer.py`: **100% pure** — reads from `db/`, no I/O, no state. Testable without network.
+- `services/api`: reads `db/` or calls `analyzer`. Returns JSON.
+- `web/dashboard.py`: only consumes `/api/codee/*`.
 
-Trocar SQLite→QuestDB mexe só em `db/`. Trocar Streamlit→HTML mexe só em `web/`.
+Swapping SQLite→QuestDB touches only `db/`. Swapping Streamlit→HTML touches only `web/`.
 
 ---
 
-## 6. Fluxo de dados
+## 6. Data flow
 
-### Pipeline de um snapshot
+### Snapshot pipeline
 
 ```
 [cron 60min] pools_ingestor.run()
-  → GET /pools + GET /lendBorrow  (paralelo via asyncio.gather)
-  → JOIN por pool UUID
-  → filtros (TVL>=$1M, stable, chain not excluded)
-  → VALIDATE (validators.py → quality_flag por pool)
+  → GET /pools + GET /lendBorrow  (parallel via asyncio.gather)
+  → JOIN by pool UUID
+  → filters (TVL>=$1M, stable, chain not excluded)
+  → VALIDATE (validators.py → quality_flag per pool)
   → snapshot.py: BEGIN; UPSERT pools_snapshot; INSERT pools_history; COMMIT
-  → aggregator.py (chained): recalcula rate_aggregates 7d/30d
+  → aggregator.py (chained): recompute rate_aggregates 7d/30d
 ```
 
-### Cadência
+### Cadence
 
-| Loop | Cadência | Offset | Razão |
+| Loop | Cadence | Offset | Reason |
 |---|---|---|---|
-| pools_ingestor | 60 min | T=0 | DefiLlama atualiza hourly — mais rápido = duplicata |
-| rewards_ingestor | 15 min | T=2,5 | CoinGecko move mais rápido; reward≈0 hoje torna 15min generoso |
-| aggregator | on-trigger | pós-ingest | 7d/30d rolling |
+| pools_ingestor | 60 min | T=0 | DefiLlama refreshes hourly — faster = duplicate |
+| rewards_ingestor | 15 min | T=2.5 | CoinGecko moves faster; reward≈0 today makes 15min generous |
+| aggregator | on-trigger | post-ingest | 7d/30d rolling |
 
-Configurável via `.env` (`SNAPSHOT_INTERVAL_MIN`). Apertar para 15/5 quando rewards/loops voltarem.
+Configurable via `.env` (`SNAPSHOT_INTERVAL_MIN`). Tighten to 15/5 when rewards/loops return.
 
-### Política: "fail open, never lie"
+### Policy: "fail open, never lie"
 
-Nunca servir dado sintético/estimado. Em falha, servir o último snapshot bom + timestamp. Se snapshot > 3h: dashboard mostra **banner vermelho**, health vira `degraded`.
+Never serve synthetic/estimated data. On failure, serve the last good snapshot + timestamp. If snapshot > 3h old: dashboard shows a **red banner**, health goes `degraded`.
 
 ### Error handling
 
-| Falha | Resposta |
+| Failure | Response |
 |---|---|
-| DefiLlama timeout/5xx | Pula tick, mantém último snapshot bom |
-| Schema drift | ValidationError clara, ingere o que conseguir, flag no health |
-| `/lendBorrow` falha, `/pools` ok | Persiste só supply, borrow fields NULL |
-| Pool some do feed | `status='inactive'` (não DELETE — preserva history) |
-| CoinGecko 429 | Backoff exponencial → fallback DexScreener |
-| LAV bucket desconhecido | Default bucket B (12,5%), flag `lav_uncertain=true` ("B?") |
-| Anomalia de dado (validators) | `quality_flag` setado, pool destacado no dashboard, não dropado |
+| DefiLlama timeout/5xx | Skip tick, keep last good snapshot |
+| Schema drift | Clear ValidationError, ingest what's parseable, flag in health |
+| `/lendBorrow` fails, `/pools` ok | Persist supply only, borrow fields NULL |
+| Pool disappears from feed | `status='inactive'` (no DELETE — preserves history) |
+| CoinGecko 429 | Exponential backoff → DexScreener fallback |
+| Unknown LAV bucket | Default bucket B (12.5%), flag `lav_uncertain=true` ("B?") |
+| Data anomaly (validators) | `quality_flag` set, pool highlighted in dashboard, not dropped |
 
 ---
 
 ## 7. Database schema
 
-**Decisão central: armazenar rates CRUS, computar efetivo on-read.** `pools_snapshot`/`pools_history` guardam `supply_apy_base`/`supply_apy_reward` separados. O `effective_*` (com LAV) é calculado em `analyzer.py` no request. Reclassificar um token recalcula todo o history de graça.
+**Central decision: store RAW rates, compute effective on-read.** `pools_snapshot`/`pools_history` store `supply_apy_base`/`supply_apy_reward` separately. The `effective_*` (with LAV) is computed in `analyzer.py` at request time. Reclassifying a token recomputes all history for free.
 
-DDL completo no Apêndice A.
+Full DDL in Appendix A.
 
-**Tabelas:**
-- `pools_snapshot` — estado atual, 1 linha/pool, UPSERT. Inclui `quality_flag`, `lav_uncertain`, `status`, e os campos do `/lendBorrow` (`total_supply_usd`, `debt_ceiling_usd`, `borrowable`, `borrow_factor`, `underlying_tokens`).
-- `pools_history` — append-only. PK `(pool_id, ts, source)` onde `source ∈ {'live','chart_daily'}` permite coexistir backfill diário + coletas live.
-- `reward_token_prices` — preço + classificação LAV, current + histórico.
-- `rate_aggregates` — médias rolling 7d/30d. **Exceção à regra do cru**: guarda efetivo (descartável, recomputado pós-ingest e em mudança de LAV config).
+**Tables:**
+- `pools_snapshot` — current state, 1 row/pool, UPSERT. Includes `quality_flag`, `lav_uncertain`, `status`, and the `/lendBorrow` fields (`total_supply_usd`, `debt_ceiling_usd`, `borrowable`, `borrow_factor`, `underlying_tokens`).
+- `pools_history` — append-only. PK `(pool_id, ts, source)` where `source ∈ {'live','chart_daily'}` lets daily backfill + live snapshots coexist.
+- `reward_token_prices` — price + LAV classification, current + historical.
+- `rate_aggregates` — 7d/30d rolling averages. **Exception to the raw rule**: stores effective (disposable, recomputed post-ingest and on LAV config change).
 
-**Princípio: capturar todo campo que a fonte dá no ingest, mesmo sem usar** — history não dá pra backfillar retroativamente.
+**Principle: capture every field the source gives at ingest, even if unused** — history cannot be backfilled retroactively.
 
-**Retenção:** sem purge na Fase 1 (disco barato, history longo é necessário pra detectar regime change). Purge entra na migração QuestDB.
+**Retention:** no purge in Phase 1 (disk is cheap, long history is needed to detect regime change). Purge comes with the QuestDB migration.
 
 ---
 
-## 8. Validação & testing
+## 8. Validation & testing
 
-### Pirâmide (peso invertido — math é onde bug custa dinheiro)
+### Pyramid (inverted weight — math is where bugs cost money)
 
 ```
 API tests (router)        ~15%
@@ -216,78 +216,78 @@ Contract (sources)        ~20%
 Unit: analyzer.py (math)  ~40%
 ```
 
-**Regra absoluta:** testes nunca tocam a rede. Payloads DefiLlama capturados uma vez em `tests/fixtures/`, suíte roda offline.
+**Absolute rule:** tests never touch the network. DefiLlama payloads captured once into `tests/fixtures/`, suite runs offline.
 
-### Cobertura por nível
+### Coverage by level
 
-- **Unit `analyzer.py`** (meta ≥95%): effective supply/borrow APY com LAV (buckets A/B/C); floor em 0 do borrow; **fórmula de alavancagem fixada em teste** (pin 5,46x para 0,855/10iter — resolve a discrepância 5,46 vs 6,60 do contexto); enumeração de loops 4-pernas; edge cases (spread negativo não crasha, pool sem borrow, reward 0).
-- **Contract `defillama/client.py`**: parse das fixtures; JOIN por UUID; schema drift.
-- **Integration `ingestor`/`aggregator`** (SQLite tmpfile): idempotência (2x ingest → 1 snapshot, 2 history); pool inativo não deletado; recompute pós-LAV-change.
-- **API `router.py`** (TestClient): cold start → 503 `warming_up`; param inválido → 422; staleness flag.
+- **Unit `analyzer.py`** (target ≥95%): effective supply/borrow APY with LAV (buckets A/B/C); borrow floor at 0; **leverage formula pinned by test** (pin 5.46x for 0.855/10iter — resolves the 5.46 vs 6.60 discrepancy in the context); 4-leg loop enumeration; edge cases (negative spread doesn't crash, pool without borrow, reward 0).
+- **Contract `defillama/client.py`**: parse fixtures; JOIN by UUID; schema drift.
+- **Integration `ingestor`/`aggregator`** (SQLite tmpfile): idempotency (2x ingest → 1 snapshot, 2 history rows); inactive pool not deleted; recompute post-LAV-change.
+- **API `router.py`** (TestClient): cold start → 503 `warming_up`; invalid param → 422; staleness flag.
 
-### Validações adicionais (decididas no brainstorm)
+### Additional validations (decided during brainstorm)
 
-**Obrigatórias na Fase 1:**
-1. **Camada de sanidade do dado** (`validators.py` + `quality_flag`): detecta supply APY absurdo (ex. >1000%), TVL crash (>X% queda inter-snapshot), utilization impossível (>100%), rates negativos inválidos. Sinaliza, **nunca dropa silenciosamente**. Pool com flag aparece destacado no dashboard.
-2. **Golden regression**: payload de 25-mai-2026 congelado como fixture; trava que o ranking produz os números conhecidos (17,9% passive, 7,3% loop). Pega regressão de math.
-3. **Join coverage assertion**: alerta se `join_rate` cair abaixo de ~50% do normal histórico (breakage silencioso do `/lendBorrow`).
+**Mandatory in Phase 1:**
+1. **Data sanity layer** (`validators.py` + `quality_flag`): detects absurd supply APY (e.g. >1000%), TVL crash (>X% inter-snapshot drop), impossible utilization (>100%), invalid negative rates. Flags, **never drops silently**. Flagged pool appears highlighted in the dashboard.
+2. **Golden regression**: 2026-05-25 payload frozen as fixture; locks that the ranking produces the known numbers (17.9% passive, 7.3% loop). Catches math regressions.
+3. **Join coverage assertion**: alerts if `join_rate` drops below ~50% of the historical norm (silent `/lendBorrow` breakage).
 
-**Recomendadas (Fase 1.5, documentadas):**
-4. Property-based testing (hypothesis): `net_apy ≤ gross_apy`, `effective_borrow_apr ≥ 0`, leverage monotônica.
-5. Cross-validação do agregado 7d contra `/chart`.
-6. Consistência UTC/timestamp (history monotônico, espaçado — guarda contra bugs de drift de meia-noite).
-7. Decimal vs float: float serve na Fase 1; math monetária vira Decimal na Fase 3.
+**Recommended (Phase 1.5, documented):**
+4. Property-based testing (hypothesis): `net_apy ≤ gross_apy`, `effective_borrow_apr ≥ 0`, leverage monotonic.
+5. Cross-validate the 7d aggregate against `/chart`.
+6. UTC/timestamp consistency (history monotonic, evenly spaced — guards against midnight-drift bugs).
+7. Decimal vs float: float is fine in Phase 1; money math becomes Decimal in Phase 3.
 
 ---
 
 ## 9. Deploy & observability
 
-### Dev (agora — Windows local)
+### Dev (now — local Windows)
 
 ```
 python -m venv .venv && .venv\Scripts\activate
 pip install -r requirements.txt
 copy .env.example .env
-python scripts\bootstrap_db.py      # schema + backfill 90d
+python scripts\bootstrap_db.py      # schema + 90d backfill
 python main.py                      # terminal 1: scheduler + API
 streamlit run web\dashboard.py      # terminal 2: dashboard
 ```
 
-Dois processos: reiniciar o dashboard (frequente ao iterar UI) não derruba a coleta. Conversam só via HTTP.
+Two processes: restarting the dashboard (frequent while iterating on UI) doesn't kill ingestion. They talk only over HTTP.
 
-### Produção (futuro — quando provado)
+### Production (future — once proven)
 
-Padrão Volume_tracker: servidor `199.247.3.163`, git bundle, systemd (`codee.service` + `codee-dashboard.service`). **Não é Fase 1** — local Windows enquanto validamos a tese.
+Volume_tracker pattern: server `199.247.3.163`, git bundle, systemd (`codee.service` + `codee-dashboard.service`). **Not Phase 1** — local Windows while we validate the thesis.
 
 ### Observability
 
-- **Logging:** módulo `logging` (não `print`), estilo legível (`[Pools] ingested 4123, 234 in-scope, join_rate 87%`), console + arquivo rotativo.
-- **Health endpoint** `GET /api/codee/health`: `status`, `last_snapshot_at`, `snapshot_age_s`, `stale`, `pool_count_total/in_scope`, `join_rate`, `lav_coverage_pct`, `quality_flags{}`, **`reward_active_pools`** (sinal de regime), `last_error`.
+- **Logging:** Python `logging` module (not `print`), readable style (`[Pools] ingested 4123, 234 in-scope, join_rate 87%`), console + rotating file.
+- **Health endpoint** `GET /api/codee/health`: `status`, `last_snapshot_at`, `snapshot_age_s`, `stale`, `pool_count_total/in_scope`, `join_rate`, `lav_coverage_pct`, `quality_flags{}`, **`reward_active_pools`** (regime signal), `last_error`.
 
-Sem APM/Prometheus na Fase 1 — health + logs bastam para 1 usuário local.
-
----
-
-## 10. Operação diária
-
-Dashboard com 4 abas + cards de regime no topo:
-- **Topo:** `reward_active_pools`, best passive, best loop, snapshot age, join_rate.
-- **Aba 1 — Passive supply:** ranking por net APY, qualquer chain.
-- **Aba 2 — Loops:** só spread positivo (hoje provavelmente vazio = sinal válido).
-- **Aba 3 — Reward health:** programas ativos, LAV coverage.
-- **Aba 4 — History:** evolução 7d/30d/90d por pool.
-
-Inputs ajustáveis: `principal` ($250k default), `hold_h` (7d default).
-
-**Pergunta primária que o Codee responde:** *"O regime mudou? Os rewards/spreads voltaram pra valer alavancar — ou ainda é passive / não fazer nada?"* Até `reward_active_pools` subir de 0 e a Aba 2 encher, o Codee impede rodar a Strategy 1 do contexto no autopiloto.
+No APM/Prometheus in Phase 1 — health + logs suffice for 1 local user.
 
 ---
 
-## 11. Estimativa de tamanho
+## 10. Daily operation
 
-~2.000 linhas de produção + ~400 de teste. Legível em uma tarde.
+Dashboard with 4 tabs + regime cards at the top:
+- **Top:** `reward_active_pools`, best passive, best loop, snapshot age, join_rate.
+- **Tab 1 — Passive supply:** ranking by net APY, any chain.
+- **Tab 2 — Loops:** positive spread only (today likely empty = valid signal).
+- **Tab 3 — Reward health:** active programs, LAV coverage.
+- **Tab 4 — History:** 7d/30d/90d evolution per pool.
 
-| Módulo | ~Linhas |
+Adjustable inputs: `principal` ($250k default), `hold_h` (7d default).
+
+**Primary question Codee answers:** *"Did the regime change? Did rewards/spreads return enough to make leverage worthwhile — or is it still passive / do nothing?"* Until `reward_active_pools` rises from 0 and Tab 2 fills, Codee prevents running the context's Strategy 1 on autopilot.
+
+---
+
+## 11. Size estimate
+
+~2,000 lines of production + ~400 of tests. Readable in an afternoon.
+
+| Module | ~Lines |
 |---|---|
 | sources/defillama/client.py | 80 |
 | services/pools/* (ingestor, validators, aggregator, snapshot) | 400 |
@@ -301,20 +301,20 @@ Inputs ajustáveis: `principal` ($250k default), `hold_h` (7d default).
 
 ---
 
-## 12. Perguntas em aberto (resolver durante implementação)
+## 12. Open questions (resolve during implementation)
 
-1. **Fórmula de alavancagem definitiva** — 5,46x (0,855/10iter, nosso cálculo) vs 6,60x (contexto). Travada em teste; confirmar com estrategista qual é a intenção (buffer reduz LTV por iteração, ou é reserva separada?).
-2. **Thresholds dos validators** — qual % de TVL crash dispara flag? Qual APY é "absurdo"? Calibrar com dados reais.
-3. **`join_rate` baseline** — qual o normal histórico para setar o alerta? Medir nas primeiras semanas.
-4. **LAV classification dos tokens novos** — ember, bitway, avantis aparecem como "B?". Classificar conforme investigarmos cada programa.
-5. **Resolução de reward token** — `rewardTokens` do DefiLlama são addresses; mapear address → symbol → preço CoinGecko exige tabela. Definir fonte da verdade.
+1. **Definitive leverage formula** — 5.46x (0.855/10iter, our calculation) vs 6.60x (context). Pinned in a test; confirm with strategist which is intended (does the buffer reduce per-iteration LTV, or is it a separate reserve?).
+2. **Validator thresholds** — what % TVL crash triggers a flag? What APY is "absurd"? Calibrate with real data.
+3. **`join_rate` baseline** — what is the historical norm for setting the alert? Measure in the first weeks.
+4. **LAV classification of new tokens** — ember, bitway, avantis show up as "B?". Classify as we investigate each program.
+5. **Reward token resolution** — DefiLlama's `rewardTokens` are addresses; mapping address → symbol → CoinGecko price requires a table. Define the source of truth.
 
 ---
 
-## Apêndice A — DDL completo
+## Appendix A — Full DDL
 
 ```sql
--- pools_snapshot — estado atual, 1 linha por pool, UPSERT
+-- pools_snapshot — current state, 1 row per pool, UPSERT
 CREATE TABLE pools_snapshot (
     pool_id           TEXT PRIMARY KEY,
     chain             TEXT NOT NULL,
@@ -378,7 +378,7 @@ CREATE TABLE reward_token_prices (
 );
 CREATE INDEX idx_prices_symbol_ts ON reward_token_prices(symbol, ts);
 
--- rate_aggregates — médias rolling (guarda efetivo, recomputável)
+-- rate_aggregates — rolling averages (stores effective, recomputable)
 CREATE TABLE rate_aggregates (
     pool_id                  TEXT NOT NULL,
     window                   TEXT NOT NULL,       -- '7d' | '30d'
@@ -392,20 +392,20 @@ CREATE TABLE rate_aggregates (
 );
 ```
 
-## Apêndice B — Endpoints da API
+## Appendix B — API endpoints
 
 ```
-GET /api/codee/health                                    -> status do sistema
-GET /api/codee/pools/snapshot                            -> pools atuais (paginado)
-GET /api/codee/pools/{pool_id}/history?d=30              -> time series por pool
-GET /api/codee/routes/passive?principal=&hold_h=         -> ranking passive supply
-GET /api/codee/routes/loops?principal=&hold_h=           -> ranking loops (spread positivo)
-GET /api/codee/rewards/coverage                          -> tokens classificados vs "B?"
-GET /api/codee/chains/summary                            -> spread médio por chain (7d/30d)
+GET /api/codee/health                                    -> system status
+GET /api/codee/pools/snapshot                            -> current pools (paginated)
+GET /api/codee/pools/{pool_id}/history?d=30              -> time series per pool
+GET /api/codee/routes/passive?principal=&hold_h=         -> passive supply ranking
+GET /api/codee/routes/loops?principal=&hold_h=           -> loop ranking (positive spread)
+GET /api/codee/rewards/coverage                          -> classified tokens vs "B?"
+GET /api/codee/chains/summary                            -> avg spread per chain (7d/30d)
 ```
 
-## Apêndice C — Referências
+## Appendix C — References
 
-- `codee_strategy_context.md` — documento de contexto/estratégia (framework válido, números desatualizados)
-- `demo_routes.py` — proof-of-concept do pipeline (fetch→JOIN→filter→rank), valida o design
+- `codee_strategy_context.md` — context/strategy document (framework valid, numbers stale)
+- `demo_routes.py` — pipeline proof-of-concept (fetch→JOIN→filter→rank), validates the design
 - DefiLlama API: `yields.llama.fi/pools` (supply), `yields.llama.fi/lendBorrow` (borrow), `yields.llama.fi/chart/{uuid}` (history)
