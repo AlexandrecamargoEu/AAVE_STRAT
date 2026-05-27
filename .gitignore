@@ -11,6 +11,7 @@ venv/
 # Data & logs
 data/
 logs/
+snapshots/
 *.db
 *.sqlite
 *.sqlite3
