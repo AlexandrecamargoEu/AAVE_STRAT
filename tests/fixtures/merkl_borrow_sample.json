@@ -1,0 +1,5175 @@
+[
+  {
+    "chainId": 9745,
+    "type": "MULTILOG_DUTCH",
+    "identifier": "0xF5F05bc52587C14C51a0E04e73c0d91a3ef1924d",
+    "name": "Borrow USDT0 from Aave on Plasma",
+    "description": "Earn rewards by borrowing USDT0 on Aave",
+    "howToSteps": [
+      "Borrow assets on Aave.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 680880271.3514044,
+    "apr": 0.5667211806282468,
+    "maxApr": 0,
+    "dailyRewards": 10571.760856075314,
+    "maxDailyRewards": 10571.760856075314,
+    "tags": [
+      "aave"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779883200",
+    "latestCampaignStart": "1779883200",
+    "earliestCampaignEnd": "1782302400",
+    "latestCampaignEnd": "1782302400",
+    "id": "7910560457128142012",
+    "depositUrl": "https://app.aave.com/reserve-overview/?underlyingAsset=0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb&marketName=proto_plasma_v3",
+    "explorerAddress": "0xCBBC427b5658672768E11BFDa00879839DB4785F",
+    "lastCampaignCreatedAt": 1779791587,
+    "tokens": [
+      {
+        "id": "5737761031982269701",
+        "name": "USDT0",
+        "chainId": 9745,
+        "address": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+        "decimals": 6,
+        "symbol": "USDT0",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDT0.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9983632550263692,
+        "updatedAt": 1779969929,
+        "priceSource": "Price Source 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+        "displaySymbol": "USDT0"
+      },
+      {
+        "id": "8783025235520225863",
+        "name": "Aave Plasma Variable Debt USDT0",
+        "chainId": 9745,
+        "address": "0xCBBC427b5658672768E11BFDa00879839DB4785F",
+        "decimals": 6,
+        "symbol": "variableDebtPlaUSDT0",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9983632550263692,
+        "updatedAt": 1779969920,
+        "priceSource": "Price Source 0xCBBC427b5658672768E11BFDa00879839DB4785F"
+      }
+    ],
+    "chain": {
+      "id": 9745,
+      "name": "Plasma",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/9745.svg",
+      "liveCampaigns": 21,
+      "endOfDisputePeriod": 1779958800,
+      "explorers": [
+        {
+          "id": "14261454752756197884",
+          "type": "ETHERSCAN",
+          "url": "https://plasmascan.to/",
+          "chainId": 9745
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957783"
+    },
+    "protocol": {
+      "id": "aave",
+      "tags": [
+        "LENDING",
+        "zksync",
+        "drip",
+        "plasma"
+      ],
+      "name": "Aave",
+      "description": "A decentralized liquidity protocol where users can deposit and borrow",
+      "url": "https://app.aave.com/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/aave.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 0.5667211806282468,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x572684a7fbc5446500f4af81ef772a2d1bd78d4ceda892837ed54dcecfd2aad1",
+          "type": "CAMPAIGN",
+          "value": 0.5667211806282468,
+          "timestamp": "1779970062"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "15781852932941582772",
+      "total": 680880271.3514044,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "identifier": "8783025235520225863",
+          "type": "TOKEN",
+          "value": 681996525.736938
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "15781852932941582772",
+      "total": 10571.760856075314,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "6934973107080008747",
+            "name": "USDT0 (wrapped)",
+            "chainId": 9745,
+            "address": "0x9421F7A094c299AF6d4451E68bA7bEC09a8a062D",
+            "decimals": 6,
+            "symbol": "USDT0",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDT0.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.9983632550263692,
+            "updatedAt": 1779969927,
+            "priceSource": "Price Source USDT0",
+            "underlyingTokenId": "12173189759084764841"
+          },
+          "amount": "10589092500",
+          "maxAmount": "10589092500",
+          "value": 10571.760856075314,
+          "maxValue": 10571.760856075314,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x572684a7fbc5446500f4af81ef772a2d1bd78d4ceda892837ed54dcecfd2aad1",
+          "id": "baf7dc58-ba76-460b-84aa-3edbad8279c2",
+          "timestamp": "1779970062",
+          "campaignId": "1935269720976368652",
+          "dailyRewardsRecordId": "15781852932941582772"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 5000,
+    "type": "AAVE_NET_BORROWING",
+    "identifier": "cc208bab7cc13ac7",
+    "name": "Borrow USDT0 on Aave ",
+    "description": "Earn rewards on your net borrowing position (USDT0 borrow minus USDT0, USDC, GHO supplies) on Aave on Mantle",
+    "howToSteps": [
+      "Borrow assets on Aave.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 169228605.32462078,
+    "apr": 1.44516360699671,
+    "maxApr": 0,
+    "dailyRewards": 6700.356758300044,
+    "maxDailyRewards": 6700.356758300044,
+    "tags": [
+      "aave"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779800400",
+    "latestCampaignStart": "1779800400",
+    "earliestCampaignEnd": "1780405200",
+    "latestCampaignEnd": "1780405200",
+    "id": "4341909333316137857",
+    "depositUrl": "https://app.aave.com/reserve-overview/?underlyingAsset=0x779ded0c9e1022225f8e0630b35a9b54be713736&marketName=proto_mantle_v3",
+    "explorerAddress": "0x5d9e4663d3d532179c404dBe9edF93045F89aDed",
+    "lastCampaignCreatedAt": 1779729823,
+    "tokens": [
+      {
+        "id": "17574997434712719350",
+        "name": "Aave Mantle Variable Debt USDT0",
+        "chainId": 5000,
+        "address": "0x5d9e4663d3d532179c404dBe9edF93045F89aDed",
+        "decimals": 6,
+        "symbol": "variableDebtManUSDT0",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9983632550263692,
+        "updatedAt": 1779969922,
+        "priceSource": "Price Source 0x5d9e4663d3d532179c404dBe9edF93045F89aDed",
+        "displaySymbol": "variableDebtManUSDT0"
+      },
+      {
+        "id": "9316855615353709261",
+        "name": "USDT0",
+        "chainId": 5000,
+        "address": "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
+        "decimals": 6,
+        "symbol": "USDT0",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USD%E2%82%AE.svg",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9983632550263692,
+        "updatedAt": 1779969927,
+        "priceSource": "Price Source USDT0",
+        "displaySymbol": "USDT0"
+      }
+    ],
+    "chain": {
+      "id": 5000,
+      "name": "Mantle",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/5000.svg",
+      "liveCampaigns": 7,
+      "endOfDisputePeriod": 1779973200,
+      "explorers": [
+        {
+          "id": "6445283198993473688",
+          "type": "ETHERSCAN",
+          "url": "https://mantlescan.xyz",
+          "chainId": 5000
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779969774"
+    },
+    "protocol": {
+      "id": "aave",
+      "tags": [
+        "LENDING",
+        "zksync",
+        "drip",
+        "plasma"
+      ],
+      "name": "Aave",
+      "description": "A decentralized liquidity protocol where users can deposit and borrow",
+      "url": "https://app.aave.com/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/aave.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 1.44516360699671,
+      "timestamp": "1779970059",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0xc2e290c3db2aee0d12877e8ff002ff4efae97b6d0cb9e7a95729551480048d09",
+          "type": "CAMPAIGN",
+          "value": 1.44516360699671,
+          "timestamp": "1779970059"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "9662568210306747154",
+      "total": 169228605.32462078,
+      "timestamp": "1779970059",
+      "breakdowns": []
+    },
+    "rewardsRecord": {
+      "id": "9662568210306747154",
+      "total": 6700.356758300044,
+      "timestamp": "1779970059",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "17115508559959935643",
+            "name": "Aave Mantle WMNT",
+            "chainId": 5000,
+            "address": "0x85d86061e94CE01D3DA0f9EFa289c86ff136125a",
+            "decimals": 18,
+            "symbol": "aManWMNT",
+            "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/tokens/MNT.svg",
+            "verified": false,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.6216165919282136,
+            "updatedAt": 1779969927,
+            "priceSource": "Price Source 0x85d86061e94CE01D3DA0f9EFa289c86ff136125a",
+            "displaySymbol": "aManWMNT"
+          },
+          "amount": "10778922000000000983040",
+          "maxAmount": "10778922000000000983040",
+          "value": 6700.356758300044,
+          "maxValue": 6700.356758300044,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0xc2e290c3db2aee0d12877e8ff002ff4efae97b6d0cb9e7a95729551480048d09",
+          "id": "205a0178-4eca-4eac-908b-083e790c2850",
+          "timestamp": "1779970059",
+          "campaignId": "11234240541806761589",
+          "dailyRewardsRecordId": "9662568210306747154"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MORPHOBORROW",
+    "identifier": "0xb8feF900B383DB2DBBF4458C7F46aCF5B140f26D",
+    "name": "Borrow USDC on OETH/USDC 86%",
+    "description": "Earn rewards by borrowing USDC using OETH on Morpho on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 7743091.625494,
+    "apr": 4.895948296642831,
+    "maxApr": 0,
+    "dailyRewards": 1038.6240069749786,
+    "maxDailyRewards": 1038.6240069749786,
+    "tags": [
+      "origin"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779926400",
+    "latestCampaignStart": "1779926400",
+    "earliestCampaignEnd": "1780531200",
+    "latestCampaignEnd": "1780531200",
+    "id": "13910696446007033969",
+    "depositUrl": "https://app.morpho.org/ethereum/market/0xb8fef900b383db2dbbf4458c7f46acf5b140f26d603a6d1829963f241b82510e",
+    "explorerAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "lastCampaignCreatedAt": 1779889013,
+    "tokens": [
+      {
+        "id": "3460729690457214808",
+        "name": "USD Coin",
+        "chainId": 1,
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 4.895948296642831,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x373fd0b966759e9119abc9fd8b4ddceb085ac6348477983a9ec267090dd62882",
+          "type": "CAMPAIGN",
+          "value": 4.895948296642831,
+          "timestamp": "1779968771"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "16741315169751882364",
+      "total": 7743091.625494,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "identifier": "14327985150330370927",
+          "type": "TOKEN",
+          "value": 7743091.625494
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "16741315169751882364",
+      "total": 1038.6240069749786,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "14327985150330370927",
+            "name": "Origin Ether",
+            "chainId": 1,
+            "address": "0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3",
+            "decimals": 18,
+            "symbol": "OETH",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/OETH.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 1998.54755721973,
+            "updatedAt": 1779969885,
+            "priceSource": "Price Source OETH",
+            "displaySymbol": "OETH"
+          },
+          "amount": "522991912097997312",
+          "maxAmount": "522991912097997312",
+          "value": 1045.2242083691283,
+          "maxValue": 1045.2242083691283,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x373fd0b966759e9119abc9fd8b4ddceb085ac6348477983a9ec267090dd62882",
+          "id": "6566f724-529b-475f-859a-f0fbb714f91e",
+          "timestamp": "1779968771",
+          "campaignId": "12882145716056737146",
+          "dailyRewardsRecordId": "16741315169751882364"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 25363,
+    "type": "AAVE_NET_BORROWING",
+    "identifier": "c804dd52d12e3599",
+    "name": "Borrow USDnr on Vena",
+    "description": "Earn rewards on your net borrowing position (USDnr borrow minus USDnr, USDC supplies) on Vena on Fluent",
+    "howToSteps": [
+      "Borrow assets on Vena.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 8498094.713073,
+    "apr": 4.187373724861024,
+    "maxApr": 0,
+    "dailyRewards": 974.923246928829,
+    "maxDailyRewards": 974.923246928829,
+    "tags": [],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779541200",
+    "latestCampaignStart": "1779541200",
+    "earliestCampaignEnd": "1780146000",
+    "latestCampaignEnd": "1780146000",
+    "id": "5015373294714735094",
+    "depositUrl": "https://app.vena.finance/",
+    "explorerAddress": "0x90cd2575Ef68c29c127fE2Fe29ce840e2C689672",
+    "lastCampaignCreatedAt": 1779529354,
+    "tokens": [
+      {
+        "id": "14096790744258237545",
+        "name": "Nerona USD",
+        "chainId": 25363,
+        "address": "0xD48e565561416dE59DA1050ED70b8d75e8eF28f9",
+        "decimals": 6,
+        "symbol": "USDnr",
+        "icon": "https://app.vena.finance/images/logos/usdnr.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969923,
+        "priceSource": "Price Source 0xD48e565561416dE59DA1050ED70b8d75e8eF28f9",
+        "displaySymbol": "USDnr"
+      },
+      {
+        "id": "17273815811952072240",
+        "name": "Vena Fluent Variable Debt USDnr",
+        "chainId": 25363,
+        "address": "0x90cd2575Ef68c29c127fE2Fe29ce840e2C689672",
+        "decimals": 6,
+        "symbol": "variableDebtUSDnr",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969925,
+        "priceSource": "Price Source 0x90cd2575Ef68c29c127fE2Fe29ce840e2C689672",
+        "displaySymbol": "variableDebtUSDnr"
+      }
+    ],
+    "chain": {
+      "id": 25363,
+      "name": "Fluent",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/chains/fluent.svg",
+      "liveCampaigns": 8,
+      "endOfDisputePeriod": 1779969600,
+      "explorers": [
+        {
+          "id": "17981111552432237675",
+          "type": "BLOCKSCOUT",
+          "url": "https://fluentscan.xyz/",
+          "chainId": 25363
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957080"
+    },
+    "protocol": {
+      "id": "vena",
+      "tags": [],
+      "name": "Vena Finance",
+      "description": "Grow your wealth, effortlessly.",
+      "url": "https://app.vena.finance/",
+      "icon": "https://pbs.twimg.com/profile_images/1991071278502141952/5ai2D9um_400x400.jpg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 4.187373724861024,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x1b53ecd503cb04f262987e5a25bd31caece4534a9dc5f05a727b088799d565eb",
+          "type": "CAMPAIGN",
+          "value": 4.187373724861024,
+          "timestamp": "1779970062"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "10261369498969031476",
+      "total": 8498094.713073,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "identifier": "17273815811952072240",
+          "type": "TOKEN",
+          "value": 8498094.713073
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "10261369498969031476",
+      "total": 974.923246928829,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "13707651592283978730",
+            "name": "Fluent",
+            "chainId": 25363,
+            "address": "0x1385B8f55A84f2BdA13EeD4099d29Eae03d553b2",
+            "decimals": 18,
+            "symbol": "BLEND",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/blend.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.09380704781445777,
+            "updatedAt": 1779969884,
+            "priceSource": "Price Source 0x1385B8f55A84f2BdA13EeD4099d29Eae03d553b2",
+            "displaySymbol": "BLEND"
+          },
+          "amount": "10392857142857142632448",
+          "maxAmount": "10392857142857142632448",
+          "value": 974.923246928829,
+          "maxValue": 974.923246928829,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x1b53ecd503cb04f262987e5a25bd31caece4534a9dc5f05a727b088799d565eb",
+          "id": "1a863190-3d8b-408f-a70f-0b5d25b5cad4",
+          "timestamp": "1779970062",
+          "campaignId": "3328888001800918141",
+          "dailyRewardsRecordId": "10261369498969031476"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MORPHOBORROW",
+    "identifier": "0x5D41b8d23CCF6D9e9F7E2b1B357d92BBa6ef0367",
+    "name": "Borrow USDC on USP/USDC 86%",
+    "description": "Earn rewards by borrowing USDC using USP on Morpho on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 3623908.752016,
+    "apr": 8.272687909565517,
+    "maxApr": 0,
+    "dailyRewards": 821.3552361142856,
+    "maxDailyRewards": 0,
+    "tags": [
+      "piku"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779958800",
+    "latestCampaignStart": "1779958800",
+    "earliestCampaignEnd": "1780563600",
+    "latestCampaignEnd": "1780563600",
+    "id": "369155695429550021",
+    "depositUrl": "https://app.morpho.org/ethereum/market/0x5d41b8d23ccf6d9e9f7e2b1b357d92bba6ef0367d6ef8ceda965f73e52108461",
+    "explorerAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "lastCampaignCreatedAt": 1779866201,
+    "tokens": [
+      {
+        "id": "3460729690457214808",
+        "name": "USD Coin",
+        "chainId": 1,
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 8.272687909565517,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x177d0056d68b5e158a027caa41e218ae43c225fc2f0619ea6fd9bd6e46576c0d",
+          "type": "CAMPAIGN",
+          "value": 8.272687909565517,
+          "timestamp": "1779968771"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "4725101322594567446",
+      "total": 3623908.752016,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "identifier": "2647967955615215254",
+          "type": "TOKEN",
+          "value": 3623908.752016
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "4725101322594567446",
+      "total": 821.3552361142856,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "2647967955615215254",
+            "name": "Piku Utility Token",
+            "chainId": 1,
+            "address": "0x2E4039E8E31475d65DC00293C366FDBfBBC02DC3",
+            "decimals": 18,
+            "symbol": "PIKU",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/PIKU.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "PRETGE",
+            "price": 0.16,
+            "updatedAt": 1779969880,
+            "priceSource": "Price Source 0x2E4039E8E31475d65DC00293C366FDBfBBC02DC3",
+            "displaySymbol": "PIKU"
+          },
+          "amount": "5133470225714285379584",
+          "maxAmount": "5133470225714285379584",
+          "value": 821.3552361142856,
+          "maxValue": 821.3552361142856,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x177d0056d68b5e158a027caa41e218ae43c225fc2f0619ea6fd9bd6e46576c0d",
+          "id": "e75a06c6-c802-41d5-9d4b-0c192097b1c7",
+          "timestamp": "1779968771",
+          "campaignId": "2476114131235350231",
+          "dailyRewardsRecordId": "4725101322594567446"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 5000,
+    "type": "AAVE_NET_BORROWING",
+    "identifier": "4cda8b329b3de14c",
+    "name": "Borrow USDC on Aave ",
+    "description": "Earn rewards on your net borrowing position (USDC borrow minus USDC, USDT0, GHO supplies) on Aave on Mantle",
+    "howToSteps": [
+      "Borrow assets on Aave.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 11825000.7123462,
+    "apr": 1.342977990419299,
+    "maxApr": 0,
+    "dailyRewards": 435.0881011883145,
+    "maxDailyRewards": 435.0881011883145,
+    "tags": [
+      "aave"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779800400",
+    "latestCampaignStart": "1779800400",
+    "earliestCampaignEnd": "1780405200",
+    "latestCampaignEnd": "1780405200",
+    "id": "932631633629465206",
+    "depositUrl": "https://app.aave.com/reserve-overview/?underlyingAsset=0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9&marketName=proto_mantle_v3",
+    "explorerAddress": "0xCea474BDa7Ad0a8F62e938a5563edfAEf7368Fc0",
+    "lastCampaignCreatedAt": 1779729823,
+    "tokens": [
+      {
+        "id": "11740723040402410987",
+        "name": "USD Coin",
+        "chainId": 5000,
+        "address": "0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      },
+      {
+        "id": "17768116779184294324",
+        "name": "Aave Mantle Variable Debt USDC",
+        "chainId": 5000,
+        "address": "0xCea474BDa7Ad0a8F62e938a5563edfAEf7368Fc0",
+        "decimals": 6,
+        "symbol": "variableDebtManUSDC",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969931,
+        "priceSource": "Price Source 0xCea474BDa7Ad0a8F62e938a5563edfAEf7368Fc0",
+        "displaySymbol": "variableDebtManUSDC"
+      }
+    ],
+    "chain": {
+      "id": 5000,
+      "name": "Mantle",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/5000.svg",
+      "liveCampaigns": 7,
+      "endOfDisputePeriod": 1779973200,
+      "explorers": [
+        {
+          "id": "6445283198993473688",
+          "type": "ETHERSCAN",
+          "url": "https://mantlescan.xyz",
+          "chainId": 5000
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779969774"
+    },
+    "protocol": {
+      "id": "aave",
+      "tags": [
+        "LENDING",
+        "zksync",
+        "drip",
+        "plasma"
+      ],
+      "name": "Aave",
+      "description": "A decentralized liquidity protocol where users can deposit and borrow",
+      "url": "https://app.aave.com/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/aave.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 1.342977990419299,
+      "timestamp": "1779970059",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0xf3f66302f2f6c075bd03b5f562964b7954dc8aad15635e5d5af5ca1ea49e4178",
+          "type": "CAMPAIGN",
+          "value": 1.342977990419299,
+          "timestamp": "1779970059"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "11172458950176599350",
+      "total": 11825000.7123462,
+      "timestamp": "1779970059",
+      "breakdowns": []
+    },
+    "rewardsRecord": {
+      "id": "11172458950176599350",
+      "total": 435.0881011883145,
+      "timestamp": "1779970059",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "17115508559959935643",
+            "name": "Aave Mantle WMNT",
+            "chainId": 5000,
+            "address": "0x85d86061e94CE01D3DA0f9EFa289c86ff136125a",
+            "decimals": 18,
+            "symbol": "aManWMNT",
+            "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/tokens/MNT.svg",
+            "verified": false,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.6216165919282136,
+            "updatedAt": 1779969927,
+            "priceSource": "Price Source 0x85d86061e94CE01D3DA0f9EFa289c86ff136125a",
+            "displaySymbol": "aManWMNT"
+          },
+          "amount": "699929999999999934464",
+          "maxAmount": "699929999999999934464",
+          "value": 435.0881011883145,
+          "maxValue": 435.0881011883145,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0xf3f66302f2f6c075bd03b5f562964b7954dc8aad15635e5d5af5ca1ea49e4178",
+          "id": "fbe7a667-424e-4e08-8556-310221cac583",
+          "timestamp": "1779970059",
+          "campaignId": "12663420407639655486",
+          "dailyRewardsRecordId": "11172458950176599350"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 143,
+    "type": "MORPHOBORROW_SINGLETOKEN",
+    "identifier": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+    "name": "Borrow USDC on any Morpho Market",
+    "description": "Earn rewards by borrowing USDC on any whitelisted Morpho Market on Monad",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 24313110.02595,
+    "apr": 0.5615712862355614,
+    "maxApr": 0.01,
+    "dailyRewards": 374.0697114975196,
+    "maxDailyRewards": 666.1126034506849,
+    "tags": [],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1778335200",
+    "latestCampaignStart": "1778335200",
+    "earliestCampaignEnd": "1781013600",
+    "latestCampaignEnd": "1781013600",
+    "id": "3545551354584895661",
+    "depositUrl": "https://app.morpho.org/monad/borrow",
+    "explorerAddress": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+    "lastCampaignCreatedAt": 1778068459,
+    "tokens": [
+      {
+        "id": "5317111484270765404",
+        "name": "USDC",
+        "chainId": 143,
+        "address": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC"
+      }
+    ],
+    "chain": {
+      "id": 143,
+      "name": "Monad",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/143.svg",
+      "liveCampaigns": 114,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "17242099373593364020",
+          "type": "ETHERSCAN",
+          "url": "https://monadscan.com",
+          "chainId": 143
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957436"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 0.5615712862355614,
+      "timestamp": "1779970065",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x1968ba037ec15820793a8a9b50d34b08540f7ceaf79938a9d145b54e214bce05",
+          "type": "CAMPAIGN",
+          "value": 0.5615712862355614,
+          "timestamp": "1779970065"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "5796948291372940104",
+      "total": 24313110.02595,
+      "timestamp": "1779970065",
+      "breakdowns": [
+        {
+          "identifier": "5317111484270765404",
+          "type": "TOKEN",
+          "value": 24313110.02595
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "5796948291372940104",
+      "total": 374.0697114975196,
+      "timestamp": "1779970065",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "14929705797398579126",
+            "name": "Wrapped MON",
+            "chainId": 143,
+            "address": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+            "decimals": 18,
+            "symbol": "WMON",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WMON.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.023192322112846216,
+            "updatedAt": 1779969885,
+            "priceSource": "Price Source WMON"
+          },
+          "amount": "16129032258064517955584",
+          "maxAmount": "28721255258943018500096",
+          "value": 374.0697114975196,
+          "maxValue": 666.1126034506849,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x1968ba037ec15820793a8a9b50d34b08540f7ceaf79938a9d145b54e214bce05",
+          "id": "5add0588-5613-4463-893f-1319a1b06672",
+          "timestamp": "1779970065",
+          "campaignId": "1316048950241427815",
+          "dailyRewardsRecordId": "5796948291372940104"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 5000,
+    "type": "AAVE_NET_BORROWING",
+    "identifier": "1cc2f5968ed3d450",
+    "name": "Borrow GHO on Aave",
+    "description": "Earn rewards on your net borrowing position (GHO borrow minus GHO, USDe, USDT0, USDC supplies) on Aave on Mantle",
+    "howToSteps": [
+      "Borrow assets on Aave.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 4741781.484230227,
+    "apr": 2.712858695335328,
+    "maxApr": 0,
+    "dailyRewards": 352.432414544494,
+    "maxDailyRewards": 352.432414544494,
+    "tags": [
+      "aave"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779800400",
+    "latestCampaignStart": "1779800400",
+    "earliestCampaignEnd": "1780405200",
+    "latestCampaignEnd": "1780405200",
+    "id": "2259454563284400128",
+    "depositUrl": "https://app.aave.com/reserve-overview/?underlyingAsset=0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73&marketName=proto_mantle_v3",
+    "explorerAddress": "0xeE1eABe23fA42028809F587B8fE1936b154d2620",
+    "lastCampaignCreatedAt": 1779735265,
+    "tokens": [
+      {
+        "id": "12743766138457648775",
+        "name": "Gho Token",
+        "chainId": 5000,
+        "address": "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
+        "decimals": 18,
+        "symbol": "GHO",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/GHO.png",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.998477672787807,
+        "updatedAt": 1779969884,
+        "priceSource": "Price Source GHO",
+        "displaySymbol": "GHO"
+      },
+      {
+        "id": "14654958782300203898",
+        "name": "Aave Mantle Variable Debt GHO",
+        "chainId": 5000,
+        "address": "0xeE1eABe23fA42028809F587B8fE1936b154d2620",
+        "decimals": 18,
+        "symbol": "variableDebtManGHO",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.998477672787807,
+        "updatedAt": 1779969923,
+        "priceSource": "Price Source 0xeE1eABe23fA42028809F587B8fE1936b154d2620",
+        "displaySymbol": "variableDebtManGHO"
+      }
+    ],
+    "chain": {
+      "id": 5000,
+      "name": "Mantle",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/5000.svg",
+      "liveCampaigns": 7,
+      "endOfDisputePeriod": 1779973200,
+      "explorers": [
+        {
+          "id": "6445283198993473688",
+          "type": "ETHERSCAN",
+          "url": "https://mantlescan.xyz",
+          "chainId": 5000
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779969774"
+    },
+    "protocol": {
+      "id": "aave",
+      "tags": [
+        "LENDING",
+        "zksync",
+        "drip",
+        "plasma"
+      ],
+      "name": "Aave",
+      "description": "A decentralized liquidity protocol where users can deposit and borrow",
+      "url": "https://app.aave.com/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/aave.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 2.712858695335328,
+      "timestamp": "1779970059",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0xbe21019efd6193b8d500f9a4db85924d115ce86de1e9d7efc3aa35114aea2884",
+          "type": "CAMPAIGN",
+          "value": 2.712858695335328,
+          "timestamp": "1779970059"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "18222190115121952238",
+      "total": 4741781.484230227,
+      "timestamp": "1779970059",
+      "breakdowns": []
+    },
+    "rewardsRecord": {
+      "id": "18222190115121952238",
+      "total": 352.432414544494,
+      "timestamp": "1779970059",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "9493344228382271616",
+            "name": "Aave Mantle GHO (wrapped)",
+            "chainId": 5000,
+            "address": "0x1a23b27aC7775B6220dC4F816b5c6A629E371f19",
+            "decimals": 18,
+            "symbol": "aManGHO",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/GHO.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.998477672787807,
+            "updatedAt": 1779969926,
+            "priceSource": "Price Source aManGHO",
+            "displaySymbol": "aManGHO",
+            "underlyingTokenId": "996187298905150514"
+          },
+          "amount": "352969749999999975424",
+          "maxAmount": "352969749999999975424",
+          "value": 352.432414544494,
+          "maxValue": 352.432414544494,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0xbe21019efd6193b8d500f9a4db85924d115ce86de1e9d7efc3aa35114aea2884",
+          "id": "409dcd33-afd5-417b-8c49-15162e113943",
+          "timestamp": "1779970059",
+          "campaignId": "8733229628203210096",
+          "dailyRewardsRecordId": "18222190115121952238"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 480,
+    "type": "MORPHOBORROW",
+    "identifier": "0x5faDb14df6523Eb13A939f8024dbc54b10Bdb4E5",
+    "name": "Borrow USDC on WETH/USDC 86%",
+    "description": "Earn rewards by borrowing USDC using WETH on Morpho on World Chain",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 1954061.440769,
+    "apr": 6.13242655400144,
+    "maxApr": 0,
+    "dailyRewards": 328.3051580143049,
+    "maxDailyRewards": 328.3051580143049,
+    "tags": [
+      "worldchain-morpho"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1777600800",
+    "latestCampaignStart": "1780279200",
+    "earliestCampaignEnd": "1780279200",
+    "latestCampaignEnd": "1782871200",
+    "id": "9376339900276996061",
+    "depositUrl": "https://lite.morpho.org/world-chain/borrow",
+    "explorerAddress": "0x79A02482A880bCE3F13e09Da970dC34db4CD24d1",
+    "lastCampaignCreatedAt": 1779905537,
+    "tokens": [
+      {
+        "id": "1136378374546850912",
+        "name": "USDC",
+        "chainId": 480,
+        "address": "0x79A02482A880bCE3F13e09Da970dC34db4CD24d1",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 480,
+      "name": "World Chain",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/480.svg",
+      "liveCampaigns": 10,
+      "endOfDisputePeriod": 1779969600,
+      "explorers": [
+        {
+          "id": "12435734118047847473",
+          "type": "ETHERSCAN",
+          "url": "https://worldscan.org",
+          "chainId": 480
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779969925"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 6.13242655400144,
+      "timestamp": "1779970099",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0xf65d7f1ebe3867d71836d38c8eb1849f1a98867e0da3eaace5a144d86059a3ad",
+          "type": "CAMPAIGN",
+          "value": 6.13242655400144,
+          "timestamp": "1779970099"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "12610172233933650561",
+      "total": 1954061.440769,
+      "timestamp": "1779970099",
+      "breakdowns": [
+        {
+          "identifier": "561490226342513562",
+          "type": "TOKEN",
+          "value": 1954061.440769
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "12610172233933650561",
+      "total": 328.3051580143049,
+      "timestamp": "1779970099",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "561490226342513562",
+            "name": "Worldcoin",
+            "chainId": 480,
+            "address": "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
+            "decimals": 18,
+            "symbol": "WLD",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WLD.jpeg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.29208065557315765,
+            "updatedAt": 1779969883,
+            "priceSource": "Price Source WLD",
+            "displaySymbol": "WLD"
+          },
+          "amount": "1124022258064516055040",
+          "maxAmount": "1124022258064516055040",
+          "value": 328.3051580143049,
+          "maxValue": 328.3051580143049,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0xf65d7f1ebe3867d71836d38c8eb1849f1a98867e0da3eaace5a144d86059a3ad",
+          "id": "f7c888e1-51b2-43d8-bf4d-1e18daafc36c",
+          "timestamp": "1779970099",
+          "campaignId": "579803807317424404",
+          "dailyRewardsRecordId": "12610172233933650561"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 9745,
+    "type": "AAVE_NET_BORROWING",
+    "identifier": "9b48dbe7c86766ae",
+    "name": "Borrow GHO on Aave",
+    "description": "Earn rewards on your net borrowing position (GHO borrow minus GHO, USDT0, USDe supplies) on Aave on Plasma",
+    "howToSteps": [
+      "Borrow assets on Aave.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 16753977.56121754,
+    "apr": 0.6142437798485005,
+    "maxApr": 0,
+    "dailyRewards": 281.94593163559523,
+    "maxDailyRewards": 281.94593163559523,
+    "tags": [
+      "aave"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1778241600",
+    "latestCampaignStart": "1778241600",
+    "earliestCampaignEnd": "1780660800",
+    "latestCampaignEnd": "1780660800",
+    "id": "8336240491792490038",
+    "depositUrl": "https://app.aave.com/reserve-overview/?underlyingAsset=0xb77E872A68C62CfC0dFb02C067Ecc3DA23B4bbf3&marketName=proto_plasma_v3",
+    "explorerAddress": "0xB8A2C006202071171582C53B95942d645eD10891",
+    "lastCampaignCreatedAt": 1778245759,
+    "tokens": [
+      {
+        "id": "14230233389914644057",
+        "name": "Gho Token",
+        "chainId": 9745,
+        "address": "0xb77E872A68C62CfC0dFb02C067Ecc3DA23B4bbf3",
+        "decimals": 18,
+        "symbol": "GHO",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.998477672787807,
+        "updatedAt": 1779969884,
+        "priceSource": "Price Source GHO",
+        "displaySymbol": "GHO"
+      },
+      {
+        "id": "4460571050562851710",
+        "name": "Aave Plasma Variable Debt GHO",
+        "chainId": 9745,
+        "address": "0xB8A2C006202071171582C53B95942d645eD10891",
+        "decimals": 18,
+        "symbol": "variableDebtPlaGHO",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.998477672787807,
+        "updatedAt": 1779969924,
+        "priceSource": "Price Source 0xB8A2C006202071171582C53B95942d645eD10891",
+        "displaySymbol": "variableDebtPlaGHO"
+      }
+    ],
+    "chain": {
+      "id": 9745,
+      "name": "Plasma",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/9745.svg",
+      "liveCampaigns": 21,
+      "endOfDisputePeriod": 1779958800,
+      "explorers": [
+        {
+          "id": "14261454752756197884",
+          "type": "ETHERSCAN",
+          "url": "https://plasmascan.to/",
+          "chainId": 9745
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957783"
+    },
+    "protocol": {
+      "id": "aave",
+      "tags": [
+        "LENDING",
+        "zksync",
+        "drip",
+        "plasma"
+      ],
+      "name": "Aave",
+      "description": "A decentralized liquidity protocol where users can deposit and borrow",
+      "url": "https://app.aave.com/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/aave.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 0.6142437798485005,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0xbebe4120b3371f792205a919de9688e24be354801da456c4c6fe7e4cc0157676",
+          "type": "CAMPAIGN",
+          "value": 0.6142437798485005,
+          "timestamp": "1779970062"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "15756721222239644820",
+      "total": 16753977.56121754,
+      "timestamp": "1779970062",
+      "breakdowns": []
+    },
+    "rewardsRecord": {
+      "id": "15756721222239644820",
+      "total": 281.94593163559523,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "6586755295830110126",
+            "name": "Gho Token (wrapped)",
+            "chainId": 9745,
+            "address": "0xADe80a8a6132ac12Bcc4a80De2EF618B59700047",
+            "decimals": 18,
+            "symbol": "GHO",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/GHO.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.998477672787807,
+            "updatedAt": 1779969884,
+            "priceSource": "Price Source GHO",
+            "displaySymbol": "GHO",
+            "underlyingTokenId": "769572946072060395"
+          },
+          "amount": "282375800000000032768",
+          "maxAmount": "282375800000000032768",
+          "value": 281.94593163559523,
+          "maxValue": 281.94593163559523,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0xbebe4120b3371f792205a919de9688e24be354801da456c4c6fe7e4cc0157676",
+          "id": "63f771f7-400c-40d1-b4da-dc411de5f6bf",
+          "timestamp": "1779970062",
+          "campaignId": "1684482801472774704",
+          "dailyRewardsRecordId": "15756721222239644820"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MORPHOBORROW",
+    "identifier": "0x8F309d4B3066F80574810ed249472BA0EA1272e1",
+    "name": "Borrow frxUSD on USP/frxUSD 86%",
+    "description": "Earn rewards by borrowing frxUSD using USP on Morpho on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 45005.465022297256,
+    "apr": 222.04315331464537,
+    "maxApr": 0,
+    "dailyRewards": 273.78507862857145,
+    "maxDailyRewards": 0,
+    "tags": [
+      "piku"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779958800",
+    "latestCampaignStart": "1779958800",
+    "earliestCampaignEnd": "1780563600",
+    "latestCampaignEnd": "1780563600",
+    "id": "16838474051515637209",
+    "depositUrl": "https://app.morpho.org/ethereum/market/0x8f309d4b3066f80574810ed249472ba0ea1272e10834ae10dafa9f4f41aa63f4",
+    "explorerAddress": "0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29",
+    "lastCampaignCreatedAt": 1779866204,
+    "tokens": [
+      {
+        "id": "2283019782665108949",
+        "name": "Frax USD",
+        "chainId": 1,
+        "address": "0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29",
+        "decimals": 18,
+        "symbol": "frxUSD",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/frxUSD.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9993987916557124,
+        "updatedAt": 1779969883,
+        "priceSource": "Price Source frxUSD",
+        "displaySymbol": "frxUSD"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 222.04315331464537,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0xdecbf1813719b458e08a45f75b1624e3cb46cd12cff5fb40d2433b8f22c30edc",
+          "type": "CAMPAIGN",
+          "value": 222.04315331464537,
+          "timestamp": "1779968771"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "8149762461575357391",
+      "total": 45005.465022297256,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "identifier": "2647967955615215254",
+          "type": "TOKEN",
+          "value": 45032.31639981695
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "8149762461575357391",
+      "total": 273.78507862857145,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "2647967955615215254",
+            "name": "Piku Utility Token",
+            "chainId": 1,
+            "address": "0x2E4039E8E31475d65DC00293C366FDBfBBC02DC3",
+            "decimals": 18,
+            "symbol": "PIKU",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/PIKU.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "PRETGE",
+            "price": 0.16,
+            "updatedAt": 1779969880,
+            "priceSource": "Price Source 0x2E4039E8E31475d65DC00293C366FDBfBBC02DC3",
+            "displaySymbol": "PIKU"
+          },
+          "amount": "1711156741428571537408",
+          "maxAmount": "1711156741428571537408",
+          "value": 273.78507862857145,
+          "maxValue": 273.78507862857145,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0xdecbf1813719b458e08a45f75b1624e3cb46cd12cff5fb40d2433b8f22c30edc",
+          "id": "e6c7206c-cdf4-49c1-a7ab-47cb6fe4865f",
+          "timestamp": "1779968771",
+          "campaignId": "16729737768800350985",
+          "dailyRewardsRecordId": "8149762461575357391"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 480,
+    "type": "MORPHOBORROW",
+    "identifier": "0xBA0ae12a5cdBf9a458566bE68055f30c85977161",
+    "name": "Borrow USDC on WLD/USDC 77%",
+    "description": "Earn rewards by borrowing USDC using WLD on Morpho on World Chain",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 809403.607706,
+    "apr": 11.843750131438997,
+    "maxApr": 0,
+    "dailyRewards": 262.6403858946612,
+    "maxDailyRewards": 262.6403858946612,
+    "tags": [
+      "worldchain-morpho"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1777600800",
+    "latestCampaignStart": "1780279200",
+    "earliestCampaignEnd": "1780279200",
+    "latestCampaignEnd": "1782871200",
+    "id": "16616245070916186686",
+    "depositUrl": "https://lite.morpho.org/world-chain/borrow",
+    "explorerAddress": "0x79A02482A880bCE3F13e09Da970dC34db4CD24d1",
+    "lastCampaignCreatedAt": 1779905540,
+    "tokens": [
+      {
+        "id": "1136378374546850912",
+        "name": "USDC",
+        "chainId": 480,
+        "address": "0x79A02482A880bCE3F13e09Da970dC34db4CD24d1",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 480,
+      "name": "World Chain",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/480.svg",
+      "liveCampaigns": 10,
+      "endOfDisputePeriod": 1779969600,
+      "explorers": [
+        {
+          "id": "12435734118047847473",
+          "type": "ETHERSCAN",
+          "url": "https://worldscan.org",
+          "chainId": 480
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779969925"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 11.843750131438997,
+      "timestamp": "1779970099",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x96f9d6d71cdf7e56aa46939b84650e39fd55fa584e125e9cedca70b3164e39d5",
+          "type": "CAMPAIGN",
+          "value": 11.843750131438997,
+          "timestamp": "1779970099"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "6451817370103773760",
+      "total": 809403.607706,
+      "timestamp": "1779970099",
+      "breakdowns": [
+        {
+          "identifier": "561490226342513562",
+          "type": "TOKEN",
+          "value": 809403.607706
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "6451817370103773760",
+      "total": 262.6403858946612,
+      "timestamp": "1779970099",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "561490226342513562",
+            "name": "Worldcoin",
+            "chainId": 480,
+            "address": "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
+            "decimals": 18,
+            "symbol": "WLD",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WLD.jpeg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.29208065557315765,
+            "updatedAt": 1779969883,
+            "priceSource": "Price Source WLD",
+            "displaySymbol": "WLD"
+          },
+          "amount": "899205000000000098304",
+          "maxAmount": "899205000000000098304",
+          "value": 262.6403858946612,
+          "maxValue": 262.6403858946612,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x96f9d6d71cdf7e56aa46939b84650e39fd55fa584e125e9cedca70b3164e39d5",
+          "id": "80210ef9-95b3-41c8-9c7a-250cf39cf634",
+          "timestamp": "1779970099",
+          "campaignId": "18216727598475674828",
+          "dailyRewardsRecordId": "6451817370103773760"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MULTILOG_DUTCH",
+    "identifier": "0x46C636D606F1352b6B5d90BE8bd04a848245C728",
+    "name": "Borrow USDC from Aave Horizon market",
+    "description": "Earn rewards by borrowing USDC on Aave Horizon market Ethereum. This is a net borrowing opportunity: borrowing & lending the same asset will make you earn rewards based only on the difference of the two amounts.",
+    "howToSteps": [
+      "Borrow assets on Aave.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 4969729.154072,
+    "apr": 1.7500000000000002,
+    "maxApr": 0.0175,
+    "dailyRewards": 238.27468546920548,
+    "maxDailyRewards": 2673.167,
+    "tags": [
+      "aave"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779372000",
+    "latestCampaignStart": "1779372000",
+    "earliestCampaignEnd": "1780581600",
+    "latestCampaignEnd": "1780581600",
+    "id": "7774785555153132372",
+    "depositUrl": "https://app.aave.com/reserve-overview/?underlyingAsset=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48&marketName=proto_mainnet_v3",
+    "explorerAddress": "0x4139EcBe83d78ef5EFF0A6eDA6f894Be9D590FC7",
+    "lastCampaignCreatedAt": 1779206239,
+    "tokens": [
+      {
+        "id": "3460729690457214808",
+        "name": "USD Coin",
+        "chainId": 1,
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      },
+      {
+        "id": "9075542061670106119",
+        "name": "Aave Horizon RWA Variable Debt USDC",
+        "chainId": 1,
+        "address": "0x4139EcBe83d78ef5EFF0A6eDA6f894Be9D590FC7",
+        "decimals": 6,
+        "symbol": "variableDebtHorRwaUSDC",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969927,
+        "priceSource": "Price Source variableDebtHorRwaUSDC"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "aave",
+      "tags": [
+        "LENDING",
+        "zksync",
+        "drip",
+        "plasma"
+      ],
+      "name": "Aave",
+      "description": "A decentralized liquidity protocol where users can deposit and borrow",
+      "url": "https://app.aave.com/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/aave.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 1.7500000000000002,
+      "timestamp": "1779968769",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x261fb5362e04d6d756aace9782a67720f17ad68c1dcc0f31dfee077fea004f03",
+          "type": "CAMPAIGN",
+          "value": 1.7500000000000002,
+          "timestamp": "1779968769"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "7650060950113552335",
+      "total": 4969729.154072,
+      "timestamp": "1779968769",
+      "breakdowns": [
+        {
+          "identifier": "9075542061670106119",
+          "type": "TOKEN",
+          "value": 4969729.154072
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "7650060950113552335",
+      "total": 238.27468546920548,
+      "timestamp": "1779968769",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "18223636270594819525",
+            "name": "Aave Horizon RWA USDC (wrapped)",
+            "chainId": 1,
+            "address": "0x0AD8ac496B4280bC3B36fb1b6372abdEc8eE7C54",
+            "decimals": 6,
+            "symbol": "aHorRwaUSDC",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 1,
+            "updatedAt": 1779969925,
+            "priceSource": "Price Source aHorRwaUSDC",
+            "underlyingTokenId": "12641141643751535285"
+          },
+          "amount": "238274685",
+          "maxAmount": "2673167000",
+          "value": 238.274685,
+          "maxValue": 2673.167,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x261fb5362e04d6d756aace9782a67720f17ad68c1dcc0f31dfee077fea004f03",
+          "id": "fe67198e-5867-4be5-a15e-2444bd01c293",
+          "timestamp": "1779968769",
+          "campaignId": "17933737727339112883",
+          "dailyRewardsRecordId": "7650060950113552335"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 143,
+    "type": "EULER_MULTI_BORROW_FROM_COLLATERAL",
+    "identifier": "1d95bbadd8454d1f",
+    "name": "Borrow WETH from K3 Isolated wstETH-WETH-USDC, K3 Isolated wstETH-WETH-AUSD using wstETH, USDC, AUSD",
+    "description": "Earn rewards by borrowing WETH backed by wstETH, USDC, AUSD across K3 Isolated wstETH-WETH-USDC, K3 Isolated wstETH-WETH-AUSD on Euler on Monad. Score is min(\u03a3(collateral \u00d7 LTV), \u03a3 borrow).",
+    "howToSteps": [
+      "Borrow assets on Euler.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 7797744.9207662,
+    "apr": 1.1,
+    "maxApr": 0.011000000000000001,
+    "dailyRewards": 235.0005318587074,
+    "maxDailyRewards": 496.97833098956175,
+    "tags": [
+      "euler"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779717600",
+    "latestCampaignStart": "1779717600",
+    "earliestCampaignEnd": "1780322400",
+    "latestCampaignEnd": "1780322400",
+    "id": "10069106629535305861",
+    "depositUrl": "https://app.euler.finance/borrow?network=143",
+    "explorerAddress": "0x502e4a0B61dEBA3015Eb9E51116B832003B22c2C",
+    "lastCampaignCreatedAt": 1779730258,
+    "tokens": [
+      {
+        "id": "11050874969108805118",
+        "name": "EVK Vault eWETH-2",
+        "chainId": 143,
+        "address": "0x8c75A7177D64167E6EbC65A1D25d03CbF726fc46",
+        "decimals": 18,
+        "symbol": "eWETH-2",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 2137.791946843144,
+        "updatedAt": 1779112474,
+        "priceSource": "Computed Price - 0xe98e9364e66b211035cbccc2c923c542b73ce39de244033bac688aab7660971d on chain 143",
+        "displaySymbol": "eWETH-2"
+      },
+      {
+        "id": "13459840062726624416",
+        "name": "Wrapped Ether",
+        "chainId": 143,
+        "address": "0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242",
+        "decimals": 18,
+        "symbol": "WETH",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WETH.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1985.4098856674077,
+        "updatedAt": 1779969921,
+        "priceSource": "Price Source 0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242",
+        "displaySymbol": "WETH"
+      },
+      {
+        "id": "16008259281133605811",
+        "name": "EVK Vault eAUSD-4",
+        "chainId": 143,
+        "address": "0x870E172C3C7Ea274Ce60fB8D19D86012edc3C043",
+        "decimals": 6,
+        "symbol": "eAUSD-4",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1.0140355637645044,
+        "updatedAt": 1779969891,
+        "priceSource": "Price Source 0x870E172C3C7Ea274Ce60fB8D19D86012edc3C043",
+        "displaySymbol": "eAUSD-4"
+      },
+      {
+        "id": "16031525096621791426",
+        "name": "EVK Vault eUSDC-5",
+        "chainId": 143,
+        "address": "0x1E4D67c666c2Ccf27A0aF980fE6c8e0f05aC8949",
+        "decimals": 6,
+        "symbol": "eUSDC-5",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1.008143,
+        "updatedAt": 1779969894,
+        "priceSource": "Price Source 0x1E4D67c666c2Ccf27A0aF980fE6c8e0f05aC8949",
+        "displaySymbol": "eUSDC-5"
+      },
+      {
+        "id": "17184372283392384638",
+        "name": "EVK Vault ewstETH-1",
+        "chainId": 143,
+        "address": "0xb72E0659417bbB1eA55869Ab2f81cb41e751938f",
+        "decimals": 18,
+        "symbol": "ewstETH-1",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 2899.775157387992,
+        "updatedAt": 1777925770,
+        "priceSource": "Computed Price - 0x4bd5c02f088d1f9460e74155569ea605f6364a6dbcd020b62502e90e0d5c0347 on chain 143",
+        "displaySymbol": "ewstETH-1"
+      },
+      {
+        "id": "17339786643571577561",
+        "name": "Debt token of EVK Vault eWETH-3",
+        "chainId": 143,
+        "address": "0xF34f113b546c7dB951105587ca7329dcCA8B8B47",
+        "decimals": 18,
+        "symbol": "eWETH-3-DEBT",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 2285.360495646481,
+        "updatedAt": 1777396126,
+        "priceSource": "Computed Price - 0x867788099c9c54b89789ff9f409bdbd5b2289aa5b42ca89113f455b388369e9f on chain 143",
+        "displaySymbol": "eWETH-3-DEBT"
+      },
+      {
+        "id": "5438155427107448625",
+        "name": "Debt token of EVK Vault eWETH-2",
+        "chainId": 143,
+        "address": "0x80fc21D1E3aA9Be1ede524f1694A326f8edF9DbF",
+        "decimals": 18,
+        "symbol": "eWETH-2-DEBT",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 2354.59954221618,
+        "updatedAt": 1777925770,
+        "priceSource": "Computed Price - 0x4bd5c02f088d1f9460e74155569ea605f6364a6dbcd020b62502e90e0d5c0347 on chain 143",
+        "displaySymbol": "eWETH-2-DEBT"
+      },
+      {
+        "id": "5873137779868808050",
+        "name": "EVK Vault eWETH-3",
+        "chainId": 143,
+        "address": "0x502e4a0B61dEBA3015Eb9E51116B832003B22c2C",
+        "decimals": 18,
+        "symbol": "eWETH-3",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 2139.050844980363,
+        "updatedAt": 1779112474,
+        "priceSource": "Computed Price - 0x3c23572ac728aef83588c70d6ff4aeb209290e1a54c8c6be7260a64645bbdeb3 on chain 143",
+        "displaySymbol": "eWETH-3"
+      },
+      {
+        "id": "8874746743231189952",
+        "name": "EVK Vault ewstETH-2",
+        "chainId": 143,
+        "address": "0x61788859B923989dFeb995b8DE5CbBcD719475e9",
+        "decimals": 18,
+        "symbol": "ewstETH-2",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 2810.170613052338,
+        "updatedAt": 1777396126,
+        "priceSource": "Computed Price - 0x867788099c9c54b89789ff9f409bdbd5b2289aa5b42ca89113f455b388369e9f on chain 143",
+        "displaySymbol": "ewstETH-2"
+      }
+    ],
+    "chain": {
+      "id": 143,
+      "name": "Monad",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/143.svg",
+      "liveCampaigns": 114,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "17242099373593364020",
+          "type": "ETHERSCAN",
+          "url": "https://monadscan.com",
+          "chainId": 143
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957436"
+    },
+    "protocol": {
+      "id": "euler",
+      "tags": [
+        "LENDING",
+        "bob",
+        "drip",
+        "plasma"
+      ],
+      "name": "Euler",
+      "description": "Permissionless lending, borrowing, and leveraged yield strategies",
+      "url": "https://app.euler.finance/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/euler.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 1.1,
+      "timestamp": "1779970064",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x002da5b59c9c3d1a04e75c10e4ca1069e443aad0d9941579b5584c99767240c5",
+          "type": "CAMPAIGN",
+          "value": 1.1,
+          "timestamp": "1779970064"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "7758618122293487713",
+      "total": 7797744.9207662,
+      "timestamp": "1779970064",
+      "breakdowns": []
+    },
+    "rewardsRecord": {
+      "id": "7758618122293487713",
+      "total": 235.0005318587074,
+      "timestamp": "1779970064",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "14929705797398579126",
+            "name": "Wrapped MON",
+            "chainId": 143,
+            "address": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+            "decimals": 18,
+            "symbol": "WMON",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WMON.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.023192322112846216,
+            "updatedAt": 1779969885,
+            "priceSource": "Price Source WMON"
+          },
+          "amount": "10132686615651163308032",
+          "maxAmount": "21428571428571427373056",
+          "value": 235.00053185870738,
+          "maxValue": 496.97833098956175,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x002da5b59c9c3d1a04e75c10e4ca1069e443aad0d9941579b5584c99767240c5",
+          "id": "cfda1acf-f3a7-4b18-8b6c-a050c683e6ea",
+          "timestamp": "1779970064",
+          "campaignId": "17089870139104470234",
+          "dailyRewardsRecordId": "7758618122293487713"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 480,
+    "type": "MORPHOBORROW",
+    "identifier": "0x787C5FF694F04e20cc6B3932cD662425161109BB",
+    "name": "Borrow USDC on WBTC/USDC 86%",
+    "description": "Earn rewards by borrowing USDC using WBTC on Morpho on World Chain",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 2664656.305696,
+    "apr": 2.9980020514788315,
+    "maxApr": 0,
+    "dailyRewards": 218.86698824555103,
+    "maxDailyRewards": 218.86698824555103,
+    "tags": [
+      "worldchain-morpho"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1777600800",
+    "latestCampaignStart": "1780279200",
+    "earliestCampaignEnd": "1780279200",
+    "latestCampaignEnd": "1782871200",
+    "id": "12414973573902575379",
+    "depositUrl": "https://lite.morpho.org/world-chain/borrow",
+    "explorerAddress": "0x79A02482A880bCE3F13e09Da970dC34db4CD24d1",
+    "lastCampaignCreatedAt": 1779905541,
+    "tokens": [
+      {
+        "id": "1136378374546850912",
+        "name": "USDC",
+        "chainId": 480,
+        "address": "0x79A02482A880bCE3F13e09Da970dC34db4CD24d1",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 480,
+      "name": "World Chain",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/480.svg",
+      "liveCampaigns": 10,
+      "endOfDisputePeriod": 1779969600,
+      "explorers": [
+        {
+          "id": "12435734118047847473",
+          "type": "ETHERSCAN",
+          "url": "https://worldscan.org",
+          "chainId": 480
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779969925"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 2.9980020514788315,
+      "timestamp": "1779970099",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x64e50f7511eff29759c777810e1602b420a352c5768c86ea8d06277f983214e1",
+          "type": "CAMPAIGN",
+          "value": 2.9980020514788315,
+          "timestamp": "1779970099"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "623622868811088623",
+      "total": 2664656.305696,
+      "timestamp": "1779970099",
+      "breakdowns": [
+        {
+          "identifier": "561490226342513562",
+          "type": "TOKEN",
+          "value": 2664656.305696
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "623622868811088623",
+      "total": 218.86698824555103,
+      "timestamp": "1779970099",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "561490226342513562",
+            "name": "Worldcoin",
+            "chainId": 480,
+            "address": "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
+            "decimals": 18,
+            "symbol": "WLD",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WLD.jpeg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.29208065557315765,
+            "updatedAt": 1779969883,
+            "priceSource": "Price Source WLD",
+            "displaySymbol": "WLD"
+          },
+          "amount": "749337500000000016384",
+          "maxAmount": "749337500000000016384",
+          "value": 218.86698824555103,
+          "maxValue": 218.86698824555103,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x64e50f7511eff29759c777810e1602b420a352c5768c86ea8d06277f983214e1",
+          "id": "4b112062-233e-4dcd-8508-09678a1cb0da",
+          "timestamp": "1779970099",
+          "campaignId": "14438832482224036139",
+          "dailyRewardsRecordId": "623622868811088623"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 143,
+    "type": "MORPHOCOLLATERAL",
+    "identifier": "0x5FDFDfC0cc1CeeF2b8819A2635b20edc43E4DafF",
+    "name": "Deposit vUSD as collateral on vUSD/AUSD 94.5%",
+    "description": "Earn rewards by supplying vUSD as a collateral on Morpho on Monad",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 13181967.117147062,
+    "apr": 0.5000000000000001,
+    "maxApr": 0.005,
+    "dailyRewards": 180.5748920157132,
+    "maxDailyRewards": 292.99357503489614,
+    "tags": [
+      "upshift"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779116400",
+    "latestCampaignStart": "1779116400",
+    "earliestCampaignEnd": "1780326000",
+    "latestCampaignEnd": "1780326000",
+    "id": "13175340382568561178",
+    "depositUrl": "https://app.morpho.org/monad/market/0x5fdfdfc0cc1ceef2b8819a2635b20edc43e4daff4193a3af8fa2949955c5a581",
+    "explorerAddress": "0x8d3F9f9Eb2f5E8B48EFBB4074440D1E2A34Bc365",
+    "lastCampaignCreatedAt": 1779114278,
+    "tokens": [
+      {
+        "id": "3175633207594960618",
+        "name": "RWA Backed Lending by Valos",
+        "chainId": 143,
+        "address": "0x8d3F9f9Eb2f5E8B48EFBB4074440D1E2A34Bc365",
+        "decimals": 6,
+        "symbol": "vUSD",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/vUSD.svg",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1.018747091890299,
+        "updatedAt": 1778503675,
+        "priceSource": "Computed Price - 0x60e4010f19cc85964b928070107dd4e215f832ba18604fdd47c360e8b203bfbf on chain 143",
+        "displaySymbol": "vUSD"
+      }
+    ],
+    "chain": {
+      "id": 143,
+      "name": "Monad",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/143.svg",
+      "liveCampaigns": 114,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "17242099373593364020",
+          "type": "ETHERSCAN",
+          "url": "https://monadscan.com",
+          "chainId": 143
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957436"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 0.5000000000000001,
+      "timestamp": "1779970066",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0xc1d20070d825720d006dedc9661d8c459975691e0f81eba57541ad906eb18c5e",
+          "type": "CAMPAIGN",
+          "value": 0.5000000000000001,
+          "timestamp": "1779970066"
+        }
+      ]
+    },
+    "nativeAprRecord": {
+      "title": "RWA Backed Lending by Valos",
+      "value": 8,
+      "timestamp": "1779288995"
+    },
+    "tvlRecord": {
+      "id": "2584435453687906415",
+      "total": 13181967.117147062,
+      "timestamp": "1779970066",
+      "breakdowns": [
+        {
+          "identifier": "14929705797398579126",
+          "type": "TOKEN",
+          "value": 12939391.162028
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "2584435453687906415",
+      "total": 180.5748920157132,
+      "timestamp": "1779970066",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "14929705797398579126",
+            "name": "Wrapped MON",
+            "chainId": 143,
+            "address": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+            "decimals": 18,
+            "symbol": "WMON",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WMON.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.023192322112846216,
+            "updatedAt": 1779969885,
+            "priceSource": "Price Source WMON"
+          },
+          "amount": "7785977235789289881600",
+          "maxAmount": "12633214285714286444544",
+          "value": 180.5748920157132,
+          "maxValue": 292.99357503489614,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0xc1d20070d825720d006dedc9661d8c459975691e0f81eba57541ad906eb18c5e",
+          "id": "7059e738-1c90-49fe-b8e7-99850e062d73",
+          "timestamp": "1779970066",
+          "campaignId": "8882694469208762788",
+          "dailyRewardsRecordId": "2584435453687906415"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MORPHOBORROW",
+    "identifier": "0x987134EB4716FC3dEe2cB9Ca8D8fba692389f7e4",
+    "name": "Borrow LINK on wstLINK/LINK 91.5%",
+    "description": "Earn rewards by borrowing LINK using wstLINK on Morpho on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 2383598.151650847,
+    "apr": 2.233324180277606,
+    "maxApr": 0,
+    "dailyRewards": 145.84513392183135,
+    "maxDailyRewards": 145.84513392183135,
+    "tags": [
+      "stakedotlink"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1778407200",
+    "latestCampaignStart": "1778407200",
+    "earliestCampaignEnd": "1781085600",
+    "latestCampaignEnd": "1781085600",
+    "id": "9702498475492580434",
+    "depositUrl": "https://app.morpho.org/ethereum/market/0x987134eb4716fc3dee2cb9ca8d8fba692389f7e43c717db4fe0cedaf287816e9",
+    "explorerAddress": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+    "lastCampaignCreatedAt": 1778357900,
+    "tokens": [
+      {
+        "id": "11126418226496162318",
+        "name": "Chainlink Token",
+        "chainId": 1,
+        "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "decimals": 18,
+        "symbol": "LINK",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/LINK.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 8.85388875408219,
+        "updatedAt": 1779969882,
+        "priceSource": "Price Source LINK",
+        "displaySymbol": "LINK"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 2.233324180277606,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x5b3e263f566cb15e51072288f5b85fcaf62308f553d044d512e2d561cde8f670",
+          "type": "CAMPAIGN",
+          "value": 2.233324180277606,
+          "timestamp": "1779968771"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "16126423224557939577",
+      "total": 2383598.151650847,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "identifier": "9627577245742056327",
+          "type": "TOKEN",
+          "value": 269100.03538184136
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "16126423224557939577",
+      "total": 145.84513392183135,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "9627577245742056327",
+            "name": "Wrapped stLINK",
+            "chainId": 1,
+            "address": "0x911D86C72155c33993d594B0Ec7E6206B4C803da",
+            "decimals": 18,
+            "symbol": "wstLINK",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/wstLINK.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 11.652575132929824,
+            "updatedAt": 1779969883,
+            "priceSource": "Price Source wstLINK",
+            "displaySymbol": "wstLINK"
+          },
+          "amount": "12516129032258064384",
+          "maxAmount": "12516129032258064384",
+          "value": 145.84513392183135,
+          "maxValue": 145.84513392183135,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x5b3e263f566cb15e51072288f5b85fcaf62308f553d044d512e2d561cde8f670",
+          "id": "7e3dc5df-b3ea-4b95-8f4a-2b30dbfc4d8f",
+          "timestamp": "1779968771",
+          "campaignId": "14695504356518520532",
+          "dailyRewardsRecordId": "16126423224557939577"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 143,
+    "type": "EULER",
+    "identifier": "0x243012360f73B3D21c8F8560CbdB18b5a9D43B4c",
+    "name": "Borrow from Clearstar Reactor vault ",
+    "description": "Earn rewards by borrowing USDC from the Clearstar Reactor vault on Euler on Monad",
+    "howToSteps": [
+      "Borrow assets on Euler.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 2147255.277828,
+    "apr": 2,
+    "maxApr": 0.02,
+    "dailyRewards": 117.65782344263015,
+    "maxDailyRewards": 331.3188873263745,
+    "tags": [
+      "euler"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779717600",
+    "latestCampaignStart": "1779717600",
+    "earliestCampaignEnd": "1780322400",
+    "latestCampaignEnd": "1780322400",
+    "id": "1185572940323949500",
+    "depositUrl": "https://app.euler.finance/borrow?network=monad&search=0x1905EDDF5943ef6C92Ccf1469bd40fC2cB4A77b0",
+    "explorerAddress": "0x243012360f73B3D21c8F8560CbdB18b5a9D43B4c",
+    "lastCampaignCreatedAt": 1779730255,
+    "tokens": [
+      {
+        "id": "2009862731553747583",
+        "name": "Debt token of EVK Vault eUSDC-12",
+        "chainId": 143,
+        "address": "0x243012360f73B3D21c8F8560CbdB18b5a9D43B4c",
+        "decimals": 6,
+        "symbol": "eUSDC-12-DEBT",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779970066,
+        "priceSource": "Computed Price - 0x7025f563b989ffdae946b8dd8bea0544b7de21577048c909bae2e228b9e75bcf on chain 143",
+        "displaySymbol": "eUSDC-12-DEBT"
+      },
+      {
+        "id": "5317111484270765404",
+        "name": "USDC",
+        "chainId": 143,
+        "address": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC"
+      }
+    ],
+    "chain": {
+      "id": 143,
+      "name": "Monad",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/143.svg",
+      "liveCampaigns": 114,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "17242099373593364020",
+          "type": "ETHERSCAN",
+          "url": "https://monadscan.com",
+          "chainId": 143
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957436"
+    },
+    "protocol": {
+      "id": "euler",
+      "tags": [
+        "LENDING",
+        "bob",
+        "drip",
+        "plasma"
+      ],
+      "name": "Euler",
+      "description": "Permissionless lending, borrowing, and leveraged yield strategies",
+      "url": "https://app.euler.finance/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/euler.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 2,
+      "timestamp": "1779970066",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x7025f563b989ffdae946b8dd8bea0544b7de21577048c909bae2e228b9e75bcf",
+          "type": "CAMPAIGN",
+          "value": 2,
+          "timestamp": "1779970066"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "14462145629569554771",
+      "total": 2147255.277828,
+      "timestamp": "1779970066",
+      "breakdowns": [
+        {
+          "identifier": "5317111484270765404",
+          "type": "TOKEN",
+          "value": 2147255.277828
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "14462145629569554771",
+      "total": 117.65782344263015,
+      "timestamp": "1779970066",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "14929705797398579126",
+            "name": "Wrapped MON",
+            "chainId": 143,
+            "address": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+            "decimals": 18,
+            "symbol": "WMON",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WMON.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.023192322112846216,
+            "updatedAt": 1779969885,
+            "priceSource": "Price Source WMON"
+          },
+          "amount": "5073136828220385001472",
+          "maxAmount": "14285714285714286313472",
+          "value": 117.65782344263015,
+          "maxValue": 331.3188873263745,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x7025f563b989ffdae946b8dd8bea0544b7de21577048c909bae2e228b9e75bcf",
+          "id": "d6f0113b-5fca-42c1-8fb6-91b06e8a7e51",
+          "timestamp": "1779970066",
+          "campaignId": "14560014620383867146",
+          "dailyRewardsRecordId": "14462145629569554771"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 143,
+    "type": "CURVANCE",
+    "identifier": "0xa206D51C02c0202a2Eed8E6A757b49Ab13930227",
+    "name": "Borrow WETH from Curvance ezETH/WETH market",
+    "description": "Earn rewards by borrowing WETH from Curvance ezETH/WETH market on Monad",
+    "howToSteps": [
+      "Borrow assets on Curvance.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 1332102.5744225336,
+    "apr": 2.545048774410104,
+    "maxApr": 0.05,
+    "dailyRewards": 92.8840006691127,
+    "maxDailyRewards": 182.47980471541558,
+    "tags": [],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1778864400",
+    "latestCampaignStart": "1778864400",
+    "earliestCampaignEnd": "1781542800",
+    "latestCampaignEnd": "1781542800",
+    "id": "15771530483655738041",
+    "depositUrl": "https://app.curvance.com/",
+    "explorerAddress": "0xa206D51C02c0202a2Eed8E6A757b49Ab13930227",
+    "lastCampaignCreatedAt": 1778859616,
+    "tokens": [
+      {
+        "id": "13459840062726624416",
+        "name": "Wrapped Ether",
+        "chainId": 143,
+        "address": "0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242",
+        "decimals": 18,
+        "symbol": "WETH",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WETH.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1985.4098856674077,
+        "updatedAt": 1779969921,
+        "priceSource": "Price Source 0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242",
+        "displaySymbol": "WETH"
+      },
+      {
+        "id": "18140973115369946104",
+        "name": "Curvance Wrapped Ether",
+        "chainId": 143,
+        "address": "0xa206D51C02c0202a2Eed8E6A757b49Ab13930227",
+        "decimals": 18,
+        "symbol": "cWETH",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 2016.4933846493645,
+        "updatedAt": 1779970068,
+        "priceSource": "Computed Price - 0x6817a4108d16eda8fe2d9bfa63b2b6088835b8b75d12f10e1a4eac2ccc84d252 on chain 143",
+        "displaySymbol": "cWETH"
+      }
+    ],
+    "chain": {
+      "id": 143,
+      "name": "Monad",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/143.svg",
+      "liveCampaigns": 114,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "17242099373593364020",
+          "type": "ETHERSCAN",
+          "url": "https://monadscan.com",
+          "chainId": 143
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957436"
+    },
+    "protocol": {
+      "id": "curvance",
+      "tags": [],
+      "name": "Curvance",
+      "description": "Curvance is Monad\u2019s hyper-efficient lending layer, helping users earn more yield and access simple, one-click leverage",
+      "url": "https://app.curvance.com/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/curvance.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 2.545048774410104,
+      "timestamp": "1779970065",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0xc490c55c28c3b0649e08731a2f507e110fa5edf257dac6eb7e47e116e98d63ae",
+          "type": "CAMPAIGN",
+          "value": 2.545048774410104,
+          "timestamp": "1779970065"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "3679262800009634576",
+      "total": 1332102.5744225336,
+      "timestamp": "1779970065",
+      "breakdowns": [
+        {
+          "identifier": "13459840062726624416",
+          "type": "TOKEN",
+          "value": 670.9458757302093
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "3679262800009634576",
+      "total": 92.8840006691127,
+      "timestamp": "1779970065",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "14929705797398579126",
+            "name": "Wrapped MON",
+            "chainId": 143,
+            "address": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+            "decimals": 18,
+            "symbol": "WMON",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WMON.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.023192322112846216,
+            "updatedAt": 1779969885,
+            "priceSource": "Price Source WMON"
+          },
+          "amount": "4004946129032257732608",
+          "maxAmount": "7868112724009645244416",
+          "value": 92.8840006691127,
+          "maxValue": 182.47980471541558,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0xc490c55c28c3b0649e08731a2f507e110fa5edf257dac6eb7e47e116e98d63ae",
+          "id": "b8884988-29b6-43fb-9dae-f9485a534597",
+          "timestamp": "1779970065",
+          "campaignId": "6086214589488266943",
+          "dailyRewardsRecordId": "3679262800009634576"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 4217,
+    "type": "MORPHOBORROW_SINGLETOKEN",
+    "identifier": "0x20C0000000000000000000000000000000000000",
+    "name": "Borrow pathUSD on any Morpho Market",
+    "description": "Earn rewards by borrowing pathUSD on any listed Morpho Market on Tempo",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 72602.885189,
+    "apr": 31.06207809793094,
+    "maxApr": 0,
+    "dailyRewards": 61.78620520207757,
+    "maxDailyRewards": 61.78620520207757,
+    "tags": [
+      "morpho"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779123600",
+    "latestCampaignStart": "1779123600",
+    "earliestCampaignEnd": "1780333200",
+    "latestCampaignEnd": "1780333200",
+    "id": "6269095523466714197",
+    "depositUrl": "https://lite.morpho.org/tempo/borrow",
+    "explorerAddress": "0x20C0000000000000000000000000000000000000",
+    "lastCampaignCreatedAt": 1779090865,
+    "tokens": [
+      {
+        "id": "17208856341406938572",
+        "name": "pathUSD",
+        "chainId": 4217,
+        "address": "0x20C0000000000000000000000000000000000000",
+        "decimals": 6,
+        "symbol": "pathUSD",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/pathusd.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969879,
+        "priceSource": "Price Source 0x20C0000000000000000000000000000000000000",
+        "displaySymbol": "pathUSD"
+      }
+    ],
+    "chain": {
+      "id": 4217,
+      "name": "Tempo",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/4217.svg",
+      "liveCampaigns": 2,
+      "endOfDisputePeriod": 1779969600,
+      "explorers": [
+        {
+          "id": "13618890531475964151",
+          "type": "BLOCKSCOUT",
+          "url": "https://explore.mainnet.tempo.xyz/",
+          "chainId": 4217
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779848758"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 31.06207809793094,
+      "timestamp": "1779970103",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0xa1e23ec347a090621ff75f3668de84a8f96d66d6b1f2fba81363bc8c8cca9d45",
+          "type": "CAMPAIGN",
+          "value": 31.06207809793094,
+          "timestamp": "1779970103"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "16635933298046890964",
+      "total": 72602.885189,
+      "timestamp": "1779970103",
+      "breakdowns": [
+        {
+          "identifier": "17208856341406938572",
+          "type": "TOKEN",
+          "value": 72602.885189
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "16635933298046890964",
+      "total": 61.78620520207757,
+      "timestamp": "1779970103",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "13517652899288016810",
+            "name": "Morpho Token",
+            "chainId": 1,
+            "address": "0x58D97B57BB95320F9a05dC918Aef65434969c2B2",
+            "decimals": 18,
+            "symbol": "MORPHO",
+            "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/tokens/morpho.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 2.0751034492721265,
+            "updatedAt": 1779969882,
+            "priceSource": "Price Source MORPHO",
+            "displaySymbol": "MORPHO"
+          },
+          "amount": "29775000000000000000",
+          "maxAmount": "29775000000000000000",
+          "value": 61.78620520207757,
+          "maxValue": 61.78620520207757,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0xa1e23ec347a090621ff75f3668de84a8f96d66d6b1f2fba81363bc8c8cca9d45",
+          "id": "da9ef511-66c2-4082-8253-b79b6f0288d5",
+          "timestamp": "1779970103",
+          "campaignId": "16219497349690869807",
+          "dailyRewardsRecordId": "16635933298046890964"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 9745,
+    "type": "FLUIDVAULT_BORROW",
+    "identifier": "0x82B27fA821419F5689381b565a8B0786aA2548De",
+    "name": "Borrow USDT0 from Fluid USDe-USDT0/USDT0 Vault",
+    "description": "Earn rewards by borrowing USDT0 from Fluid USDe-USDT0/USDT0 Vault on Plasma",
+    "howToSteps": [
+      "Borrow assets on Fluid.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 1034730.8197665445,
+    "apr": 2.170042437417961,
+    "maxApr": 0,
+    "dailyRewards": 61.51807644377197,
+    "maxDailyRewards": 61.51807644377197,
+    "tags": [
+      "plasma"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1778155200",
+    "latestCampaignStart": "1778155200",
+    "earliestCampaignEnd": "1780574400",
+    "latestCampaignEnd": "1780574400",
+    "id": "16425434167090079992",
+    "depositUrl": "https://fluid.io/vaults",
+    "explorerAddress": "0x82B27fA821419F5689381b565a8B0786aA2548De",
+    "lastCampaignCreatedAt": 1778089707,
+    "tokens": [
+      {
+        "id": "5737761031982269701",
+        "name": "USDT0",
+        "chainId": 9745,
+        "address": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+        "decimals": 6,
+        "symbol": "USDT0",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDT0.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9983632550263692,
+        "updatedAt": 1779969929,
+        "priceSource": "Price Source 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+        "displaySymbol": "USDT0"
+      }
+    ],
+    "chain": {
+      "id": 9745,
+      "name": "Plasma",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/9745.svg",
+      "liveCampaigns": 21,
+      "endOfDisputePeriod": 1779958800,
+      "explorers": [
+        {
+          "id": "14261454752756197884",
+          "type": "ETHERSCAN",
+          "url": "https://plasmascan.to/",
+          "chainId": 9745
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957783"
+    },
+    "protocol": {
+      "id": "fluid",
+      "tags": [
+        "LENDING",
+        "drip",
+        "plasma"
+      ],
+      "name": "Fluid",
+      "description": "Financial system of the future",
+      "url": "https://fluid.instadapp.io/",
+      "icon": "https://icons.llamao.fi/icons/protocols/fluid?w=96&h=96",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 2.170042437417961,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0xa115f6b606bfb7f3a96db06d6249538cba1660e92ca09f668191bdd0b1cabab1",
+          "type": "CAMPAIGN",
+          "value": 2.170042437417961,
+          "timestamp": "1779970062"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "14102344873299286869",
+      "total": 1034730.8197665445,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "identifier": "5737761031982269701",
+          "type": "TOKEN",
+          "value": 1036427.186755
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "14102344873299286869",
+      "total": 61.51807644377197,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "9177007823639843523",
+            "name": "Wrapped XPL",
+            "chainId": 9745,
+            "address": "0x6100E367285b01F48D07953803A2d8dCA5D19873",
+            "decimals": 18,
+            "symbol": "WXPL",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/XPL.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.08612530702128075,
+            "updatedAt": 1779969925,
+            "priceSource": "Price Source WXPL"
+          },
+          "amount": "714285714285714341888",
+          "maxAmount": "714285714285714341888",
+          "value": 61.51807644377197,
+          "maxValue": 61.51807644377197,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0xa115f6b606bfb7f3a96db06d6249538cba1660e92ca09f668191bdd0b1cabab1",
+          "id": "230717d1-e553-4cb7-9054-b2a6316005a6",
+          "timestamp": "1779970062",
+          "campaignId": "3736456662220389482",
+          "dailyRewardsRecordId": "14102344873299286869"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MORPHOBORROW",
+    "identifier": "0x6d95bf5fad1b0427205ee2b595f80b52e2239417",
+    "name": "Borrow USDC on MORPHO/USDC 62.5%",
+    "description": "Earn rewards by borrowing USDC using MORPHO on Morpho on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 295775.333454,
+    "apr": 6,
+    "maxApr": 0,
+    "dailyRewards": 48.62060275956164,
+    "maxDailyRewards": 103.256873,
+    "tags": [
+      "api3"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1774393200",
+    "latestCampaignStart": "1774393200",
+    "earliestCampaignEnd": "1782338400",
+    "latestCampaignEnd": "1782338400",
+    "id": "17821428679124385871",
+    "depositUrl": "https://app.morpho.org/ethereum/market/0x6d95bf5fad1b0427205ee2b595f80b52e22394173de0832efa79fde88abb8525",
+    "explorerAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "lastCampaignCreatedAt": 1774444155,
+    "tokens": [
+      {
+        "id": "3460729690457214808",
+        "name": "USD Coin",
+        "chainId": 1,
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 6,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "distributionType": "FIX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x945fcf02a8d348da8ec2c5cdafda84ef3f0b92496b39b8937bc959c339b11532",
+          "type": "CAMPAIGN",
+          "value": 6,
+          "timestamp": "1779968771"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "6583010171666884877",
+      "total": 295775.333454,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "identifier": "3460729690457214808",
+          "type": "TOKEN",
+          "value": 295775.333454
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "6583010171666884877",
+      "total": 48.62060275956164,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "3460729690457214808",
+            "name": "USD Coin",
+            "chainId": 1,
+            "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            "decimals": 6,
+            "symbol": "USDC",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 1,
+            "updatedAt": 1779969880,
+            "priceSource": "Price Source USDC",
+            "displaySymbol": "USDC"
+          },
+          "amount": "48620603",
+          "maxAmount": "103256873",
+          "value": 48.620603,
+          "maxValue": 103.256873,
+          "distributionType": "FIX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x945fcf02a8d348da8ec2c5cdafda84ef3f0b92496b39b8937bc959c339b11532",
+          "id": "89b74754-8582-4ad6-a0c9-0ca7170f5802",
+          "timestamp": "1779968771",
+          "campaignId": "5541263733081688619",
+          "dailyRewardsRecordId": "6583010171666884877"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 8453,
+    "type": "MORPHOBORROW",
+    "identifier": "0x2e2548390B8894D2fFAaaBabeBC2b5f2501920E0",
+    "name": "Borrow USDC on uniBTC/USDC 77%",
+    "description": "Earn rewards by borrowing USDC using uniBTC on Morpho on Base",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 440043.3253831159,
+    "apr": 4.019659941996434,
+    "maxApr": 0,
+    "dailyRewards": 48.46094596672365,
+    "maxDailyRewards": 48.46094596672365,
+    "tags": [
+      "bedrock"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779685200",
+    "latestCampaignStart": "1779685200",
+    "earliestCampaignEnd": "1780894800",
+    "latestCampaignEnd": "1780894800",
+    "id": "16677110600854407523",
+    "depositUrl": "https://app.morpho.org/base/market/0x2e2548390b8894d2ffaaababebc2b5f2501920e03a4c611b63b46e19bfc6b75d",
+    "explorerAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "lastCampaignCreatedAt": 1779683071,
+    "tokens": [
+      {
+        "id": "4058703771154423106",
+        "name": "USD Coin",
+        "chainId": 8453,
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9995990907373132,
+        "updatedAt": 1779969881,
+        "priceSource": "Price Source 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 8453,
+      "name": "Base",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/8453.svg",
+      "liveCampaigns": 73,
+      "endOfDisputePeriod": 1779973200,
+      "explorers": [
+        {
+          "id": "8899908752688737472",
+          "type": "ETHERSCAN",
+          "url": "https://basescan.org",
+          "chainId": 8453
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779969719"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 4.019659941996434,
+      "timestamp": "1779970060",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x876746f23bd8f47e25f5629baf9678528255d2fe90d82051d5e45b0e7bc02549",
+          "type": "CAMPAIGN",
+          "value": 4.019659941996434,
+          "timestamp": "1779970060"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "13171708827573392380",
+      "total": 440043.3253831159,
+      "timestamp": "1779970060",
+      "breakdowns": [
+        {
+          "identifier": "8078842342296961727",
+          "type": "TOKEN",
+          "value": 440219.813584
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "13171708827573392380",
+      "total": 48.46094596672365,
+      "timestamp": "1779970060",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "4724467675725245510",
+            "name": "Optimism",
+            "chainId": 10,
+            "address": "0x4200000000000000000000000000000000000042",
+            "decimals": 18,
+            "symbol": "OP",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/OP.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.11657272225672355,
+            "updatedAt": 1779969885,
+            "priceSource": "Price Source OP",
+            "displaySymbol": "OP"
+          },
+          "amount": "415714285714285723648",
+          "maxAmount": "415714285714285723648",
+          "value": 48.46094596672365,
+          "maxValue": 48.46094596672365,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x876746f23bd8f47e25f5629baf9678528255d2fe90d82051d5e45b0e7bc02549",
+          "id": "67b3bd7b-e16b-4c6c-9aa9-ee443ee9bf7d",
+          "timestamp": "1779970060",
+          "campaignId": "7176058887116873524",
+          "dailyRewardsRecordId": "13171708827573392380"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 143,
+    "type": "EULER",
+    "identifier": "0x6Ed8f90B835e57a38dCB10A918Ea0C9B06bd5c6f",
+    "name": "Borrow from K3 Isolated yzPrime-USDC vault ",
+    "description": "Earn rewards by borrowing USDC from the K3 Isolated yzPrime-USDC vault on Euler on Monad",
+    "howToSteps": [
+      "Borrow assets on Euler.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 1757977.643056,
+    "apr": 1,
+    "maxApr": 0.01,
+    "dailyRewards": 48.16377104263014,
+    "maxDailyRewards": 165.65944366318726,
+    "tags": [
+      "euler"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779717600",
+    "latestCampaignStart": "1779717600",
+    "earliestCampaignEnd": "1780322400",
+    "latestCampaignEnd": "1780322400",
+    "id": "9857405516921613294",
+    "depositUrl": "https://app.euler.finance/borrow?network=monad&search=0xa3B64e2674463c98CbD21807055D8C1E008b6e79",
+    "explorerAddress": "0x6Ed8f90B835e57a38dCB10A918Ea0C9B06bd5c6f",
+    "lastCampaignCreatedAt": 1779730257,
+    "tokens": [
+      {
+        "id": "5131102631531663329",
+        "name": "Debt token of EVK Vault eUSDC-15",
+        "chainId": 143,
+        "address": "0x6Ed8f90B835e57a38dCB10A918Ea0C9B06bd5c6f",
+        "decimals": 6,
+        "symbol": "eUSDC-15-DEBT",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779970066,
+        "priceSource": "Computed Price - 0x482928e014114c1365d744a020936b0dc139dbc9449d485c5fc3572967580323 on chain 143",
+        "displaySymbol": "eUSDC-15-DEBT"
+      },
+      {
+        "id": "5317111484270765404",
+        "name": "USDC",
+        "chainId": 143,
+        "address": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC"
+      }
+    ],
+    "chain": {
+      "id": 143,
+      "name": "Monad",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/143.svg",
+      "liveCampaigns": 114,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "17242099373593364020",
+          "type": "ETHERSCAN",
+          "url": "https://monadscan.com",
+          "chainId": 143
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957436"
+    },
+    "protocol": {
+      "id": "euler",
+      "tags": [
+        "LENDING",
+        "bob",
+        "drip",
+        "plasma"
+      ],
+      "name": "Euler",
+      "description": "Permissionless lending, borrowing, and leveraged yield strategies",
+      "url": "https://app.euler.finance/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/euler.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 1,
+      "timestamp": "1779970066",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x482928e014114c1365d744a020936b0dc139dbc9449d485c5fc3572967580323",
+          "type": "CAMPAIGN",
+          "value": 1,
+          "timestamp": "1779970066"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "11522860121576488726",
+      "total": 1757977.643056,
+      "timestamp": "1779970066",
+      "breakdowns": [
+        {
+          "identifier": "5317111484270765404",
+          "type": "TOKEN",
+          "value": 1757977.643056
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "11522860121576488726",
+      "total": 48.16377104263014,
+      "timestamp": "1779970066",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "14929705797398579126",
+            "name": "Wrapped MON",
+            "chainId": 143,
+            "address": "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A",
+            "decimals": 18,
+            "symbol": "WMON",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/WMON.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.023192322112846216,
+            "updatedAt": 1779969885,
+            "priceSource": "Price Source WMON"
+          },
+          "amount": "2076711888024021762048",
+          "maxAmount": "7142857142857143156736",
+          "value": 48.16377104263014,
+          "maxValue": 165.65944366318726,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x482928e014114c1365d744a020936b0dc139dbc9449d485c5fc3572967580323",
+          "id": "6ce351cd-fc96-42cc-bfbd-6e2c0e3032b0",
+          "timestamp": "1779970066",
+          "campaignId": "16502306311117468869",
+          "dailyRewardsRecordId": "11522860121576488726"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MORPHOBORROW",
+    "identifier": "0xb8fef900b383db2dbbf4458c7f46acf5b140f26d",
+    "name": "Borrow USDC on OETH/USDC 86%",
+    "description": "Earn rewards by borrowing USDC using OETH on Morpho on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 7743091.625494,
+    "apr": 0.22651448336926194,
+    "maxApr": 0.0033,
+    "dailyRewards": 48.052668472044715,
+    "maxDailyRewards": 70.0060338743293,
+    "tags": [
+      "origin"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1775772000",
+    "latestCampaignStart": "1775772000",
+    "earliestCampaignEnd": "1781042400",
+    "latestCampaignEnd": "1781042400",
+    "id": "17431658748160056693",
+    "depositUrl": "https://app.morpho.org/ethereum/market/0xb8fef900b383db2dbbf4458c7f46acf5b140f26d603a6d1829963f241b82510e",
+    "explorerAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "lastCampaignCreatedAt": 1776258270,
+    "tokens": [
+      {
+        "id": "3460729690457214808",
+        "name": "USD Coin",
+        "chainId": 1,
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 0.22651448336926194,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0xa13d328e28a20acc8e446015a89d82efa6ccfdf5c1f866744b54d61d310dd72f",
+          "type": "CAMPAIGN",
+          "value": 0.22651448336926194,
+          "timestamp": "1779968771"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "259942795027978626",
+      "total": 7743091.625494,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "identifier": "1310087325633359652",
+          "type": "TOKEN",
+          "value": 7743091.625494
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "259942795027978626",
+      "total": 48.052668472044715,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "1310087325633359652",
+            "name": "Wrapped OUSD",
+            "chainId": 1,
+            "address": "0xD2af830E8CBdFed6CC11Bab697bB25496ed6FA62",
+            "decimals": 18,
+            "symbol": "WOUSD",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/wOUSD.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 1.2871186122049119,
+            "updatedAt": 1779969885,
+            "priceSource": "Price Source WOUSD",
+            "displaySymbol": "WOUSD"
+          },
+          "amount": "37333520016253665280",
+          "maxAmount": "54389730061011820544",
+          "value": 48.052668472044715,
+          "maxValue": 70.0060338743293,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0xa13d328e28a20acc8e446015a89d82efa6ccfdf5c1f866744b54d61d310dd72f",
+          "id": "6ba9778b-b878-4fc6-973a-460fd4480d28",
+          "timestamp": "1779968771",
+          "campaignId": "5380328675016102635",
+          "dailyRewardsRecordId": "259942795027978626"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MORPHOBORROW",
+    "identifier": "0x85AB69d50Add7Daa0934B5224889Af0a882f2e3B",
+    "name": "Borrow WETH on pufETH/WETH 94.5%",
+    "description": "Earn rewards by borrowing WETH using pufETH on Morpho on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 71503.62732423266,
+    "apr": 23.5968733203818,
+    "maxApr": 0,
+    "dailyRewards": 46.226357148430374,
+    "maxDailyRewards": 46.226357148430374,
+    "tags": [
+      "puffer"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779062399",
+    "latestCampaignStart": "1779062399",
+    "earliestCampaignEnd": "1781477999",
+    "latestCampaignEnd": "1781477999",
+    "id": "18410418810818065292",
+    "depositUrl": "https://app.morpho.org/ethereum/market/0x85ab69d50add7daa0934b5224889af0a882f2e3b4572d82c771dd0875f4eaa9b",
+    "explorerAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "lastCampaignCreatedAt": 1779035786,
+    "tokens": [
+      {
+        "id": "15034267419980997193",
+        "name": "Wrapped Ether",
+        "chainId": 1,
+        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "decimals": 18,
+        "symbol": "wETH",
+        "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/tokens/WETH.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1985.4098856674077,
+        "updatedAt": 1779969930,
+        "priceSource": "Price Source wETH",
+        "displaySymbol": "wETH"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 23.5968733203818,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0xfbd472dcd552b591eb1da74bbe0676841b4551611239cdbc1709fc6cff79cf07",
+          "type": "CAMPAIGN",
+          "value": 23.5968733203818,
+          "timestamp": "1779968771"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "17483262861672683127",
+      "total": 71503.62732423266,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "identifier": "10022506654999080141",
+          "type": "TOKEN",
+          "value": 35.996180515503156
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "17483262861672683127",
+      "total": 46.226357148430374,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "10022506654999080141",
+            "name": "Merkl Token Wrapper - Carrot",
+            "chainId": 1,
+            "address": "0x8A5A5DE9db5770123Ff2145F59e9F20047f0A8EC",
+            "decimals": 18,
+            "symbol": "mtwCARROT",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/CARROT.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.00674545121497712,
+            "updatedAt": 1779969926,
+            "priceSource": "Price Source mtwCARROT",
+            "displaySymbol": "mtwCARROT",
+            "underlyingTokenId": "8046375116635944694"
+          },
+          "amount": "6863411942335760564224",
+          "maxAmount": "6863411942335760564224",
+          "value": 46.29681042531723,
+          "maxValue": 46.29681042531723,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0xfbd472dcd552b591eb1da74bbe0676841b4551611239cdbc1709fc6cff79cf07",
+          "id": "6e57fa36-e690-41de-92db-134a95cf7018",
+          "timestamp": "1779968771",
+          "campaignId": "15049869110057444280",
+          "dailyRewardsRecordId": "17483262861672683127"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 9745,
+    "type": "FLUIDVAULT_BORROW",
+    "identifier": "0x92643E964CA4b2c165a95CA919b0A819acA6D5F1",
+    "name": "Borrow USDT0 from Fluid syrupUSDT/USDT0 Vault",
+    "description": "Earn rewards by borrowing USDT0 from Fluid syrupUSDT/USDT0 Vault on Plasma",
+    "howToSteps": [
+      "Borrow assets on Fluid.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 836540.0169853562,
+    "apr": 2.0131222756289704,
+    "maxApr": 0,
+    "dailyRewards": 46.138557332828974,
+    "maxDailyRewards": 46.138557332828974,
+    "tags": [
+      "plasma"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1778155200",
+    "latestCampaignStart": "1778155200",
+    "earliestCampaignEnd": "1780574400",
+    "latestCampaignEnd": "1780574400",
+    "id": "16571969740438952761",
+    "depositUrl": "https://fluid.io/vaults/9745/20",
+    "explorerAddress": "0x92643E964CA4b2c165a95CA919b0A819acA6D5F1",
+    "lastCampaignCreatedAt": 1778089708,
+    "tokens": [
+      {
+        "id": "5737761031982269701",
+        "name": "USDT0",
+        "chainId": 9745,
+        "address": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+        "decimals": 6,
+        "symbol": "USDT0",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDT0.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9983632550263692,
+        "updatedAt": 1779969929,
+        "priceSource": "Price Source 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+        "displaySymbol": "USDT0"
+      }
+    ],
+    "chain": {
+      "id": 9745,
+      "name": "Plasma",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/9745.svg",
+      "liveCampaigns": 21,
+      "endOfDisputePeriod": 1779958800,
+      "explorers": [
+        {
+          "id": "14261454752756197884",
+          "type": "ETHERSCAN",
+          "url": "https://plasmascan.to/",
+          "chainId": 9745
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957783"
+    },
+    "protocol": {
+      "id": "fluid",
+      "tags": [
+        "LENDING",
+        "drip",
+        "plasma"
+      ],
+      "name": "Fluid",
+      "description": "Financial system of the future",
+      "url": "https://fluid.instadapp.io/",
+      "icon": "https://icons.llamao.fi/icons/protocols/fluid?w=96&h=96",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 2.0131222756289704,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x6c539462a29428e0909468f6e0c80a00b6d190b0463b8b285675442fc45cc46a",
+          "type": "CAMPAIGN",
+          "value": 2.0131222756289704,
+          "timestamp": "1779970062"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "10743714976289752336",
+      "total": 836540.0169853562,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "identifier": "5737761031982269701",
+          "type": "TOKEN",
+          "value": 837911.464363
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "10743714976289752336",
+      "total": 46.138557332828974,
+      "timestamp": "1779970062",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "9177007823639843523",
+            "name": "Wrapped XPL",
+            "chainId": 9745,
+            "address": "0x6100E367285b01F48D07953803A2d8dCA5D19873",
+            "decimals": 18,
+            "symbol": "WXPL",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/XPL.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.08612530702128075,
+            "updatedAt": 1779969925,
+            "priceSource": "Price Source WXPL"
+          },
+          "amount": "535714285714285658112",
+          "maxAmount": "535714285714285658112",
+          "value": 46.138557332828974,
+          "maxValue": 46.138557332828974,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x6c539462a29428e0909468f6e0c80a00b6d190b0463b8b285675442fc45cc46a",
+          "id": "265550ad-806b-4f5f-932d-726d2322253d",
+          "timestamp": "1779970062",
+          "campaignId": "15369096383448711011",
+          "dailyRewardsRecordId": "10743714976289752336"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MORPHOBORROW",
+    "identifier": "0x987134eb4716fc3dee2cb9ca8d8fba692389f7e4",
+    "name": "Borrow LINK on wstLINK/LINK 91.5%",
+    "description": "Earn rewards by borrowing LINK using wstLINK on Morpho on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 2383598.151650847,
+    "apr": 0.522341157974666,
+    "maxApr": 0.077,
+    "dailyRewards": 34.1109977720432,
+    "maxDailyRewards": 502.84125390990465,
+    "tags": [],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1769446800",
+    "latestCampaignStart": "1769446800",
+    "earliestCampaignEnd": "1785081600",
+    "latestCampaignEnd": "1785081600",
+    "id": "13028497182981327867",
+    "depositUrl": "https://app.morpho.org/ethereum/market/0x987134eb4716fc3dee2cb9ca8d8fba692389f7e43c717db4fe0cedaf287816e9",
+    "explorerAddress": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+    "lastCampaignCreatedAt": 1775664066,
+    "tokens": [
+      {
+        "id": "11126418226496162318",
+        "name": "Chainlink Token",
+        "chainId": 1,
+        "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "decimals": 18,
+        "symbol": "LINK",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/LINK.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 8.85388875408219,
+        "updatedAt": 1779969882,
+        "priceSource": "Price Source LINK",
+        "displaySymbol": "LINK"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 0.522341157974666,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x77184d91b3b7422f2d8089b014dca6ec387d581b7c79e8e38718b86b4de5bd45",
+          "type": "CAMPAIGN",
+          "value": 0.522341157974666,
+          "timestamp": "1779968771"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "5465215851219714159",
+      "total": 2383598.151650847,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "identifier": "3546321439602806373",
+          "type": "TOKEN",
+          "value": 269100.03538184136
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "5465215851219714159",
+      "total": 34.1109977720432,
+      "timestamp": "1779968771",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "3546321439602806373",
+            "name": "stake.link",
+            "chainId": 1,
+            "address": "0xA95C5ebB86E0dE73B4fB8c47A45B792CFeA28C23",
+            "decimals": 18,
+            "symbol": "SDL",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/SDL.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.20312977050106923,
+            "updatedAt": 1779969886,
+            "priceSource": "Price Source SDL",
+            "displaySymbol": "SDL"
+          },
+          "amount": "167510937448788262912",
+          "maxAmount": "2469332922867677921280",
+          "value": 34.026458280391324,
+          "maxValue": 501.5950299128459,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x77184d91b3b7422f2d8089b014dca6ec387d581b7c79e8e38718b86b4de5bd45",
+          "id": "91343333-ca67-4304-afbd-9eb5ae2fe36d",
+          "timestamp": "1779968771",
+          "campaignId": "2105958886594040828",
+          "dailyRewardsRecordId": "5465215851219714159"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "EULER",
+    "identifier": "0x0dE8B5B2F9aF13eF8406A3f2493868204e03Bc1b",
+    "name": "Borrow from YieldNest Max Vault USDC vault ",
+    "description": "Earn rewards by borrowing USDC from the YieldNest Max Vault USDC vault on Euler on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Euler.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 1432636.593222,
+    "apr": 0.7071389195041753,
+    "maxApr": 0.1,
+    "dailyRewards": 27.75542719378487,
+    "maxDailyRewards": 392.50317622520544,
+    "tags": [
+      "yieldnest"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779890400",
+    "latestCampaignStart": "1779890400",
+    "earliestCampaignEnd": "1781100000",
+    "latestCampaignEnd": "1781100000",
+    "id": "2326496351205886244",
+    "depositUrl": "https://app.euler.finance/borrow?network=ethereum&search=0x7fAb04FF2717d9A6B71A51c56c29697179597D40",
+    "explorerAddress": "0x0dE8B5B2F9aF13eF8406A3f2493868204e03Bc1b",
+    "lastCampaignCreatedAt": 1779790350,
+    "tokens": [
+      {
+        "id": "12273995543814000564",
+        "name": "Debt token of EVK Vault eUSDC-95",
+        "chainId": 1,
+        "address": "0x0dE8B5B2F9aF13eF8406A3f2493868204e03Bc1b",
+        "decimals": 6,
+        "symbol": "eUSDC-95-DEBT",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779968769,
+        "priceSource": "Computed Price - 0x8ebbfc1a81099463c71762427f8f539b430c482bb906d60ba30c2e2f7db9b72d on chain 1",
+        "displaySymbol": "eUSDC-95-DEBT"
+      },
+      {
+        "id": "3460729690457214808",
+        "name": "USD Coin",
+        "chainId": 1,
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1,
+        "updatedAt": 1779969880,
+        "priceSource": "Price Source USDC",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "euler",
+      "tags": [
+        "LENDING",
+        "bob",
+        "drip",
+        "plasma"
+      ],
+      "name": "Euler",
+      "description": "Permissionless lending, borrowing, and leveraged yield strategies",
+      "url": "https://app.euler.finance/",
+      "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/protocols/euler.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 0.7071389195041753,
+      "timestamp": "1779968769",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x8ebbfc1a81099463c71762427f8f539b430c482bb906d60ba30c2e2f7db9b72d",
+          "type": "CAMPAIGN",
+          "value": 0.7071389195041753,
+          "timestamp": "1779968769"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "16440900072974207627",
+      "total": 1432636.593222,
+      "timestamp": "1779968769",
+      "breakdowns": [
+        {
+          "identifier": "3460729690457214808",
+          "type": "TOKEN",
+          "value": 1432636.593222
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "16440900072974207627",
+      "total": 27.75542719378487,
+      "timestamp": "1779968769",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "653265788861859596",
+            "name": "YieldNest RWA MAX",
+            "chainId": 1,
+            "address": "0x01Ba69727E2860b37bc1a2bd56999c1aFb4C15D8",
+            "decimals": 18,
+            "symbol": "ynRWAx",
+            "icon": "https://etherscan.io/token/images/yieldnestrwamax_64.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 1.0014815649027697,
+            "updatedAt": 1779969881,
+            "priceSource": "Price Source ynRWAx",
+            "displaySymbol": "ynRWAx"
+          },
+          "amount": "27714285714285715456",
+          "maxAmount": "391921374285524303872",
+          "value": 27.755346227305335,
+          "maxValue": 392.502031238311,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x8ebbfc1a81099463c71762427f8f539b430c482bb906d60ba30c2e2f7db9b72d",
+          "id": "0e8ca915-1953-4a6d-9d22-22707c95d118",
+          "timestamp": "1779968769",
+          "campaignId": "7484808537608126589",
+          "dailyRewardsRecordId": "16440900072974207627"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 8453,
+    "type": "MORPHOBORROW",
+    "identifier": "0x67A66cbaCB2Fe48Ec4326932d4528215aD11656a",
+    "name": "Borrow USDC on superOETHb/USDC 77%",
+    "description": "Earn rewards by borrowing USDC using superOETHb on Morpho on Base",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 230724.58458108292,
+    "apr": 4.146246241277914,
+    "maxApr": 0,
+    "dailyRewards": 26.209340865471866,
+    "maxDailyRewards": 26.209340865471866,
+    "tags": [
+      "origin"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779926400",
+    "latestCampaignStart": "1779926400",
+    "earliestCampaignEnd": "1780531200",
+    "latestCampaignEnd": "1780531200",
+    "id": "2279223137433923552",
+    "depositUrl": "https://app.morpho.org/base/market/0x67a66cbacb2fe48ec4326932d4528215ad11656a86135f2795f5b90e501eb538",
+    "explorerAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "lastCampaignCreatedAt": 1779894075,
+    "tokens": [
+      {
+        "id": "4058703771154423106",
+        "name": "USD Coin",
+        "chainId": 8453,
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "decimals": 6,
+        "symbol": "USDC",
+        "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDC.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9995990907373132,
+        "updatedAt": 1779969881,
+        "priceSource": "Price Source 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "displaySymbol": "USDC"
+      }
+    ],
+    "chain": {
+      "id": 8453,
+      "name": "Base",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/8453.svg",
+      "liveCampaigns": 73,
+      "endOfDisputePeriod": 1779973200,
+      "explorers": [
+        {
+          "id": "8899908752688737472",
+          "type": "ETHERSCAN",
+          "url": "https://basescan.org",
+          "chainId": 8453
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779969719"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 4.146246241277914,
+      "timestamp": "1779970060",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x2f91e8c467d04bffd5238e65f931a3c81d5bb44e1f743095d143f8ddcfd84e1c",
+          "type": "CAMPAIGN",
+          "value": 4.146246241277914,
+          "timestamp": "1779970060"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "7882485587359218682",
+      "total": 230724.58458108292,
+      "timestamp": "1779970060",
+      "breakdowns": [
+        {
+          "identifier": "14438089622398301915",
+          "type": "TOKEN",
+          "value": 230817.121303
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "7882485587359218682",
+      "total": 26.209340865471866,
+      "timestamp": "1779970060",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "14438089622398301915",
+            "name": "Super OETH",
+            "chainId": 8453,
+            "address": "0xDBFeFD2e8460a6Ee4955A68582F85708BAEA60A3",
+            "decimals": 18,
+            "symbol": "superOETHb",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/superOETHb.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 1984.7540846776665,
+            "updatedAt": 1779969883,
+            "priceSource": "Price Source superOETHb",
+            "displaySymbol": "superOETHb"
+          },
+          "amount": "13205334135754348",
+          "maxAmount": "13205334135754348",
+          "value": 26.209340865471866,
+          "maxValue": 26.209340865471866,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x2f91e8c467d04bffd5238e65f931a3c81d5bb44e1f743095d143f8ddcfd84e1c",
+          "id": "65f5bae9-001c-435a-8403-4fe02030d587",
+          "timestamp": "1779970060",
+          "campaignId": "15475378013243097449",
+          "dailyRewardsRecordId": "7882485587359218682"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "COMPOUND_V3_BORROW_FROM_COLLATERAL",
+    "identifier": "e6e49b79e83041f9",
+    "name": "Borrow WETH with pufETH collateral on Compound V3 (80% LTV)",
+    "description": "Earn rewards for borrowing WETH using pufETH as collateral on Compound V3 on Ethereum. Rewards are calculated as min(collateral * 80% LTV, borrow amount).",
+    "howToSteps": [
+      "Borrow assets on undefined.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 139466.41677885051,
+    "apr": 5.813136355177462,
+    "maxApr": 0,
+    "dailyRewards": 22.211980758999122,
+    "maxDailyRewards": 22.211980758999122,
+    "tags": [
+      "puffer"
+    ],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779062399",
+    "latestCampaignStart": "1779062399",
+    "earliestCampaignEnd": "1781477999",
+    "latestCampaignEnd": "1781477999",
+    "id": "16013993862703535409",
+    "depositUrl": "https://app.compound.finance/markets/0xA17581A9E3356d9A858b789D68B4d866e593aE94",
+    "explorerAddress": "0xA17581A9E3356d9A858b789D68B4d866e593aE94",
+    "lastCampaignCreatedAt": 1779035785,
+    "tokens": [
+      {
+        "id": "11949709128542241484",
+        "name": "pufETH",
+        "chainId": 1,
+        "address": "0xD9A442856C234a39a81a089C06451EBAa4306a72",
+        "decimals": 18,
+        "symbol": "pufETH",
+        "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/tokens/pufETH.svg",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 2142.2287050888312,
+        "updatedAt": 1779969896,
+        "priceSource": "Price Source pufETH",
+        "displaySymbol": "pufETH"
+      },
+      {
+        "id": "15034267419980997193",
+        "name": "Wrapped Ether",
+        "chainId": 1,
+        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "decimals": 18,
+        "symbol": "wETH",
+        "icon": "https://raw.githubusercontent.com/AngleProtocol/angle-token-list/main/src/assets/tokens/WETH.png",
+        "verified": true,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1985.4098856674077,
+        "updatedAt": 1779969930,
+        "priceSource": "Price Source wETH",
+        "displaySymbol": "wETH"
+      },
+      {
+        "id": "15948227759097917630",
+        "name": "Compound WETH",
+        "chainId": 1,
+        "address": "0xA17581A9E3356d9A858b789D68B4d866e593aE94",
+        "decimals": 18,
+        "symbol": "cWETHv3",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1985.4098856674077,
+        "updatedAt": 1779969922,
+        "priceSource": "Price Source cWETHv3"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "compound-v3",
+      "tags": [
+        "BORROW"
+      ],
+      "name": "compound-v3",
+      "description": "",
+      "url": "",
+      "icon": "",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 5.813136355177462,
+      "timestamp": "1779968766",
+      "breakdowns": [
+        {
+          "distributionType": "DUTCH_AUCTION",
+          "identifier": "0x044565ab78f1a77de0c617c9479a3b381eece9bce5f2ca4ddbe47ff2535c3b0f",
+          "type": "CAMPAIGN",
+          "value": 5.813136355177462,
+          "timestamp": "1779968766"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "18315589759427688858",
+      "total": 139466.41677885051,
+      "timestamp": "1779968766",
+      "breakdowns": []
+    },
+    "rewardsRecord": {
+      "id": "18315589759427688858",
+      "total": 22.211980758999122,
+      "timestamp": "1779968766",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "10022506654999080141",
+            "name": "Merkl Token Wrapper - Carrot",
+            "chainId": 1,
+            "address": "0x8A5A5DE9db5770123Ff2145F59e9F20047f0A8EC",
+            "decimals": 18,
+            "symbol": "mtwCARROT",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/CARROT.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.00674545121497712,
+            "updatedAt": 1779969926,
+            "priceSource": "Price Source mtwCARROT",
+            "displaySymbol": "mtwCARROT",
+            "underlyingTokenId": "8046375116635944694"
+          },
+          "amount": "3297901530824459157504",
+          "maxAmount": "3297901530824459157504",
+          "value": 22.24583388797475,
+          "maxValue": 22.24583388797475,
+          "distributionType": "DUTCH_AUCTION",
+          "onChainCampaignId": "0x044565ab78f1a77de0c617c9479a3b381eece9bce5f2ca4ddbe47ff2535c3b0f",
+          "id": "6897b2ca-b4eb-494c-93fe-e1c8c1daed3f",
+          "timestamp": "1779968766",
+          "campaignId": "501402842090930320",
+          "dailyRewardsRecordId": "18315589759427688858"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "FX_MINT",
+    "identifier": "0x6Ecfa38FeE8a5277B91eFdA204c235814F0122E8",
+    "name": "Mint fxUSD using ETH, wstETH or stETH as collateral",
+    "description": "Mint fxUSD using ETH, wstETH or stETH as collateral. Please note that the native staking yield from the collateral is redirected within the protocol. On f(x), the yield is mainly distributed to stablecoin stakers to help strengthen the fxUSD peg.",
+    "howToSteps": [
+      "Borrow assets on fxProtocol.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 85976.3916823188,
+    "apr": 5,
+    "maxApr": 0.05,
+    "dailyRewards": 11.777587901687507,
+    "maxDailyRewards": 481.22004705060795,
+    "tags": [],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779274800",
+    "latestCampaignStart": "1779274800",
+    "earliestCampaignEnd": "1781953200",
+    "latestCampaignEnd": "1781953200",
+    "id": "7831557637141259582",
+    "depositUrl": "https://fx.aladdin.club/v2/fxmint",
+    "explorerAddress": "0x365AccFCa291e7D3914637ABf1F7635dB165Bb09",
+    "lastCampaignCreatedAt": 1779201383,
+    "tokens": [
+      {
+        "id": "7355286176357600799",
+        "name": "f(x) USD",
+        "chainId": 1,
+        "address": "0x085780639CC2cACd35E474e71f4d000e2405d8f6",
+        "decimals": 18,
+        "symbol": "fxUSD",
+        "icon": "https://github.com/AladdinDAO/aladdin-assets/blob/main/images/branding/fxusd.svg?raw=true",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9981395579172735,
+        "updatedAt": 1779969883,
+        "priceSource": "Price Source fxUSD"
+      },
+      {
+        "id": "8928997819658716211",
+        "name": "f(x) wstETH position",
+        "chainId": 1,
+        "address": "0x6Ecfa38FeE8a5277B91eFdA204c235814F0122E8",
+        "decimals": 18,
+        "symbol": "xstETH",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "displaySymbol": "xstETH"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "fxProtocol",
+      "tags": [
+        "BORROW"
+      ],
+      "name": "f(x) Protocol",
+      "description": "",
+      "url": "https://fx.aladdin.club/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/FXN.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 5,
+      "timestamp": "1779968767",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x0c98de35677aabfef43c4281ab90867f85bd63171d71d7d958e8e8008415e856",
+          "type": "CAMPAIGN",
+          "value": 5,
+          "timestamp": "1779968767"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "11562349465091755625",
+      "total": 85976.3916823188,
+      "timestamp": "1779968767",
+      "breakdowns": [
+        {
+          "identifier": "7355286176357600799",
+          "type": "TOKEN",
+          "value": 86186.30768250725
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "11562349465091755625",
+      "total": 11.777587901687507,
+      "timestamp": "1779968767",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "16991915788772276109",
+            "name": "FXN Token",
+            "chainId": 1,
+            "address": "0x365AccFCa291e7D3914637ABf1F7635dB165Bb09",
+            "decimals": 18,
+            "symbol": "FXN",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/FXN.svg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 19.387233853770756,
+            "updatedAt": 1779969881,
+            "priceSource": "Price Source FXN",
+            "displaySymbol": "FXN"
+          },
+          "amount": "601469459650350464",
+          "maxAmount": "24575419354838712320",
+          "value": 11.660829070142478,
+          "maxValue": 476.4494020867421,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x0c98de35677aabfef43c4281ab90867f85bd63171d71d7d958e8e8008415e856",
+          "id": "19719b25-eb81-40a5-9905-d07c5dc86d82",
+          "timestamp": "1779968767",
+          "campaignId": "14024950406831013378",
+          "dailyRewardsRecordId": "11562349465091755625"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 999,
+    "type": "EULER_BORROW_FROM_COLLATERAL",
+    "identifier": "75b2c489e1a45d4a",
+    "name": "Borrow USDC from HypurrFi Yield USDC vault using sUSDp (85% LTV)",
+    "description": "Earn rewards by borrowing USDC from the HypurrFi Yield USDC vault using sUSDp on HypurrFi on HyperEVM",
+    "howToSteps": [
+      "Borrow assets on Hypurrfi.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 27734.998773,
+    "apr": 10,
+    "maxApr": 0.1,
+    "dailyRewards": 7.598629800821918,
+    "maxDailyRewards": 69.2491448801994,
+    "tags": [],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1779465600",
+    "latestCampaignStart": "1779465600",
+    "earliestCampaignEnd": "1781884800",
+    "latestCampaignEnd": "1781884800",
+    "id": "6950948054586990623",
+    "depositUrl": "https://app.hypurr.fi/markets/eborrow/0xAc207FFa0bfcE194Db18D1820902D48a2d948968/0xF9BB65e113418292d1a3555515fBd64637a0BE18",
+    "explorerAddress": "0xF9BB65e113418292d1a3555515fBd64637a0BE18",
+    "lastCampaignCreatedAt": 1779457899,
+    "tokens": [
+      {
+        "id": "11032329016209904291",
+        "name": "Debt token of EVK Vault eUSDC-4",
+        "chainId": 999,
+        "address": "0x67DF1cFb790C042EB9b21EB9b63dD02505b5888b",
+        "decimals": 6,
+        "symbol": "eUSDC-4-DEBT",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9998663578442004,
+        "updatedAt": 1777050489,
+        "priceSource": "Computed Price - 0x90d5d5b0e31af1040383391b18eb9bf5d303d3b2a5c01f0d9c6128a914bdd58d on chain 999",
+        "displaySymbol": "eUSDC-4-DEBT"
+      },
+      {
+        "id": "6650799890575421407",
+        "name": "EVK Vault esUSDp-1",
+        "chainId": 999,
+        "address": "0xAc207FFa0bfcE194Db18D1820902D48a2d948968",
+        "decimals": 18,
+        "symbol": "esUSDp-1",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1.0618951821891207,
+        "updatedAt": 1779969894,
+        "priceSource": "Price Source 0xAc207FFa0bfcE194Db18D1820902D48a2d948968",
+        "displaySymbol": "esUSDp-1"
+      },
+      {
+        "id": "7526352131581200906",
+        "name": "EVK Vault eUSDC-4",
+        "chainId": 999,
+        "address": "0xF9BB65e113418292d1a3555515fBd64637a0BE18",
+        "decimals": 6,
+        "symbol": "eUSDC-4",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 1.019317,
+        "updatedAt": 1779969893,
+        "priceSource": "Price Source 0xF9BB65e113418292d1a3555515fBd64637a0BE18",
+        "displaySymbol": "eUSDC-4"
+      }
+    ],
+    "chain": {
+      "id": 999,
+      "name": "HyperEVM",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/999.svg",
+      "liveCampaigns": 17,
+      "endOfDisputePeriod": 1779948000,
+      "explorers": [
+        {
+          "id": "12598176804634615307",
+          "type": "ETHERSCAN",
+          "url": "https://hyperevmscan.io",
+          "chainId": 999
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779957926"
+    },
+    "protocol": {
+      "id": "Hypurrfi",
+      "tags": [
+        "BORROW"
+      ],
+      "name": "Hypurrfi",
+      "description": "Deposit native Hyperliquid assets and borrow USDXL for leveraged yield that purrrrrrs.",
+      "url": "https://www.hypurr.fi/",
+      "icon": "https://raw.githubusercontent.com/hypurrfi/brand-assets/bd1994fff84ac0e09f1a2d8becbc6ab750477b4d/hypurrfi/hypurrfi-logo.png",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 10,
+      "timestamp": "1779970057",
+      "breakdowns": [
+        {
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "identifier": "0x0cc0e3b3e321273a8fbbb38bae2d0fff462aa6a49d1626cf819809b9818c4f1f",
+          "type": "CAMPAIGN",
+          "value": 10,
+          "timestamp": "1779970057"
+        }
+      ]
+    },
+    "tvlRecord": {
+      "id": "2784041287777164285",
+      "total": 27734.998773,
+      "timestamp": "1779970057",
+      "breakdowns": []
+    },
+    "rewardsRecord": {
+      "id": "2784041287777164285",
+      "total": 7.598629800821918,
+      "timestamp": "1779970057",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "12734605820517690094",
+            "name": "USDp",
+            "chainId": 999,
+            "address": "0xBE65F0F410A72BeC163dC65d46c83699e957D588",
+            "decimals": 18,
+            "symbol": "USDp",
+            "icon": "https://storage.googleapis.com/merkl-static-assets/tokens/USDp.png",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "TOKEN",
+            "price": 0.9994721941472077,
+            "updatedAt": 1779969886,
+            "priceSource": "Price Source USDp",
+            "displaySymbol": "USDp"
+          },
+          "amount": "7602642520040682496",
+          "maxAmount": "69285714285714292736",
+          "value": 7.598629800821918,
+          "maxValue": 69.2491448801994,
+          "distributionType": "MAX_REWARD_VALUE_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x0cc0e3b3e321273a8fbbb38bae2d0fff462aa6a49d1626cf819809b9818c4f1f",
+          "id": "a6a329a8-4de5-4a27-a170-282957bc8d48",
+          "timestamp": "1779970057",
+          "campaignId": "1368993375210973251",
+          "dailyRewardsRecordId": "2784041287777164285"
+        }
+      ]
+    }
+  },
+  {
+    "chainId": 1,
+    "type": "MORPHOCOLLATERAL",
+    "identifier": "0x582fdc4176da0aB5C65E086603AB9ECD9188e889",
+    "name": "Deposit sUSDat as collateral on sUSDat/AUSD 86%",
+    "description": "Earn rewards by supplying sUSDat as a collateral on Morpho on Ethereum",
+    "howToSteps": [
+      "Borrow assets on Morpho.",
+      "Rewards accumulate automatically."
+    ],
+    "status": "LIVE",
+    "action": "BORROW",
+    "tvl": 26566998.951095194,
+    "apr": 0,
+    "maxApr": 0,
+    "dailyRewards": 0,
+    "maxDailyRewards": 0,
+    "tags": [],
+    "liveCampaigns": 1,
+    "earliestCampaignStart": "1773590400",
+    "latestCampaignStart": "1773590400",
+    "earliestCampaignEnd": "1786809600",
+    "latestCampaignEnd": "1786809600",
+    "id": "4608097857916406078",
+    "depositUrl": "https://app.morpho.org/ethereum/market/0x582fdc4176da0ab5c65e086603ab9ecd9188e889e16efef6e35854cf14e15065",
+    "explorerAddress": "0xD166337499E176bbC38a1FBd113Ab144e5bd2Df7",
+    "lastCampaignCreatedAt": 1779181465,
+    "tokens": [
+      {
+        "id": "2606456648441787954",
+        "name": "Staked USDat",
+        "chainId": 1,
+        "address": "0xD166337499E176bbC38a1FBd113Ab144e5bd2Df7",
+        "decimals": 18,
+        "symbol": "sUSDat",
+        "icon": "",
+        "verified": false,
+        "isNative": false,
+        "isTest": false,
+        "type": "TOKEN",
+        "price": 0.9933897662996766,
+        "updatedAt": 1779968775,
+        "priceSource": "Computed Price - 0x6b8dbb214aef134d4155d95c8b49e07144736fca8efa5bda59a86999adb63e4f on chain 1",
+        "displaySymbol": "sUSDat"
+      }
+    ],
+    "chain": {
+      "id": 1,
+      "name": "Ethereum",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/chains/1.svg",
+      "liveCampaigns": 135,
+      "endOfDisputePeriod": 1779962400,
+      "explorers": [
+        {
+          "id": "13265570907942326370",
+          "type": "ETHERSCAN",
+          "url": "https://etherscan.io",
+          "chainId": 1
+        }
+      ],
+      "lastClaimsOnchainFetchTimestamp": "1779968579"
+    },
+    "protocol": {
+      "id": "morpho",
+      "tags": [
+        "LENDING",
+        "drip"
+      ],
+      "name": "Morpho",
+      "description": "Open infrastructure for onchain loans",
+      "url": "https://morpho.org/",
+      "icon": "https://storage.googleapis.com/merkl-static-assets/protocols/morpho.svg",
+      "banner": null,
+      "opportunityBannerLight": null,
+      "opportunityBannerDark": null
+    },
+    "activePrograms": [],
+    "depositUrls": [],
+    "aprRecord": {
+      "cumulated": 0,
+      "timestamp": "1779968768",
+      "breakdowns": []
+    },
+    "tvlRecord": {
+      "id": "18436064303006834231",
+      "total": 26566998.951095194,
+      "timestamp": "1779968768",
+      "breakdowns": [
+        {
+          "identifier": "14212030464318506742",
+          "type": "TOKEN",
+          "value": 26743532.795867343
+        }
+      ]
+    },
+    "rewardsRecord": {
+      "id": "18436064303006834231",
+      "total": 0,
+      "timestamp": "1779968768",
+      "breakdowns": [
+        {
+          "token": {
+            "id": "14212030464318506742",
+            "name": "Gravity Points",
+            "chainId": 1,
+            "address": "0xD223bbdd0421E394C0df9dFfe568f1dADfFd6f85",
+            "decimals": 18,
+            "symbol": "Gravity Points",
+            "icon": "https://pbs.twimg.com/profile_images/2013998274957438976/WHab6E_a_400x400.jpg",
+            "verified": true,
+            "isNative": false,
+            "isTest": false,
+            "type": "POINT",
+            "displaySymbol": "Gravity Points"
+          },
+          "amount": "53133997902189998716747776",
+          "maxAmount": "0",
+          "value": 53133997.90219,
+          "maxValue": 0,
+          "distributionType": "FIX_REWARD_AMOUNT_PER_LIQUIDITY_VALUE",
+          "onChainCampaignId": "0x560f48fb293ee2e17de2990978a92cbd7c6b052f97770b5dc0b9b23f0fdcc5e7",
+          "id": "d0dc20a6-c4f9-4135-99ba-355a26c83b93",
+          "timestamp": "1779968768",
+          "campaignId": "6893319648419892924",
+          "dailyRewardsRecordId": "18436064303006834231"
+        }
+      ]
+    }
+  }
+]

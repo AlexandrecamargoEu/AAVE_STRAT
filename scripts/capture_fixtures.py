@@ -38,6 +38,11 @@ def main():
 
     print(f"supply: {len(supply_subset)} | borrow: {len(borrow_subset)}")
 
+    # Merkl borrow rebates (the spec 2b.A gap)
+    merkl = get("https://api.merkl.xyz/v4/opportunities?action=BORROW&status=LIVE&items=100")
+    (out / "merkl_borrow_sample.json").write_text(json.dumps(merkl, indent=2), encoding="utf-8")
+    print(f"merkl borrow opportunities: {len(merkl)}")
+
 
 if __name__ == "__main__":
     main()
