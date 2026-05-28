@@ -4,6 +4,7 @@ Marks rows with source='chart_daily' so they coexist with 60-min 'live' samples
 (spec 7 — composite PK includes source).
 """
 import asyncio
+import calendar
 import logging
 import time
 
@@ -42,7 +43,7 @@ async def main():
                 ts_str = point.get("timestamp")
                 if not ts_str:
                     continue
-                ts_int = int(time.mktime(time.strptime(ts_str[:19], "%Y-%m-%dT%H:%M:%S")))
+                ts_int = calendar.timegm(time.strptime(ts_str[:19], "%Y-%m-%dT%H:%M:%S"))
                 await db.execute(_INSERT, (
                     pool_id, ts_int,
                     point.get("tvlUsd"),
