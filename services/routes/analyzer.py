@@ -70,3 +70,83 @@ def compute_leverage(per_iter_ltv_value: float, n_iter: int = N_ITER_DEFAULT) ->
         total += p
         p *= r
     return total
+
+
+# --- Route value object + ranking functions --------------------------------
+from dataclasses import dataclass
+from collections import defaultdict
+from itertools import combinations
+
+
+@dataclass(frozen=True)
+class Route:
+    chain: str
+    project: str
+    symbol: str
+    effective_apy: float            # for passive: just supply; for loops: gross APY of the loop
+    spread: float = 0.0             # = avg_supply - avg_borrow (loop only); for passive == effective_apy
+    leverage: float = 1.0           # 1.0 for passive
+    # loop-only fields (None for passive)
+    plat_a: str | None = None
+    asset_x: str | None = None
+    plat_b: str | None = None
+    asset_y: str | None = None
+    avg_supply: float = 0.0
+    avg_borrow: float = 0.0
+    min_tvl_usd: float = 0.0
+
+
+def rank_passive_supply(pools: list[dict]) -> list[Route]:
+    """Each in-scope pool as a passive deposit. Sorted by effective_apy desc."""
+    routes: list[Route] = []
+    for p in pools:
+        eapy = effective_supply_apy(p)
+        if eapy <= 0:
+            continue
+        routes.append(Route(
+            chain=p["chain"], project=p["project"], symbol=p["symbol"],
+            effective_apy=eapy, spread=eapy, leverage=1.0,
+            min_tvl_usd=float(p.get("tvlUsd") or 0),
+        ))
+    routes.sort(key=lambda r: r.effective_apy, reverse=True)
+    return routes
+
+
+def enumerate_same_chain_loops(pools: list[dict], n_iter: int = N_ITER_DEFAULT) -> list[Route]:
+    """Find all (plat_A, plat_B, asset_X, asset_Y) ping-pong loops on the same chain.
+
+    Each route's leverage uses the LOWER of the two platforms' per-iter LTVs
+    (the binding constraint — spec 2b.H).
+    """
+    by_chain: dict[str, dict[tuple[str, str], dict]] = defaultdict(dict)
+    for p in pools:
+        if p.get("apyBaseBorrow") is None:
+            continue
+        by_chain[p["chain"]][(p["project"], p["symbol"].upper())] = p
+
+    out: list[Route] = []
+    for chain, mp in by_chain.items():
+        platforms = sorted({k[0] for k in mp})
+        assets = sorted({k[1] for k in mp})
+        if len(platforms) < 2 or len(assets) < 2:
+            continue
+        for pa, pb in combinations(platforms, 2):
+            for ax, ay in combinations(assets, 2):
+                sX_A = mp.get((pa, ax)); bY_A = mp.get((pa, ay))
+                sY_B = mp.get((pb, ay)); bX_B = mp.get((pb, ax))
+                if not all([sX_A, bY_A, sY_B, bX_B]):
+                    continue
+                sup = (effective_supply_apy(sX_A) + effective_supply_apy(sY_B)) / 2
+                bor = (effective_borrow_apr(bY_A) + effective_borrow_apr(bX_B)) / 2
+                bind_iter_ltv = min(per_iter_ltv(sX_A.get("ltv")), per_iter_ltv(sY_B.get("ltv")))
+                lev = compute_leverage(bind_iter_ltv, n_iter)
+                gross = lev * sup - (lev - 1) * bor
+                min_tvl = min(float(x.get("tvlUsd") or 0) for x in (sX_A, bY_A, sY_B, bX_B))
+                out.append(Route(
+                    chain=chain, project=f"{pa}+{pb}", symbol=f"{ax}/{ay}",
+                    effective_apy=gross, spread=sup - bor, leverage=lev,
+                    plat_a=pa, asset_x=ax, plat_b=pb, asset_y=ay,
+                    avg_supply=sup, avg_borrow=bor, min_tvl_usd=min_tvl,
+                ))
+    out.sort(key=lambda r: r.spread, reverse=True)
+    return out
