@@ -101,6 +101,8 @@ Our snapshot only enumerated same-chain loops. Paul's best examples are cross-ch
 
 **Decision:** full cross-chain route enumeration needs bridge cost + time modeling (and eventually Binance) → that stays **Phase 2**. But the **data model must not assume same-chain** — `analyzer` route objects carry per-leg chain, and the schema already stores per-pool chain. We avoid baking in a same-chain assumption we'd have to rip out.
 
+**Evidence (`demo_loops_with_merkl.py`, 28-mai):** overlaying Merkl borrow rebates onto same-chain loops improved spreads (best loop 7.33% → 9.33% gross APY) but flipped **0** loops positive — the big rebates land on chains (Mantle, Plasma, Cronos) with no same-chain partner pool. The **cross-chain carry ceiling** (max supply anywhere − min net-borrow anywhere, with Merkl) tells the real story: USDC **+13.2%** (Canto 13.5% supply / Cronos 0.28% borrow), USDT **+4.6%**, GHO **+5.2%**, USDE **+5.0%**. These are pre-bridge-cost, pre-LAV ceilings — but they confirm Paul's thesis: the live opportunity is cross-chain carry, not same-chain loops. Phase 1 same-chain ranking is the monitoring foundation; Phase 2 cross-chain is the product.
+
 ### F. Per-platform reward-scheme documentation (LAV expansion)
 
 Paul: "write out each platform's shitcoin scheme — how long to sell XVS, how often paid, withdrawal penalties." This **is** the LAV bucket work, made concrete.
