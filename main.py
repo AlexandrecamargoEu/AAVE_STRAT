@@ -7,7 +7,6 @@ Runs:
 """
 import asyncio
 import logging
-import signal
 from pathlib import Path
 
 import uvicorn
@@ -47,17 +46,6 @@ async def _main():
     app = _make_app()
     server = uvicorn.Server(uvicorn.Config(app, host=settings.API_HOST, port=settings.API_PORT, log_level="info"))
     ingestor = PoolsIngestor(db)
-
-    stop_event = asyncio.Event()
-
-    def _on_signal(*_):
-        stop_event.set()
-
-    for sig in (signal.SIGINT, signal.SIGTERM):
-        try:
-            asyncio.get_running_loop().add_signal_handler(sig, _on_signal)
-        except NotImplementedError:
-            pass  # Windows: SIGTERM not supported; Ctrl-C still works through KeyboardInterrupt
 
     try:
         await asyncio.gather(
