@@ -55,3 +55,38 @@ async def test_pool_disappears_from_feed_marked_inactive(db):
     await apply_snapshot(db, [_row("uuid-keep")], ts=ts2)
     rows = await db.fetch_all("SELECT pool_id, status FROM pools_snapshot ORDER BY pool_id")
     assert rows == [("uuid-gone", "inactive"), ("uuid-keep", "active")]
+
+
+async def test_tvl_crash_flag_raised_on_large_drop(db):
+    """Inter-snapshot TVL drop > 50% should override quality_flag to tvl_crash."""
+    ts1, ts2 = 1716800000, 1716803600
+    # Initial snapshot: $10M
+    await apply_snapshot(db, [_row("crash", tvl=10_000_000)], ts=ts1)
+    # Next tick: $1M (90% drop)
+    await apply_snapshot(db, [_row("crash", tvl=1_000_000)], ts=ts2)
+
+    flag = await db.fetch_one("SELECT quality_flag FROM pools_snapshot WHERE pool_id=?", ("crash",))
+    assert flag == ("tvl_crash",)
+
+
+async def test_tvl_drop_below_threshold_does_not_flag(db):
+    """A 30% drop is normal market movement — should NOT be flagged."""
+    ts1, ts2 = 1716800000, 1716803600
+    await apply_snapshot(db, [_row("normal", tvl=10_000_000)], ts=ts1)
+    await apply_snapshot(db, [_row("normal", tvl=7_000_000)], ts=ts2)  # 30% drop
+
+    flag = await db.fetch_one("SELECT quality_flag FROM pools_snapshot WHERE pool_id=?", ("normal",))
+    assert flag == ("ok",)
+
+
+async def test_tvl_crash_does_not_override_impossible(db):
+    """If a pool is already 'impossible' (e.g. APY=15000%), TVL crash shouldn't downgrade severity."""
+    ts1, ts2 = 1716800000, 1716803600
+    # First snapshot: high TVL, normal
+    await apply_snapshot(db, [_row("bad", tvl=10_000_000)], ts=ts1)
+    # Second snapshot: massive TVL drop AND impossible APY
+    impossible_row = _row("bad", tvl=1_000_000, q="impossible")
+    await apply_snapshot(db, [impossible_row], ts=ts2)
+
+    flag = await db.fetch_one("SELECT quality_flag FROM pools_snapshot WHERE pool_id=?", ("bad",))
+    assert flag == ("impossible",)

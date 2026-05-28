@@ -7,6 +7,8 @@ import json
 
 from db.sqlite_client import SqliteClient
 
+TVL_CRASH_THRESHOLD = 0.50  # >50% drop inter-snapshot = TVL_CRASH flag
+
 
 _SNAPSHOT_UPSERT = """
 INSERT INTO pools_snapshot (
@@ -95,19 +97,59 @@ def _to_db_params(row: dict, ts: int) -> dict:
     }
 
 
+async def _detect_tvl_crashes(db: SqliteClient, new_rows: list[dict]) -> set[str]:
+    """Return pool_ids whose TVL dropped > TVL_CRASH_THRESHOLD vs the previous snapshot.
+
+    Compares the incoming batch's tvl_usd against pools_snapshot.tvl_usd (the value
+    from the PREVIOUS ingest tick, before this batch overwrites it).
+    """
+    if not new_rows:
+        return set()
+    pool_ids = [r["pool_id"] for r in new_rows]
+    placeholders = ",".join("?" * len(pool_ids))
+    prev_rows = await db.fetch_all(
+        f"SELECT pool_id, tvl_usd FROM pools_snapshot WHERE pool_id IN ({placeholders})",
+        tuple(pool_ids),
+    )
+    prev_tvl = {pid: tvl for pid, tvl in prev_rows}
+    crashed = set()
+    new_tvl = {r["pool_id"]: r["tvl_usd"] for r in new_rows}
+    for pid in pool_ids:
+        prev = prev_tvl.get(pid)
+        cur = new_tvl.get(pid)
+        if prev is None or cur is None or prev <= 0:
+            continue
+        drop = (prev - cur) / prev
+        if drop > TVL_CRASH_THRESHOLD:
+            crashed.add(pid)
+    return crashed
+
+
 async def apply_snapshot(db: SqliteClient, rows: list[dict], ts: int) -> int:
-    """UPSERT pools_snapshot + INSERT pools_history. Mark missing pools inactive."""
+    """UPSERT pools_snapshot + INSERT pools_history. Mark missing pools inactive.
+
+    Detects inter-snapshot TVL crashes (>50% drop) and overrides quality_flag
+    to 'tvl_crash' for affected pools. The override has higher severity than
+    needs_review/high_utilization but lower than 'impossible'.
+    """
     params = [_to_db_params(r, ts) for r in rows]
     if not params:
         return 0
+
+    # Detect TVL crashes against the PREVIOUS snapshot (before we upsert)
+    crashed = await _detect_tvl_crashes(db, params)
+    for p in params:
+        if p["pool_id"] in crashed:
+            # Don't override 'impossible' — it's strictly more severe
+            if p["quality_flag"] != "impossible":
+                p["quality_flag"] = "tvl_crash"
+
     seen_ids = {p["pool_id"] for p in params}
 
-    # 1. Upsert + history (one transaction effectively, sqlite_client commits per call)
     for p in params:
         await db.execute(_SNAPSHOT_UPSERT, p)
         await db.execute(_HISTORY_INSERT, p)
 
-    # 2. Mark pools missing from this batch as inactive
     placeholders = ",".join("?" * len(seen_ids))
     await db.execute(
         f"UPDATE pools_snapshot SET status='inactive' WHERE pool_id NOT IN ({placeholders})",
