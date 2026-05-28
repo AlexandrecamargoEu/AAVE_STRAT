@@ -1,0 +1,14 @@
+{
+  "aave-v3":         { "display": "Aave V3",         "primary_reward": "AAVE",   "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false },
+  "compound-v3":     { "display": "Compound V3",     "primary_reward": "COMP",   "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false },
+  "venus-core-pool": { "display": "Venus Core",      "primary_reward": "XVS",    "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false },
+  "morpho-blue":     { "display": "Morpho Blue",     "primary_reward": "MORPHO", "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false },
+  "kamino-lend":     { "display": "Kamino Lend",     "primary_reward": "KMNO",   "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false },
+  "navi-protocol":   { "display": "NAVI",            "primary_reward": "NAVX",   "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false },
+  "suilend":         { "display": "Suilend",         "primary_reward": "SLND",   "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false },
+  "fluid-lending":   { "display": "Fluid",           "primary_reward": "FLUID",  "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false },
+  "spark":           { "display": "Spark",           "primary_reward": "SPK",    "payout": "claim",  "vesting_days": 14, "withdraw_penalty": false },
+  "lista-lending":   { "display": "Lista",           "primary_reward": "LISTA",  "payout": "claim",  "vesting_days": 7,  "withdraw_penalty": false },
+  "dolomite":        { "display": "Dolomite",        "primary_reward": "DOLO",   "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false },
+  "euler-v2":        { "display": "Euler V2",        "primary_reward": "EUL",    "payout": "claim",  "vesting_days": 0,  "withdraw_penalty": false }
+}

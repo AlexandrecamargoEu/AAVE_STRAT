@@ -1,0 +1,9 @@
+{
+  "default_bucket": "B",
+  "default_discount_pct": 0.125,
+  "buckets": {
+    "A": { "discount_pct": 0.0,   "tokens": ["AAVE", "COMP", "MORPHO", "KMNO", "JUP", "NAVX", "SLND", "FLUID", "DOLO", "EUL"] },
+    "B": { "discount_pct": 0.125, "tokens": ["XVS", "LISTA", "SPK", "FELIX", "VENUS"] },
+    "C": { "discount_pct": 0.35,  "tokens": ["HPL", "MFI", "CANTO"] }
+  }
+}

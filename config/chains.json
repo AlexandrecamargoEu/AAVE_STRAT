@@ -1,0 +1,22 @@
+{
+  "default_excluded": false,
+  "chains": {
+    "BSC":         { "gas_per_tx": 0.10, "bridge_cost_usd": 0.29, "excluded": false },
+    "Ethereum":    { "gas_per_tx": 1.20, "bridge_cost_usd": 1.00, "excluded": false },
+    "Base":        { "gas_per_tx": 0.03, "bridge_cost_usd": 0.10, "excluded": false },
+    "Arbitrum":    { "gas_per_tx": 0.04, "bridge_cost_usd": 0.10, "excluded": false },
+    "Optimism":    { "gas_per_tx": 0.04, "bridge_cost_usd": 0.10, "excluded": false },
+    "OP Mainnet":  { "gas_per_tx": 0.04, "bridge_cost_usd": 0.10, "excluded": false },
+    "Polygon":     { "gas_per_tx": 0.02, "bridge_cost_usd": 0.10, "excluded": false },
+    "Avalanche":   { "gas_per_tx": 0.05, "bridge_cost_usd": 0.10, "excluded": false },
+    "Solana":      { "gas_per_tx": 0.005,"bridge_cost_usd": 0.10, "excluded": false },
+    "Sui":         { "gas_per_tx": 0.01, "bridge_cost_usd": 0.50, "excluded": false },
+    "Mantle":      { "gas_per_tx": 0.05, "bridge_cost_usd": null, "excluded": false },
+    "Linea":       { "gas_per_tx": 0.05, "bridge_cost_usd": null, "excluded": false },
+    "Scroll":      { "gas_per_tx": 0.05, "bridge_cost_usd": null, "excluded": false },
+    "Tron":        { "gas_per_tx": 0.80, "bridge_cost_usd": 1.00, "excluded": false },
+    "Sonic":       { "gas_per_tx": 0.01, "bridge_cost_usd": null, "excluded": false },
+    "Plasma":      { "gas_per_tx": 0.01, "bridge_cost_usd": null, "excluded": false },
+    "Canto":       { "gas_per_tx": 0.05, "bridge_cost_usd": null, "excluded": false }
+  }
+}
