@@ -9,10 +9,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 CONFIG_DIR = Path(__file__).resolve().parent
+_ENV_FILE = str(CONFIG_DIR.parent / ".env")  # project-root-relative, immune to CWD
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_prefix="", extra="ignore")
+    model_config = SettingsConfigDict(env_file=_ENV_FILE, env_prefix="", extra="ignore")
 
     CODEE_DB_PATH: str = "data/codee.db"
     CODEE_LOG_LEVEL: str = "INFO"
