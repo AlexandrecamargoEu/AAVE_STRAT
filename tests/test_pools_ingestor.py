@@ -84,8 +84,8 @@ async def test_ingestor_overlays_merkl_borrow_rebate(db):
     base, rebate, src = row
     assert base == pytest.approx(3.31)
     assert rebate == pytest.approx(1.37)
-    # Merkl provided the rebate -> reward_source is something valid
-    assert src in ("defillama", "merkl")
+    # Merkl provided the rebate -> reward_source records 'merkl' (not the defillama default)
+    assert src == "merkl"
 
 
 async def test_ingestor_flags_high_utilization(db):
