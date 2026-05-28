@@ -150,3 +150,53 @@ def enumerate_same_chain_loops(pools: list[dict], n_iter: int = N_ITER_DEFAULT) 
                 ))
     out.sort(key=lambda r: r.spread, reverse=True)
     return out
+
+
+# --- Cross-chain carry radar (spec 2b.E) -----------------------------------
+@dataclass(frozen=True)
+class CrossChainCarry:
+    symbol: str
+    supply_chain: str
+    supply_project: str
+    supply_apy: float
+    borrow_chain: str
+    borrow_project: str
+    borrow_apr: float
+    spread: float
+    pre_bridge_ceiling: bool = True   # always True in Phase 1a — no bridge cost applied
+
+
+def cross_chain_carry(pools: list[dict]) -> list[CrossChainCarry]:
+    """Per-stable-asset: best supply on any chain vs cheapest net-borrow on any
+    OTHER chain. With Merkl rebates already applied via overlay_rebates() upstream.
+
+    Pre-bridge-cost ceiling — the executable filter (bridge <= $1) is Phase 2.
+    """
+    sup_by_asset: dict[str, list[tuple[float, str, str]]] = defaultdict(list)
+    bor_by_asset: dict[str, list[tuple[float, str, str]]] = defaultdict(list)
+    for p in pools:
+        sym = (p.get("symbol") or "").upper()
+        chain = p.get("chain") or ""
+        proj = p.get("project") or ""
+        sup_by_asset[sym].append((effective_supply_apy(p), chain, proj))
+        if p.get("apyBaseBorrow") is not None:
+            bor_by_asset[sym].append((effective_borrow_apr(p), chain, proj))
+
+    out: list[CrossChainCarry] = []
+    for sym, sup_list in sup_by_asset.items():
+        bor_list = bor_by_asset.get(sym, [])
+        if not bor_list:
+            continue
+        best_sup = max(sup_list)
+        cheap_bor = min(bor_list)
+        if best_sup[1] == cheap_bor[1]:
+            # same chain — skip (covered by same-chain loop ranking)
+            continue
+        out.append(CrossChainCarry(
+            symbol=sym,
+            supply_chain=best_sup[1], supply_project=best_sup[2], supply_apy=best_sup[0],
+            borrow_chain=cheap_bor[1], borrow_project=cheap_bor[2], borrow_apr=cheap_bor[0],
+            spread=best_sup[0] - cheap_bor[0],
+        ))
+    out.sort(key=lambda r: r.spread, reverse=True)
+    return out
