@@ -1,0 +1,1320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Codee — Phase 1a Dashboard</title>
+
+  <!-- Chart.js (lightweight, CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* ─── DESIGN SYSTEM ────────────────────────────────────────────────────── */
+    /* Aesthetic: industrial terminal — amber data on near-black. Numbers first.
+       Font stack: JetBrains Mono for data cells, IBM Plex Sans for labels.      */
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+      --bg-base:    #0c0d0f;
+      --bg-panel:   #111318;
+      --bg-card:    #161a22;
+      --bg-row-alt: #13151c;
+      --bg-header:  #0e1016;
+
+      --border:     #1e2330;
+      --border-dim: #161a22;
+
+      --text-primary:   #e8e6e0;
+      --text-secondary: #7a8099;
+      --text-dim:       #434960;
+      --text-mono:      'IBM Plex Mono', 'Courier New', monospace;
+      --text-sans:      'IBM Plex Sans', system-ui, sans-serif;
+
+      /* Regime signal */
+      --amber:      #f5a623;
+      --amber-dim:  #7a5212;
+      --amber-glow: rgba(245,166,35,0.15);
+
+      /* Semantic */
+      --green:      #3ecf8e;
+      --green-dim:  rgba(62,207,142,0.12);
+      --red:        #e05252;
+      --red-dim:    rgba(224,82,82,0.12);
+      --yellow:     #f0c040;
+      --yellow-dim: rgba(240,192,64,0.12);
+      --orange:     #f07020;
+      --orange-dim: rgba(240,112,32,0.12);
+
+      --tab-active-border: var(--amber);
+      --refresh-cycle: 60s;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--text-sans);
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    /* ─── HEADER ─────────────────────────────────────────────────────────────*/
+    #site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      height: 52px;
+    }
+
+    .logo {
+      font-family: var(--text-mono);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--amber);
+      white-space: nowrap;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .logo span { color: var(--text-dim); }
+
+    .header-divider {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* ─── REGIME CARDS ───────────────────────────────────────────────────────*/
+    .cards-row {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .regime-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 14px;
+      min-width: 0;
+      flex: 1;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    /* reward_active_pools — the regime-change signal card */
+    .card-reward {
+      flex: 1.8;
+      border-color: var(--amber-dim);
+      background: linear-gradient(135deg, #161a22 60%, #1a1508);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-reward::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top right, var(--amber-glow) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .card-reward.regime-active {
+      border-color: var(--amber);
+      animation: pulse-border 2s ease-in-out infinite;
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+      50% { box-shadow: 0 0 0 4px rgba(245,166,35,0.15); }
+    }
+
+    .card-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .card-reward .card-label { color: var(--amber-dim); }
+    .card-reward.regime-active .card-label { color: var(--amber); }
+
+    .card-value {
+      font-family: var(--text-mono);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .card-reward .card-value { font-size: 28px; color: var(--amber); }
+    .card-reward.regime-active .card-value { color: var(--amber); }
+
+    .card-sub {
+      font-size: 9px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      font-family: var(--text-mono);
+    }
+
+    /* status badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--text-mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 2px;
+      border: 1px solid;
+    }
+    .status-badge::before {
+      content: '';
+      display: block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .status-ok    { color: var(--green); border-color: rgba(62,207,142,0.4); background: var(--green-dim); }
+    .status-ok::before { background: var(--green); }
+    .status-degraded  { color: var(--red); border-color: rgba(224,82,82,0.4); background: var(--red-dim); }
+    .status-degraded::before  { background: var(--red); box-shadow: 0 0 4px var(--red); }
+    .status-warming_up { color: var(--yellow); border-color: rgba(240,192,64,0.4); background: var(--yellow-dim); }
+    .status-warming_up::before { background: var(--yellow); }
+
+    /* ─── REFRESH + TIMER ────────────────────────────────────────────────────*/
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .refresh-timer {
+      font-family: var(--text-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .refresh-timer span { color: var(--text-secondary); }
+
+    .btn-refresh {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-family: var(--text-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .btn-refresh:hover {
+      color: var(--amber);
+      border-color: var(--amber-dim);
+      background: var(--amber-glow);
+    }
+
+    /* ─── STALE BANNER ───────────────────────────────────────────────────────*/
+    #stale-banner {
+      display: none;
+      background: rgba(224,82,82,0.15);
+      border-bottom: 1px solid var(--red);
+      padding: 6px 20px;
+      font-family: var(--text-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--red);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    #stale-banner.visible { display: block; }
+
+    /* ─── TABS ───────────────────────────────────────────────────────────────*/
+    .tabs-bar {
+      display: flex;
+      gap: 0;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-header);
+      position: sticky;
+      top: 52px;
+      z-index: 90;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 10px 16px 8px;
+      font-family: var(--text-sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-dim);
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+      transition: color 0.15s, border-color 0.15s;
+      margin-bottom: -1px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1px;
+    }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn.active {
+      color: var(--amber);
+      border-bottom-color: var(--amber);
+    }
+
+    .tab-caveat {
+      font-size: 8px;
+      font-family: var(--text-mono);
+      color: var(--orange);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ─── MAIN CONTENT ───────────────────────────────────────────────────────*/
+    #main-content {
+      padding: 20px;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ─── DATA TABLES ────────────────────────────────────────────────────────*/
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--text-mono);
+      font-size: 12px;
+    }
+
+    thead th {
+      background: var(--bg-header);
+      color: var(--text-dim);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      user-select: none;
+    }
+    thead th.r { text-align: right; }
+    thead th.l { text-align: left; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border-dim);
+      transition: background 0.1s;
+    }
+    tbody tr:nth-child(even) { background: var(--bg-row-alt); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(245,166,35,0.04); }
+
+    td {
+      padding: 7px 12px;
+      white-space: nowrap;
+      color: var(--text-primary);
+    }
+    td.r { text-align: right; }
+    td.l { text-align: left; }
+    td.dim { color: var(--text-secondary); }
+
+    .num { font-family: var(--text-mono); }
+
+    /* quality-flag row tints */
+    tr.qf-needs_review    { background: rgba(240,192,64,0.06) !important; }
+    tr.qf-high_utilization { background: rgba(240,112,32,0.06) !important; }
+    tr.qf-impossible      { background: rgba(224,82,82,0.08) !important; }
+    tr.qf-tvl_crash       { background: rgba(224,82,82,0.08) !important; }
+    tr.qf-needs_review td.flag-cell    { color: var(--yellow); }
+    tr.qf-high_utilization td.flag-cell { color: var(--orange); }
+    tr.qf-impossible td.flag-cell       { color: var(--red); }
+    tr.qf-tvl_crash td.flag-cell        { color: var(--red); }
+
+    /* spread coloring */
+    .spread-pos { color: var(--green); }
+    .spread-neg { color: var(--red); }
+    .spread-neu { color: var(--text-secondary); }
+
+    /* chain / project pill */
+    .chain-pill {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 2px;
+      background: var(--bg-header);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+
+    /* ─── EMPTY STATE ────────────────────────────────────────────────────────*/
+    .empty-state {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--text-dim);
+    }
+    .empty-state h3 {
+      font-family: var(--text-mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .empty-state a {
+      color: var(--amber);
+      cursor: pointer;
+      text-decoration: none;
+      border-bottom: 1px solid var(--amber-dim);
+    }
+    .empty-state a:hover { border-bottom-color: var(--amber); }
+
+    /* ─── SECTION HEADER ─────────────────────────────────────────────────────*/
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--text-sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .section-count {
+      font-family: var(--text-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 2px;
+    }
+
+    /* ─── TOGGLE ─────────────────────────────────────────────────────────────*/
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .toggle-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: var(--text-sans);
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 32px;
+      height: 16px;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 12px; height: 12px;
+      left: 2px; top: 2px;
+      background: var(--text-dim);
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--amber-dim); }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(16px);
+      background: var(--amber);
+    }
+
+    /* ─── REWARD HEALTH TAB ──────────────────────────────────────────────────*/
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .health-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 16px;
+    }
+    .health-card-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+    .health-card-value {
+      font-family: var(--text-mono);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .qf-table {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .qf-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .qf-row:last-child { border-bottom: none; }
+    .qf-row:hover { background: rgba(255,255,255,0.02); }
+    .qf-name {
+      font-family: var(--text-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .qf-count {
+      font-family: var(--text-mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    /* ─── HISTORY TAB ────────────────────────────────────────────────────────*/
+    .history-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .history-input {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: var(--text-mono);
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 3px;
+      width: 320px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .history-input:focus { border-color: var(--amber-dim); }
+    .history-input::placeholder { color: var(--text-dim); }
+
+    .range-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .range-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: var(--text-mono);
+      white-space: nowrap;
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 120px;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px; height: 12px;
+      background: var(--amber);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 4px var(--amber-glow);
+    }
+
+    .btn-load {
+      background: var(--amber-glow);
+      border: 1px solid var(--amber-dim);
+      color: var(--amber);
+      font-family: var(--text-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-load:hover {
+      background: rgba(245,166,35,0.2);
+      border-color: var(--amber);
+    }
+
+    .chart-wrap {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px;
+      position: relative;
+    }
+    .chart-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      color: var(--text-dim);
+      font-family: var(--text-mono);
+      font-size: 11px;
+    }
+
+    /* ─── LOADING STATE ──────────────────────────────────────────────────────*/
+    .loading-row td {
+      color: var(--text-dim);
+      font-style: italic;
+      text-align: center;
+    }
+
+    /* ─── CROSSCHAIN CAVEAT ──────────────────────────────────────────────────*/
+    .caveat-banner {
+      background: rgba(240,112,32,0.08);
+      border: 1px solid rgba(240,112,32,0.3);
+      border-radius: 4px;
+      padding: 8px 14px;
+      margin-bottom: 14px;
+      font-family: var(--text-mono);
+      font-size: 10px;
+      color: var(--orange);
+      letter-spacing: 0.04em;
+    }
+    .caveat-banner strong { font-weight: 600; text-transform: uppercase; }
+
+    /* ─── MISC ───────────────────────────────────────────────────────────────*/
+    .last-refreshed {
+      font-family: var(--text-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    .arrow-link {
+      color: var(--amber);
+      font-family: var(--text-mono);
+      font-size: 10px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+      margin-left: 4px;
+      text-decoration: underline;
+      text-decoration-color: var(--amber-dim);
+    }
+    .arrow-link:hover { text-decoration-color: var(--amber); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     SITE HEADER  — regime cards + status
+═══════════════════════════════════════════════════════════════════════════════ -->
+<header id="site-header">
+  <div class="header-inner">
+    <div class="logo">CODEE <span>/ Phase 1a</span></div>
+    <div class="header-divider"></div>
+
+    <div class="cards-row">
+      <!-- Card 1: reward_active_pools — REGIME SIGNAL -->
+      <div class="regime-card card-reward" id="card-reward">
+        <div class="card-label">Reward Active Pools</div>
+        <div class="card-value" id="val-reward">—</div>
+        <div class="card-sub">regime-change signal</div>
+      </div>
+
+      <!-- Card 2: in_scope_count -->
+      <div class="regime-card">
+        <div class="card-label">In-Scope Pools</div>
+        <div class="card-value" id="val-inscope">—</div>
+      </div>
+
+      <!-- Card 3: join_rate -->
+      <div class="regime-card">
+        <div class="card-label">Join Rate</div>
+        <div class="card-value" id="val-joinrate">—</div>
+        <div class="card-sub">borrow coverage</div>
+      </div>
+
+      <!-- Card 4: snapshot_age -->
+      <div class="regime-card">
+        <div class="card-label">Snapshot Age</div>
+        <div class="card-value" id="val-snapage">—</div>
+        <div class="card-sub" id="val-snapage-sub">min ago</div>
+      </div>
+
+      <!-- Card 5: status badge -->
+      <div class="regime-card" style="flex:1.2; justify-content:center; align-items:center; flex-direction:row; gap:10px;">
+        <div>
+          <div class="card-label" style="margin-bottom:4px;">Backend</div>
+          <span class="status-badge status-warming_up" id="status-badge">warming up</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="refresh-timer">Next refresh <span id="refresh-countdown">60</span>s</div>
+      <button class="btn-refresh" onclick="manualRefresh()">&#8635; Refresh</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     STALE DATA BANNER
+═══════════════════════════════════════════════════════════════════════════════ -->
+<div id="stale-banner">
+  &#9888; DATA STALE — last snapshot <span id="stale-age-label">unknown</span> ago
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     TABS BAR
+═══════════════════════════════════════════════════════════════════════════════ -->
+<nav class="tabs-bar" id="tabs-bar">
+  <button class="tab-btn active" data-tab="passive" onclick="switchTab('passive')">
+    Passive Supply
+  </button>
+  <button class="tab-btn" data-tab="loops" onclick="switchTab('loops')">
+    Same-Chain Loops
+  </button>
+  <button class="tab-btn" data-tab="crosschain" onclick="switchTab('crosschain')">
+    Cross-Chain Carry
+    <span class="tab-caveat">pre-bridge ceiling</span>
+  </button>
+  <button class="tab-btn" data-tab="rewardhealth" onclick="switchTab('rewardhealth')">
+    Reward Health
+  </button>
+  <button class="tab-btn" data-tab="history" onclick="switchTab('history')">
+    History
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════════════════════════════════════ -->
+<main id="main-content">
+
+  <!-- ── Tab 1: Passive Supply ──────────────────────────────────────────── -->
+  <div class="tab-panel active" id="panel-passive">
+    <div class="section-header">
+      <span class="section-title">Passive Supply Opportunities</span>
+      <span class="section-count" id="passive-count">—</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="l">Chain</th>
+            <th class="l">Project</th>
+            <th class="l">Symbol</th>
+            <th class="r">Eff. APY</th>
+            <th class="r">TVL</th>
+            <th class="l">Flag</th>
+          </tr>
+        </thead>
+        <tbody id="passive-tbody">
+          <tr class="loading-row"><td colspan="6">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="last-refreshed" id="passive-ts"></div>
+  </div>
+
+  <!-- ── Tab 2: Same-Chain Loops ────────────────────────────────────────── -->
+  <div class="tab-panel" id="panel-loops">
+    <div class="section-header">
+      <span class="section-title">Same-Chain Loop Opportunities</span>
+      <span class="section-count" id="loops-count">—</span>
+    </div>
+    <div class="toggle-row">
+      <label class="toggle-label" for="loops-positive-toggle">Positive spread only</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="loops-positive-toggle" checked onchange="loadLoops()">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div id="loops-content">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="l">Chain</th>
+              <th class="l">Supply Platform</th>
+              <th class="l">Supply Asset</th>
+              <th class="l">Borrow Platform</th>
+              <th class="l">Borrow Asset</th>
+              <th class="r">Avg Supply</th>
+              <th class="r">Avg Borrow</th>
+              <th class="r">Spread</th>
+              <th class="r">Leverage</th>
+              <th class="r">Gross APY</th>
+              <th class="r">Min TVL</th>
+            </tr>
+          </thead>
+          <tbody id="loops-tbody">
+            <tr class="loading-row"><td colspan="11">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="last-refreshed" id="loops-ts"></div>
+  </div>
+
+  <!-- ── Tab 3: Cross-Chain Carry ───────────────────────────────────────── -->
+  <div class="tab-panel" id="panel-crosschain">
+    <div class="caveat-banner">
+      <strong>Pre-bridge ceiling:</strong> These spreads do not account for bridge costs,
+      slippage, or cross-chain gas. Treat all figures as <strong>theoretical upper bounds</strong>
+      before execution costs. Verify bridge fees separately before sizing any position.
+    </div>
+    <div class="section-header">
+      <span class="section-title">Cross-Chain Carry Opportunities</span>
+      <span class="section-count" id="crosschain-count">—</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="l">Symbol</th>
+            <th class="l">Supply Chain</th>
+            <th class="l">Supply Project</th>
+            <th class="r">Supply APY</th>
+            <th class="l">Borrow Chain</th>
+            <th class="l">Borrow Project</th>
+            <th class="r">Borrow APR</th>
+            <th class="r">Spread</th>
+          </tr>
+        </thead>
+        <tbody id="crosschain-tbody">
+          <tr class="loading-row"><td colspan="8">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="last-refreshed" id="crosschain-ts"></div>
+  </div>
+
+  <!-- ── Tab 4: Reward Health ───────────────────────────────────────────── -->
+  <div class="tab-panel" id="panel-rewardhealth">
+    <div class="section-header">
+      <span class="section-title">Reward &amp; Quality Health</span>
+    </div>
+    <div class="health-grid" id="health-cards-grid">
+      <!-- populated by JS -->
+    </div>
+    <div class="section-header" style="margin-top:8px;">
+      <span class="section-title">Quality Flag Breakdown</span>
+    </div>
+    <div class="qf-table" id="qf-table">
+      <div class="qf-row"><span class="qf-name">Loading…</span></div>
+    </div>
+  </div>
+
+  <!-- ── Tab 5: History ─────────────────────────────────────────────────── -->
+  <div class="tab-panel" id="panel-history">
+    <div class="section-header">
+      <span class="section-title">Pool Rate History</span>
+    </div>
+    <div class="history-controls">
+      <input
+        type="text"
+        id="history-pool-id"
+        class="history-input"
+        placeholder="Pool UUID — e.g. aa-bb-cc-dd  (from pool_id column)"
+      />
+      <div class="range-group">
+        <span class="range-label">Days:</span>
+        <input type="range" id="history-days" min="1" max="90" value="30"
+               oninput="document.getElementById('history-days-label').textContent = this.value" />
+        <span class="range-label" id="history-days-label">30</span>
+      </div>
+      <button class="btn-load" onclick="loadHistory()">Load Chart</button>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-placeholder" id="history-placeholder">
+        Enter a pool UUID above and click Load Chart.
+      </div>
+      <canvas id="history-chart" style="display:none; max-height:360px;"></canvas>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ── State ────────────────────────────────────────────────────────────────────
+let _healthData    = null;
+let _chartInstance = null;
+let _countdownVal  = 60;
+let _countdownTimer = null;
+
+// ── Formatting helpers ───────────────────────────────────────────────────────
+function fmtApy(v) {
+  if (v === null || v === undefined) return '—';
+  return v.toFixed(2) + '%';
+}
+function fmtTvl(v) {
+  if (v === null || v === undefined) return '—';
+  if (v >= 1e9) return '$' + (v / 1e9).toFixed(2) + 'B';
+  if (v >= 1e6) return '$' + (v / 1e6).toFixed(2) + 'M';
+  if (v >= 1e3) return '$' + (v / 1e3).toFixed(1) + 'K';
+  return '$' + v.toFixed(0);
+}
+function fmtSpreadClass(v) {
+  if (v === null || v === undefined) return 'spread-neu';
+  if (v > 0.1) return 'spread-pos';
+  if (v < -0.1) return 'spread-neg';
+  return 'spread-neu';
+}
+function fmtAge(s) {
+  if (s === null || s === undefined) return '—';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m;
+  return (s / 3600).toFixed(1) + 'h';
+}
+function fmtAgeLabel(s) {
+  if (s === null || s === undefined) return 'unknown';
+  const h = s / 3600;
+  if (h < 1) return Math.floor(s / 60) + ' min';
+  return h.toFixed(1) + 'h';
+}
+function chainPill(chain) {
+  return `<span class="chain-pill">${chain || '—'}</span>`;
+}
+function qfClass(qf) {
+  if (!qf || qf === 'ok') return '';
+  return `qf-${qf}`;
+}
+function timestamp() {
+  return 'Last loaded: ' + new Date().toLocaleTimeString();
+}
+
+// ── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+  document.getElementById(`panel-${name}`).classList.add('active');
+}
+
+// ── Fetch with error handling ────────────────────────────────────────────────
+async function apiFetch(path) {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ── Health / Regime cards ────────────────────────────────────────────────────
+async function loadHealth() {
+  try {
+    const h = await apiFetch('/api/codee/health');
+    _healthData = h;
+
+    // Reward-active pools (REGIME SIGNAL)
+    const rewardEl = document.getElementById('val-reward');
+    const cardReward = document.getElementById('card-reward');
+    rewardEl.textContent = h.reward_active_pools ?? '—';
+    cardReward.classList.toggle('regime-active', (h.reward_active_pools || 0) > 0);
+
+    document.getElementById('val-inscope').textContent  = h.pool_count_in_scope ?? '—';
+    document.getElementById('val-joinrate').textContent = h.join_rate != null
+      ? (h.join_rate * 100).toFixed(1) + '%' : '—';
+
+    const ageVal = fmtAge(h.snapshot_age_s);
+    document.getElementById('val-snapage').textContent = ageVal;
+    document.getElementById('val-snapage-sub').textContent =
+      (typeof ageVal === 'number') ? 'min ago' : 'ago';
+
+    // Status badge
+    const badge = document.getElementById('status-badge');
+    badge.className = `status-badge status-${h.status}`;
+    badge.textContent = h.status;
+
+    // Stale banner
+    const staleBanner = document.getElementById('stale-banner');
+    if (h.stale) {
+      staleBanner.classList.add('visible');
+      document.getElementById('stale-age-label').textContent = fmtAgeLabel(h.snapshot_age_s);
+    } else {
+      staleBanner.classList.remove('visible');
+    }
+
+    // Update reward health tab
+    renderRewardHealth(h);
+  } catch (e) {
+    console.error('Health fetch failed:', e);
+    document.getElementById('status-badge').className = 'status-badge status-degraded';
+    document.getElementById('status-badge').textContent = 'error';
+  }
+}
+
+function renderRewardHealth(h) {
+  const grid = document.getElementById('health-cards-grid');
+  grid.innerHTML = `
+    <div class="health-card">
+      <div class="health-card-label">Reward-Active Pools</div>
+      <div class="health-card-value" style="color:var(--amber)">${h.reward_active_pools ?? '—'}</div>
+    </div>
+    <div class="health-card">
+      <div class="health-card-label">Total In-Scope</div>
+      <div class="health-card-value">${h.pool_count_in_scope ?? '—'}</div>
+    </div>
+    <div class="health-card">
+      <div class="health-card-label">Join Rate</div>
+      <div class="health-card-value">${h.join_rate != null ? (h.join_rate*100).toFixed(1)+'%' : '—'}</div>
+    </div>
+    <div class="health-card">
+      <div class="health-card-label">Snapshot Age</div>
+      <div class="health-card-value">${fmtAgeLabel(h.snapshot_age_s)}</div>
+    </div>
+    <div class="health-card">
+      <div class="health-card-label">Backend Status</div>
+      <div class="health-card-value" style="font-size:16px;margin-top:4px;">
+        <span class="status-badge status-${h.status}">${h.status}</span>
+      </div>
+    </div>
+  `;
+
+  const qfTable = document.getElementById('qf-table');
+  const flags = h.quality_flags || {};
+  const entries = Object.entries(flags).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) {
+    qfTable.innerHTML = '<div class="qf-row"><span class="qf-name">No data yet</span></div>';
+  } else {
+    qfTable.innerHTML = entries.map(([flag, count]) => `
+      <div class="qf-row">
+        <span class="qf-name">${flag}</span>
+        <span class="qf-count">${count}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// ── Passive Supply ───────────────────────────────────────────────────────────
+async function loadPassive() {
+  const tbody = document.getElementById('passive-tbody');
+  try {
+    const rows = await apiFetch('/api/codee/routes/passive?limit=50');
+    document.getElementById('passive-count').textContent = `${rows.length} routes`;
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6">
+        <div class="empty-state"><h3>No passive routes available.</h3>
+        <p>Data may still be loading.</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(r => {
+      const qc = qfClass(r.quality_flag);
+      return `<tr class="${qc}">
+        <td class="l">${chainPill(r.chain)}</td>
+        <td class="l dim">${r.project ?? '—'}</td>
+        <td class="l"><strong>${r.symbol ?? '—'}</strong></td>
+        <td class="r num">${fmtApy(r.effective_apy)}</td>
+        <td class="r num dim">${fmtTvl(r.tvl_usd)}</td>
+        <td class="l flag-cell">${r.quality_flag || 'ok'}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('passive-ts').textContent = timestamp();
+  } catch (e) {
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="6">Error loading data: ${e.message}</td></tr>`;
+  }
+}
+
+// ── Same-Chain Loops ─────────────────────────────────────────────────────────
+async function loadLoops() {
+  const positiveOnly = document.getElementById('loops-positive-toggle').checked;
+  const tbody = document.getElementById('loops-tbody');
+  const url = `/api/codee/routes/loops?limit=50&positive_only=${positiveOnly}`;
+  try {
+    const rows = await apiFetch(url);
+    document.getElementById('loops-count').textContent = `${rows.length} routes`;
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="11">
+        <div class="empty-state">
+          <h3>No positive-spread same-chain loops right now.</h3>
+          <p>The current regime favors cross-chain carry.
+             <a onclick="switchTab('crosschain')">Check Cross-chain &rarr;</a>
+          </p>
+        </div>
+      </td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td class="l">${chainPill(r.chain)}</td>
+      <td class="l dim">${r.plat_a ?? '—'}</td>
+      <td class="l">${r.asset_x ?? '—'}</td>
+      <td class="l dim">${r.plat_b ?? '—'}</td>
+      <td class="l">${r.asset_y ?? '—'}</td>
+      <td class="r num">${fmtApy(r.avg_supply)}</td>
+      <td class="r num">${fmtApy(r.avg_borrow)}</td>
+      <td class="r num ${fmtSpreadClass(r.spread)}">${fmtApy(r.spread)}</td>
+      <td class="r num">${r.leverage != null ? r.leverage.toFixed(1)+'x' : '—'}</td>
+      <td class="r num">${fmtApy(r.gross_apy)}</td>
+      <td class="r num dim">${fmtTvl(r.min_tvl_usd)}</td>
+    </tr>`).join('');
+    document.getElementById('loops-ts').textContent = timestamp();
+  } catch (e) {
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="11">Error loading data: ${e.message}</td></tr>`;
+  }
+}
+
+// ── Cross-Chain Carry ────────────────────────────────────────────────────────
+async function loadCrosschain() {
+  const tbody = document.getElementById('crosschain-tbody');
+  try {
+    const rows = await apiFetch('/api/codee/routes/crosschain?limit=50');
+    document.getElementById('crosschain-count').textContent = `${rows.length} routes`;
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8">
+        <div class="empty-state"><h3>No cross-chain carry routes at this time.</h3></div>
+      </td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td class="l"><strong>${r.symbol ?? '—'}</strong></td>
+      <td class="l">${chainPill(r.supply_chain)}</td>
+      <td class="l dim">${r.supply_project ?? '—'}</td>
+      <td class="r num">${fmtApy(r.supply_apy)}</td>
+      <td class="l">${chainPill(r.borrow_chain)}</td>
+      <td class="l dim">${r.borrow_project ?? '—'}</td>
+      <td class="r num">${fmtApy(r.borrow_apr)}</td>
+      <td class="r num ${fmtSpreadClass(r.spread)}">${fmtApy(r.spread)}</td>
+    </tr>`).join('');
+    document.getElementById('crosschain-ts').textContent = timestamp();
+  } catch (e) {
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="8">Error loading data: ${e.message}</td></tr>`;
+  }
+}
+
+// ── History Chart ────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const poolId = document.getElementById('history-pool-id').value.trim();
+  const days   = parseInt(document.getElementById('history-days').value, 10);
+  const placeholder = document.getElementById('history-placeholder');
+  const canvas = document.getElementById('history-chart');
+
+  if (!poolId) {
+    placeholder.textContent = 'Please enter a pool UUID.';
+    placeholder.style.display = 'flex';
+    canvas.style.display = 'none';
+    return;
+  }
+
+  placeholder.textContent = 'Loading…';
+  placeholder.style.display = 'flex';
+  canvas.style.display = 'none';
+
+  try {
+    const data = await apiFetch(`/api/codee/pools/${encodeURIComponent(poolId)}/history?d=${days}`);
+    if (!data || data.length === 0) {
+      placeholder.textContent = 'No history found for this pool in the selected range.';
+      return;
+    }
+
+    const labels = data.map(d => {
+      const dt = new Date(d.ts * 1000);
+      return dt.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+    });
+
+    if (_chartInstance) {
+      _chartInstance.destroy();
+      _chartInstance = null;
+    }
+
+    placeholder.style.display = 'none';
+    canvas.style.display = 'block';
+
+    _chartInstance = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Supply Base APY',
+            data: data.map(d => d.supply_apy_base),
+            borderColor: '#3ecf8e',
+            backgroundColor: 'rgba(62,207,142,0.06)',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Supply Reward APY',
+            data: data.map(d => d.supply_apy_reward),
+            borderColor: '#f5a623',
+            backgroundColor: 'rgba(245,166,35,0.06)',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Borrow Base APR',
+            data: data.map(d => d.borrow_apr_base),
+            borderColor: '#e05252',
+            backgroundColor: 'rgba(224,82,82,0.06)',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.3,
+            fill: false,
+            borderDash: [4, 3],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#7a8099',
+              font: { family: "'IBM Plex Mono', monospace", size: 10 },
+              boxWidth: 16,
+              padding: 12,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#161a22',
+            borderColor: '#1e2330',
+            borderWidth: 1,
+            titleColor: '#7a8099',
+            bodyColor: '#e8e6e0',
+            titleFont: { family: "'IBM Plex Mono', monospace", size: 10 },
+            bodyFont: { family: "'IBM Plex Mono', monospace", size: 11 },
+            callbacks: {
+              label(ctx) {
+                const v = ctx.parsed.y;
+                return `  ${ctx.dataset.label}: ${v != null ? v.toFixed(2) + '%' : '—'}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#1e2330' },
+            ticks: {
+              color: '#434960',
+              font: { family: "'IBM Plex Mono', monospace", size: 9 },
+              maxTicksLimit: 12,
+            },
+          },
+          y: {
+            grid: { color: '#1e2330' },
+            ticks: {
+              color: '#7a8099',
+              font: { family: "'IBM Plex Mono', monospace", size: 10 },
+              callback: v => v.toFixed(1) + '%',
+            },
+          },
+        },
+      },
+    });
+  } catch (e) {
+    placeholder.textContent = `Error loading history: ${e.message}`;
+    placeholder.style.display = 'flex';
+    canvas.style.display = 'none';
+  }
+}
+
+// ── Auto-refresh logic ───────────────────────────────────────────────────────
+function startCountdown() {
+  _countdownVal = 60;
+  if (_countdownTimer) clearInterval(_countdownTimer);
+  _countdownTimer = setInterval(() => {
+    _countdownVal--;
+    document.getElementById('refresh-countdown').textContent = _countdownVal;
+    if (_countdownVal <= 0) {
+      refreshAll();
+    }
+  }, 1000);
+}
+
+async function refreshAll() {
+  await Promise.all([
+    loadHealth(),
+    loadPassive(),
+    loadLoops(),
+    loadCrosschain(),
+  ]);
+  startCountdown();
+}
+
+function manualRefresh() {
+  if (_countdownTimer) clearInterval(_countdownTimer);
+  refreshAll();
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+(async function init() {
+  await refreshAll();
+})();
+</script>
+</body>
+</html>
