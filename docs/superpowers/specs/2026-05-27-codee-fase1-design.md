@@ -123,7 +123,9 @@ Expanding the accepted stables from 6 to ~26 (added USDS, PYUSD, GHO, CRVUSD, RL
 
 ## 3. Phase 1 scope
 
-**Phase 1a (data + dashboard):** DefiLlama ingestion (2 endpoints) **+ Merkl ingestion** for borrow-side rebates (see 2b.A — without it loop spreads are systematically understated), sanity validation incl. utilization safety rules, SQLite persistence with history, 7d/30d aggregates, passive + loop ranking, REST API, Streamlit dashboard, reward token prices + LAV classification. `reward_source` per pool shows provenance (`defillama`/`merkl`/`none`).
+**Phase 1a (data + dashboard):** DefiLlama ingestion (2 endpoints) **+ Merkl ingestion** for borrow-side rebates (see 2b.A — without it loop spreads are systematically understated), sanity validation incl. utilization safety rules, SQLite persistence with history, 7d/30d aggregates, passive + same-chain loop ranking, **cross-chain carry radar** (per-asset: best supply anywhere vs cheapest net-borrow anywhere, with Merkl — a ranking, no bridge modeling; labeled a pre-bridge-cost/pre-LAV ceiling), REST API, Streamlit dashboard, LAV classification (bucket-based). `reward_source` per pool shows provenance (`defillama`/`merkl`/`none`).
+
+*Dropped from Phase 1a (was vestigial):* the CoinGecko/DexScreener reward-token **price feed** — it was load-bearing only under the abandoned "compute reward APY ourselves" plan. DefiLlama gives `apyReward` and Merkl gives the rebate APR directly, and the LAV discount is bucket-based (fixed %), so no live token price is needed in 1a. Moves to **Phase 2** (where the "reward token crashed >20%" alert needs it).
 
 **Phase 1b (protocol-API enrichment — optional):** the Venus PoC (28-mai) showed DefiLlama's supply reward numbers are correct (Venus genuinely pays 0 XVS now), so no on-chain emission reader is needed. 1b is optional enrichment via protocol APIs (e.g. `api.venus.io`) for richer per-pool fields (live liquidity, collateral factor, liquidation threshold) and to catch rewards when emissions return. Can slide to the 1b/Phase-2 boundary.
 
@@ -161,7 +163,7 @@ INGESTION   →   STORAGE + DERIVATION   →   PRESENTATION
 (sources/)      (db/ + services/*/)        (api/ + web/)
 ```
 
-- **Ingestion:** DefiLlama poller (60min), reward token prices (15min).
+- **Ingestion:** single 60min poller fetching DefiLlama (discovery + base + supply rewards) and Merkl (borrow rebates) together. (No price feed in 1a — Phase 2.)
 - **Storage + derivation:** SQLite via SQLAlchemy; sanity validation; 7d/30d aggregates.
 - **Presentation:** FastAPI `/api/codee/*` (JSON); Streamlit consumes the API.
 
@@ -187,22 +189,20 @@ AAVE_STRAT/
 ├── sources/
 │   ├── defillama/client.py          # /pools + /lendBorrow + /chart (discovery, base, supply rewards)
 │   ├── merkl/client.py              # /v4/opportunities — BORROW-side rebates DefiLlama misses (2b.A)
-│   ├── coingecko/client.py          # reward token prices
-│   ├── dexscreener/client.py        # fallback prices
+│   ├── coingecko/client.py          # [Phase 2] reward token prices (for crash alerts)
 │   └── protocol_api/                # [Phase 1b, optional] richer per-pool enrichment
 │       └── venus.py                 # api.venus.io: liquidity, collateral factor, liq threshold
 ├── services/
 │   ├── pools/
-│   │   ├── ingestor.py              # async run() 60min: fetch+JOIN+validate+persist
+│   │   ├── ingestor.py              # async run() 60min: fetch+JOIN+merkl-overlay+validate+persist
 │   │   ├── validators.py            # sanity rules + utilization safety -> quality_flag
 │   │   ├── aggregator.py            # 7d/30d rolling
 │   │   └── snapshot.py              # upsert snapshot + insert history
 │   ├── rewards/
-│   │   ├── ingestor.py              # async run() 15min: prices
 │   │   ├── merkl_match.py           # match Merkl borrow rebates to pools by (chain,protocol,asset)
-│   │   └── lav.py                   # bucket + discount = f(exit_time, sell_liquidity)
+│   │   └── lav.py                   # bucket discount (fixed %); exit-discount = f(exit_time, liquidity)
 │   ├── routes/
-│   │   └── analyzer.py              # PURE: effective rates, loops (cross-chain-ready), ranking
+│   │   └── analyzer.py              # PURE: effective rates, same-chain loops, cross-chain carry radar, ranking
 │   └── api/
 │       ├── router.py                # FastAPI endpoints
 │       └── models.py                # Pydantic response schemas
@@ -258,11 +258,10 @@ Swapping SQLite→QuestDB touches only `db/`. Swapping Streamlit→HTML touches 
 
 | Loop | Cadence | Offset | Reason |
 |---|---|---|---|
-| pools_ingestor | 60 min | T=0 | DefiLlama refreshes hourly — faster = duplicate |
-| rewards_ingestor | 15 min | T=2.5 | CoinGecko moves faster; reward≈0 today makes 15min generous |
+| pools_ingestor (DefiLlama + Merkl) | 60 min | T=0 | DefiLlama refreshes hourly — faster = duplicate; Merkl fetched in the same tick |
 | aggregator | on-trigger | post-ingest | 7d/30d rolling |
 
-Configurable via `.env` (`SNAPSHOT_INTERVAL_MIN`). Tighten to 15/5 when rewards/loops return.
+Single ingestion loop in Phase 1a (no separate price feed — dropped, see scope). Configurable via `.env` (`SNAPSHOT_INTERVAL_MIN`). Tighten when rewards/loops return. The Phase 2 reward-price feed (CoinGecko, 15 min) re-introduces a second loop.
 
 ### Policy: "fail open, never lie"
 
@@ -367,12 +366,13 @@ No APM/Prometheus in Phase 1 — health + logs suffice for 1 local user.
 
 ## 10. Daily operation
 
-Dashboard with 4 tabs + regime cards at the top:
-- **Top:** `reward_active_pools`, best passive, best loop, snapshot age, join_rate.
+Dashboard with 5 tabs + regime cards at the top:
+- **Top:** `reward_active_pools`, best passive, best cross-chain carry, snapshot age, join_rate.
 - **Tab 1 — Passive supply:** ranking by net APY, any chain.
-- **Tab 2 — Loops:** positive spread only (today likely empty = valid signal).
-- **Tab 3 — Reward health:** active programs, LAV coverage.
-- **Tab 4 — History:** 7d/30d/90d evolution per pool.
+- **Tab 2 — Same-chain loops:** positive spread only (today likely empty = valid signal).
+- **Tab 3 — Cross-chain carry:** per-asset best supply anywhere vs cheapest net-borrow anywhere (with Merkl). Labeled a pre-bridge-cost/pre-LAV ceiling — *the most valuable signal in the current regime* (USDC ~+13%, USDT ~+4.6% as of 28-mai). Each row shows the two chains + the caveat that executing it is Phase 2.
+- **Tab 4 — Reward health:** active programs, LAV coverage, Merkl rebate coverage.
+- **Tab 5 — History:** 7d/30d/90d evolution per pool.
 
 Adjustable inputs: `principal` ($250k default), `hold_h` (7d default).
 
@@ -471,7 +471,7 @@ CREATE TABLE pools_history (
 CREATE INDEX idx_history_pool_ts ON pools_history(pool_id, ts);
 CREATE INDEX idx_history_ts      ON pools_history(ts);
 
--- reward_token_prices
+-- reward_token_prices  [Phase 2 — not populated in 1a; price feed dropped from 1a]
 CREATE TABLE reward_token_prices (
     token_id         TEXT NOT NULL,
     symbol           TEXT NOT NULL,
@@ -505,13 +505,19 @@ GET /api/codee/health                                    -> system status
 GET /api/codee/pools/snapshot                            -> current pools (paginated)
 GET /api/codee/pools/{pool_id}/history?d=30              -> time series per pool
 GET /api/codee/routes/passive?principal=&hold_h=         -> passive supply ranking
-GET /api/codee/routes/loops?principal=&hold_h=           -> loop ranking (positive spread)
-GET /api/codee/rewards/coverage                          -> classified tokens vs "B?"
+GET /api/codee/routes/loops?principal=&hold_h=           -> same-chain loop ranking (positive spread)
+GET /api/codee/routes/crosschain?principal=&hold_h=      -> cross-chain carry radar (pre-bridge ceiling)
+GET /api/codee/rewards/coverage                          -> classified tokens vs "B?", Merkl rebate coverage
 GET /api/codee/chains/summary                            -> avg spread per chain (7d/30d)
 ```
 
 ## Appendix C — References
 
 - `codee_strategy_context.md` — context/strategy document (framework valid, numbers stale)
-- `demo_routes.py` — pipeline proof-of-concept (fetch→JOIN→filter→rank), validates the design
+- `demo_routes.py` — pipeline proof-of-concept (fetch→JOIN→filter→rank)
+- `export_snapshot.py` — full shareable snapshot (all pools, spreads, loops, passive, rewards)
+- `poc_venus_reward.py` — proved Venus XVS genuinely 0 (DefiLlama correct, 2b.A)
+- `demo_loops_with_merkl.py` — Merkl borrow-rebate overlay + cross-chain carry ceiling (2b.A, 2b.E)
 - DefiLlama API: `yields.llama.fi/pools` (supply), `yields.llama.fi/lendBorrow` (borrow), `yields.llama.fi/chart/{uuid}` (history)
+- Merkl API: `api.merkl.xyz/v4/opportunities` (borrow-side incentives DefiLlama misses)
+- Venus API: `api.venus.io/markets/core-pool` (per-market supply/borrow/XVS, liquidity, collateral factor)
