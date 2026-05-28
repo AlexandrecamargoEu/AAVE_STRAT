@@ -174,10 +174,10 @@ Paul: *"sometimes APY does go to crazy levels temporarily so big % might be real
 |---|---|---|
 | Backend | Python 3.13 + FastAPI + APScheduler | DeFi/quant ecosystem; APScheduler for in-process cron |
 | ORM/DB | SQLAlchemy + SQLite (aiosqlite) | Fast prototyping; abstraction to migrate to QuestDB later |
-| Dashboard | Streamlit (now) → existing HTML dash (later) | Streamlit consumes the API; future migration only swaps the front-end |
+| Dashboard | HTML/JS frontend, built via `frontend-design` skill, served as static by FastAPI | Polished UI from day 1 (no Streamlit interim step); consumes the same REST API; updated 28-mai on Alexandre's call |
 | Tests | pytest + pytest-asyncio + httpx | TDD during implementation |
 
-**Architectural decision:** the dashboard **never** accesses the DB directly — only `/api/codee/*`. This guarantees the Streamlit→HTML migration does not rewrite logic.
+**Architectural decision:** the dashboard **never** accesses the DB directly — only `/api/codee/*`. Front-end is a static HTML/JS bundle in `web/` mounted by FastAPI; built by invoking the `frontend-design` skill with the brief in plan Task 18. No build pipeline (Phase 1a constraint — keep iteration cheap; can introduce one later if the UI grows).
 
 ---
 
@@ -190,9 +190,9 @@ INGESTION   →   STORAGE + DERIVATION   →   PRESENTATION
 
 - **Ingestion:** single 60min poller fetching DefiLlama (discovery + base + supply rewards) and Merkl (borrow rebates) together. (No price feed in 1a — Phase 2.)
 - **Storage + derivation:** SQLite via SQLAlchemy; sanity validation; 7d/30d aggregates.
-- **Presentation:** FastAPI `/api/codee/*` (JSON); Streamlit consumes the API.
+- **Presentation:** FastAPI `/api/codee/*` (JSON) + static files served from `web/`. Front-end is HTML/JS produced by the `frontend-design` skill in plan Task 18.
 
-**Orchestration:** `main.py` runs `asyncio.gather` over all loops (Volume_tracker pattern). FastAPI runs in the same event loop via uvicorn.Server. Streamlit runs in a separate process.
+**Orchestration:** `main.py` runs `asyncio.gather` over the ingestor and uvicorn (which serves both the API and the static `web/`). Single process — no separate dashboard process.
 
 ### Folder structure
 
@@ -231,8 +231,10 @@ AAVE_STRAT/
 │   └── api/
 │       ├── router.py                # FastAPI endpoints
 │       └── models.py                # Pydantic response schemas
-├── web/
-│   └── dashboard.py                 # Streamlit
+├── web/                             # static front-end produced by frontend-design skill (Task 18)
+│   ├── index.html
+│   ├── app.js                       # or main.js — name decided by the skill
+│   └── styles.css                   # or Tailwind CDN; skill picks
 ├── scripts/
 │   ├── bootstrap_db.py              # schema + configs + triggers backfill
 │   └── backfill_history.py          # /chart/{uuid} for 90d
@@ -258,9 +260,9 @@ config → sources → services → api → web
 - `services/pools` + `services/rewards`: use `sources/`, write to `db/`.
 - `services/routes/analyzer.py`: **100% pure** — reads from `db/`, no I/O, no state. Testable without network.
 - `services/api`: reads `db/` or calls `analyzer`. Returns JSON.
-- `web/dashboard.py`: only consumes `/api/codee/*`.
+- `web/` (static HTML/JS): only consumes `/api/codee/*`.
 
-Swapping SQLite→QuestDB touches only `db/`. Swapping Streamlit→HTML touches only `web/`.
+Swapping SQLite→QuestDB touches only `db/`. The front-end is already HTML/JS — no future migration step.
 
 ---
 
@@ -371,10 +373,10 @@ pip install -r requirements.txt
 copy .env.example .env
 python scripts\bootstrap_db.py      # schema + 90d backfill
 python main.py                      # terminal 1: scheduler + API
-streamlit run web\dashboard.py      # terminal 2: dashboard
+                                    # dashboard at http://127.0.0.1:8000/  (served by FastAPI from web/)
 ```
 
-Two processes: restarting the dashboard (frequent while iterating on UI) doesn't kill ingestion. They talk only over HTTP.
+Single process. Front-end edits don't require a backend restart — refresh the browser to pick up changes to `web/`.
 
 ### Production (future — once proven)
 
@@ -419,7 +421,7 @@ Phase 1a ~2,100 lines of production + ~450 tests. Phase 1b (optional protocol-AP
 | services/routes/analyzer.py | 200 |
 | services/api/* | 200 |
 | db/* | 150 |
-| web/dashboard.py | 300 |
+| web/ (HTML/JS, built via frontend-design) | ~600 |
 | main.py | 80 |
 | tests | 450 |
 
