@@ -30,7 +30,7 @@ Before finalizing the design, we ran `demo_routes.py` against the live DefiLlama
 **Conclusions that became requirements:**
 
 1. **Passive supply > leveraged loops in the current market** (17.9% vs 7.3% on the best loop). The context's Strategy 1 (BSC ping-pong) currently **loses money** (−3.27% net APY) *on DefiLlama's base-only numbers*.
-2. **The "rewards paused" reading was too strong — see Section 2b.** Live verification on 28-mai showed DefiLlama is *blind to reward APY*, so part of the "no positive loops" result is a data gap, not market reality. Rewards (XVS/Merit) still exist; DefiLlama just doesn't report them.
+2. **Rewards are genuinely low right now — see Section 2b.A.** A PoC against Venus's own API (28-mai) confirmed DefiLlama's `apyReward = 0` for Venus is *correct* (Venus pays 0 XVS on stables today). So "no positive loops" is mostly market reality, not a DefiLlama gap. The real coverage gaps are unindexed protocols (Sonic) and off-chain programs (Aave Merit, unverified).
 3. Codee needs to be **discovery-first** (where does spread exist, on any chain), not chain-anchored (ranking BSC).
 4. **Detecting the return of the reward regime** is the primary function — `reward_active_pools` rising from 0 is the timing signal.
 
@@ -42,16 +42,28 @@ The context's framework (LAV buckets, loop math, risk ladder) remains valid. The
 
 After the first draft, we generated a full snapshot (`export_snapshot.py`) and a domain expert (Paul) reviewed it against live protocol UIs. This surfaced findings that change the design. Each is a concrete requirement, not a note.
 
-### A. DefiLlama is blind to rewards on BOTH sides (the big one)
+### A. DefiLlama reward coverage — what's actually a gap (corrected by PoC 28-mai)
 
-DefiLlama's free API reports `apyReward = 0` and `apyRewardBorrow = 0` even when it has populated the `rewardTokens` array. Verified:
-- **Venus USDT (BSC):** payload contains the XVS token address (`0xcf6b…626c63`) but `apyReward = 0`. The Venus UI shows ~5% (≈2% base + ≈3% XVS). We saw only the 2%.
-- **Aave USDT borrow (all chains):** every chain shows `apyRewardBorrow = 0`. Paul sees 0–1% net borrow on the UI = base ~3% minus a Merit rebate DefiLlama doesn't count.
-- **Whole protocols missing:** Sonic Market V3 ($18.45M) is not indexed; Kinza shows null rewards and wrong TVL ($0.2M).
+Initial read was "DefiLlama is blind to rewards because `rewardTokens` is populated but `apyReward = 0`." **A PoC against Venus's own API refuted that.** A populated `rewardTokens` list only means a reward token is *configured*, not that it's *currently emitted*.
 
-**Consequence:** DefiLlama is a **discovery** source (which pools/chains exist, TVL, base rates, utilization) — **not** the source of truth for reward APY. The reward component is exactly the edge the strategy needs. A DefiLlama-only Phase 1 ships misleading numbers.
+What the PoC (`poc_venus_reward.py`, via `api.venus.io/markets/core-pool`) found:
+- **Venus USDT (BSC):** `supplyApy = 2.06%`, `supplyXvsApy = 0`, `borrowApy = 3.92%`. Of all 48 core-pool markets, **only the XVS market itself pays any XVS** (0.84%). No stablecoin market pays XVS right now (`supplierDailyXvsMantissa = 0`). **So DefiLlama's `apyReward = 0` for Venus is CORRECT** — not a gap. The earlier "Venus pays ~3% XVS that DefiLlama hides" claim was an inference error.
 
-**Requirement:** for shortlisted pools, compute reward APY **on-chain**: `emission_rate × reward_token_price ÷ TVL`. Start with the highest-value protocols (Venus Comptroller `venusSpeeds`, Aave Merit), expand incrementally. This pulls protocol-specific integration forward from Phase 3 into Phase 1b. New field `reward_source ∈ {'defillama','onchain','none'}` so the dashboard flags base-only (understated) numbers.
+So `apyReward = 0` can mean two different things, and we must distinguish them:
+1. **The protocol genuinely pays no reward now** (Venus today) — DefiLlama is right.
+2. **The protocol/reward isn't tracked by DefiLlama** — a real gap. Two sub-cases below.
+
+The real, still-valid gaps:
+- **Whole protocols not indexed:** Sonic Market V3 ($18.45M) is absent from DefiLlama (only tiny silo/aave pools on the Sonic chain). Confirmed.
+- **Off-chain incentive programs:** Aave **Merit** rebates are distributed off-chain via snapshots, so they appear in neither the on-chain borrow rate nor DefiLlama. *Unverified* — needs the Merit API specifically, not a generic on-chain read. Paul's "0–1% Aave USDT borrow" is the claim to check here.
+
+**Consequence (revised):** DefiLlama is a solid **discovery + base-rate + reward** source for indexed protocols. It is NOT complete coverage. The enrichment we actually need is:
+- a **protocol-API adapter** (e.g. Venus API) for richer per-pool data (live liquidity, collateral factor, liquidation threshold, utilization) AND to catch rewards the moment emissions turn back on;
+- a **Merit-specific reader** if off-chain incentive programs prove material.
+
+**Requirement (revised, de-scoped):** Phase 1b is **no longer a mandatory on-chain emission reader to "fix" Venus** (there's nothing to fix today). It becomes an **optional protocol-API enrichment layer**, lower urgency, can sit at the Phase 1b/2 boundary. Keep the `reward_source ∈ {'defillama','protocol_api','none'}` field so the dashboard shows provenance. **Net effect: this SHRINKS Phase 1 back toward DefiLlama-discovery + dashboard.**
+
+> Lesson logged: verify reward claims against the protocol's own API/emission, never infer a hidden reward from a populated `rewardTokens` field. The PoC paid for itself by catching this before we built a reader for a non-existent gap.
 
 ### B. Utilization safety rules (from Paul, concrete thresholds)
 
@@ -104,7 +116,7 @@ Expanding the accepted stables from 6 to ~26 (added USDS, PYUSD, GHO, CRVUSD, RL
 
 **Phase 1a (data + dashboard, base rates):** DefiLlama ingestion (2 endpoints), sanity validation incl. utilization safety rules, SQLite persistence with history, 7d/30d aggregates, passive + loop ranking, REST API, Streamlit dashboard, reward token prices + LAV classification. Dashboard flags base-only numbers as "likely understated" where DefiLlama reports no reward.
 
-**Phase 1b (correct reward numbers):** on-chain reward APY reader for the top protocols (Venus Comptroller, Aave Merit) — `emission_rate × token_price ÷ TVL`. Adds `reward_source` per pool. This is what turns a misleading tool into a useful one (see Section 2b.A).
+**Phase 1b (protocol-API enrichment — optional, de-scoped after PoC):** the PoC (28-mai) showed DefiLlama's reward numbers are correct for indexed protocols (Venus genuinely pays 0 XVS now), so 1b is NOT a mandatory reward-fix. It becomes optional enrichment via protocol APIs (e.g. `api.venus.io`) for richer per-pool data (live liquidity, collateral factor, liquidation threshold) and to catch rewards when emissions return. Adds `reward_source` per pool. Can slide to the 1b/Phase-2 boundary. See Section 2b.A.
 
 **Out of scope (future phases):**
 - On-chain *execution* (supply/borrow/repay transactions) — Phase 3
