@@ -29,8 +29,8 @@ Before finalizing the design, we ran `demo_routes.py` against the live DefiLlama
 
 **Conclusions that became requirements:**
 
-1. **Passive supply > leveraged loops in the current market** (17.9% vs 7.3% on the best loop). The context's Strategy 1 (BSC ping-pong) currently **loses money** (−3.27% net APY).
-2. **Incentive programs (XVS/Merit) likely paused or migrated** (USD1 migrated from BSC to Ethereum Dolomite, $43M TVL).
+1. **Passive supply > leveraged loops in the current market** (17.9% vs 7.3% on the best loop). The context's Strategy 1 (BSC ping-pong) currently **loses money** (−3.27% net APY) *on DefiLlama's base-only numbers*.
+2. **The "rewards paused" reading was too strong — see Section 2b.** Live verification on 28-mai showed DefiLlama is *blind to reward APY*, so part of the "no positive loops" result is a data gap, not market reality. Rewards (XVS/Merit) still exist; DefiLlama just doesn't report them.
 3. Codee needs to be **discovery-first** (where does spread exist, on any chain), not chain-anchored (ranking BSC).
 4. **Detecting the return of the reward regime** is the primary function — `reward_active_pools` rising from 0 is the timing signal.
 
@@ -38,17 +38,85 @@ The context's framework (LAV buckets, loop math, risk ladder) remains valid. The
 
 ---
 
+## 2b. Revisions from live validation + Paul review (28-mai-2026)
+
+After the first draft, we generated a full snapshot (`export_snapshot.py`) and a domain expert (Paul) reviewed it against live protocol UIs. This surfaced findings that change the design. Each is a concrete requirement, not a note.
+
+### A. DefiLlama is blind to rewards on BOTH sides (the big one)
+
+DefiLlama's free API reports `apyReward = 0` and `apyRewardBorrow = 0` even when it has populated the `rewardTokens` array. Verified:
+- **Venus USDT (BSC):** payload contains the XVS token address (`0xcf6b…626c63`) but `apyReward = 0`. The Venus UI shows ~5% (≈2% base + ≈3% XVS). We saw only the 2%.
+- **Aave USDT borrow (all chains):** every chain shows `apyRewardBorrow = 0`. Paul sees 0–1% net borrow on the UI = base ~3% minus a Merit rebate DefiLlama doesn't count.
+- **Whole protocols missing:** Sonic Market V3 ($18.45M) is not indexed; Kinza shows null rewards and wrong TVL ($0.2M).
+
+**Consequence:** DefiLlama is a **discovery** source (which pools/chains exist, TVL, base rates, utilization) — **not** the source of truth for reward APY. The reward component is exactly the edge the strategy needs. A DefiLlama-only Phase 1 ships misleading numbers.
+
+**Requirement:** for shortlisted pools, compute reward APY **on-chain**: `emission_rate × reward_token_price ÷ TVL`. Start with the highest-value protocols (Venus Comptroller `venusSpeeds`, Aave Merit), expand incrementally. This pulls protocol-specific integration forward from Phase 3 into Phase 1b. New field `reward_source ∈ {'defillama','onchain','none'}` so the dashboard flags base-only (understated) numbers.
+
+### B. Utilization safety rules (from Paul, concrete thresholds)
+
+The Sonic USDC 15% pool was at **99.7% utilization** — only ~$20k withdrawable of $3.54M. High APY there is the pool paying you to be trapped (exit-liquidity risk, context doc Part 5).
+
+**Requirement:**
+- Compute `available_liquidity = total_supply_usd − total_borrow_usd` and `utilization` per pool.
+- Safety rule: **no-entry signal if UR > 92%; force-exit signal at UR ≥ 96%** (per-pool configurable defaults).
+- `quality_flag` gains a `high_utilization` value; dashboard surfaces UR + available liquidity prominently.
+
+### C. Exit-liquidity / time-to-exit discount (generalizes LAV)
+
+Two illiquidity sources, same mechanism: (1) can you sell the reward token (XVS) without crashing it; (2) can you withdraw the position at all (utilization). Paul: if exit takes days, discount expected received value ~20%.
+
+**Requirement:** make the discount a **function of (time-to-exit + sell-liquidity)**, not a fixed LAV bucket. Applies to both the reward token value and the principal's withdrawability.
+
+### D. Delta-neutral cross-asset loops are valid (Paul corrected my flag)
+
+Borrowing BTC and depositing the *same* BTC on another platform is **net-zero price exposure** — debt and collateral move together. So loops may legitimately include volatile assets when delta-neutral. My "directional BTC risk" flag was wrong for this structure.
+
+**Residual risks that remain (must be modeled):** the two legs sit on different chains with **independent liquidation engines** — a fast BTC move can liquidate the debt leg before collateral is bridged over; bridge latency; collateral-factor mismatch leaves a small residual. **Leverage caps at ~2–3x** for volatile-collateral legs (collateral factor <100% + buffer).
+
+**Requirement:** the loop analyzer must **not hard-reject** BTC/ETH legs. It supports delta-neutral cross-asset loops, tagged with their residual risks and a 2–3x leverage cap. (Pure-stable loops remain the default/safest.)
+
+### E. Cross-chain routes are where the opportunity is
+
+Our snapshot only enumerated same-chain loops. Paul's best examples are cross-chain (deposit on Sonic, borrow on a cheap chain; BTC moved across chains; "2 Aave chains with USDT borrow 0–1%, deposit 3–5% elsewhere").
+
+**Decision:** full cross-chain route enumeration needs bridge cost + time modeling (and eventually Binance) → that stays **Phase 2**. But the **data model must not assume same-chain** — `analyzer` route objects carry per-leg chain, and the schema already stores per-pool chain. We avoid baking in a same-chain assumption we'd have to rip out.
+
+### F. Per-platform reward-scheme documentation (LAV expansion)
+
+Paul: "write out each platform's shitcoin scheme — how long to sell XVS, how often paid, withdrawal penalties." This **is** the LAV bucket work, made concrete.
+
+**Requirement:** `config/projects.json` gains per-reward-token fields: `payout_frequency`, `lockup_vesting`, `sell_liquidity_score`, `withdrawal_penalty`. Document the big platforms first (Venus/XVS, Aave/Merit, the top BSC ones).
+
+### G. Wider stablecoin set
+
+Expanding the accepted stables from 6 to ~26 (added USDS, PYUSD, GHO, CRVUSD, RLUSD, AUSD, USDe, etc.) grew in-scope pools from 13 → 108. `config/stable_symbols.json` uses the wider set.
+
+### Net effect on phasing
+
+- **Phase 1a** (ships first): DefiLlama discovery + base rates + history + dashboard, with explicit "base only / likely understated" flags and the utilization safety rules. Honest about what it doesn't yet know.
+- **Phase 1b**: on-chain reward reader for the top protocols (Venus, Aave Merit) → correct numbers. This is the difference between a misleading tool and a useful one.
+- **Phase 2** (unchanged scope, reinforced priority): cross-chain routes, delta-neutral volatile loops, broader protocol coverage, Binance bridging.
+
+---
+
 ## 3. Phase 1 scope
 
-**Includes:** DefiLlama ingestion (2 endpoints), sanity validation, SQLite persistence with history, 7d/30d aggregates, passive + loop ranking, REST API, Streamlit dashboard, reward token prices + LAV classification.
+**Phase 1a (data + dashboard, base rates):** DefiLlama ingestion (2 endpoints), sanity validation incl. utilization safety rules, SQLite persistence with history, 7d/30d aggregates, passive + loop ranking, REST API, Streamlit dashboard, reward token prices + LAV classification. Dashboard flags base-only numbers as "likely understated" where DefiLlama reports no reward.
+
+**Phase 1b (correct reward numbers):** on-chain reward APY reader for the top protocols (Venus Comptroller, Aave Merit) — `emission_rate × token_price ÷ TVL`. Adds `reward_source` per pool. This is what turns a misleading tool into a useful one (see Section 2b.A).
 
 **Out of scope (future phases):**
-- On-chain execution (Aave/Venus/Morpho contracts) — Phase 3
-- Binance API — Phase 3
+- On-chain *execution* (supply/borrow/repay transactions) — Phase 3
+- Cross-chain route enumeration + bridge cost/time modeling — Phase 2 (data model stays cross-chain-ready, see 2b.E)
+- Delta-neutral volatile-collateral loops (BTC/ETH legs) — Phase 2 (analyzer won't hard-reject them, see 2b.D)
+- Binance API / bridging — Phase 3
 - Telegram/Slack alerts — Phase 2 (health endpoint already exposes the data)
 - Sub-hour RPC polling — Phase 4
 - Backtesting — Phase 4
-- `liquidation_threshold`, `oracle_source`, `e_mode_enabled` (require on-chain integration) — Phase 2/3
+- `liquidation_threshold`, `oracle_source`, `e_mode_enabled` (require deeper on-chain reads) — Phase 2/3
+
+**Read-only on-chain reads ARE in Phase 1b** (reward emission rates). This is distinct from Phase 3 execution (signing transactions) — Phase 1b only *reads* contracts.
 
 ---
 
@@ -87,29 +155,34 @@ AAVE_STRAT/
 ├── .env.example
 ├── config/
 │   ├── config.py                    # Config class, reads .env
-│   ├── chains.json                  # gas_per_tx, excluded flag per chain
-│   ├── stable_symbols.json          # stables whitelist
+│   ├── chains.json                  # gas_per_tx, excluded flag, RPC url per chain
+│   ├── stable_symbols.json          # wider stables set (~26, see 2b.G)
 │   ├── lav_buckets.json             # token symbol -> A/B/C
-│   └── projects.json                # project -> reward token, display name
+│   └── projects.json                # project -> reward token + scheme fields (see 2b.F)
 ├── db/
 │   ├── sqlite_client.py             # aiosqlite + SQLAlchemy async
 │   ├── models.py                    # declarative tables
 │   └── migrations/001_initial_schema.sql
 ├── sources/
-│   ├── defillama/client.py          # /pools + /lendBorrow + /chart
+│   ├── defillama/client.py          # /pools + /lendBorrow + /chart (DISCOVERY only)
 │   ├── coingecko/client.py          # reward token prices
-│   └── dexscreener/client.py        # fallback
+│   ├── dexscreener/client.py        # fallback prices
+│   └── onchain/                     # [Phase 1b] reward emission readers (read-only)
+│       ├── base.py                  # RewardReader protocol/interface
+│       ├── venus.py                 # Comptroller venusSpeeds × XVS price ÷ TVL
+│       └── aave_merit.py            # Merit rebate reader
 ├── services/
 │   ├── pools/
 │   │   ├── ingestor.py              # async run() 60min: fetch+JOIN+validate+persist
-│   │   ├── validators.py            # sanity rules -> quality_flag
+│   │   ├── validators.py            # sanity rules + utilization safety -> quality_flag
 │   │   ├── aggregator.py            # 7d/30d rolling
 │   │   └── snapshot.py              # upsert snapshot + insert history
 │   ├── rewards/
 │   │   ├── ingestor.py              # async run() 15min: prices
-│   │   └── lav.py                   # bucket_for_token(), discount()
+│   │   ├── onchain_apy.py           # [Phase 1b] reward APY via sources/onchain/
+│   │   └── lav.py                   # bucket + discount = f(exit_time, sell_liquidity)
 │   ├── routes/
-│   │   └── analyzer.py              # PURE: effective rates, loops, ranking
+│   │   └── analyzer.py              # PURE: effective rates, loops (cross-chain-ready), ranking
 │   └── api/
 │       ├── router.py                # FastAPI endpoints
 │       └── models.py                # Pydantic response schemas
@@ -119,10 +192,11 @@ AAVE_STRAT/
 │   ├── bootstrap_db.py              # schema + configs + triggers backfill
 │   └── backfill_history.py          # /chart/{uuid} for 90d
 └── tests/
-    ├── fixtures/                    # captured DefiLlama payloads (offline)
+    ├── fixtures/                    # captured DefiLlama payloads + onchain reads (offline)
     ├── test_defillama_client.py
-    ├── test_validators.py
+    ├── test_validators.py           # incl. utilization thresholds
     ├── test_pools_ingestor.py
+    ├── test_onchain_reward.py       # [Phase 1b] emission math vs known UI value
     ├── test_analyzer.py             # heart of the suite
     └── test_api.py
 ```
@@ -135,7 +209,7 @@ config → sources → services → api → web
                db ←──────┘
 ```
 
-- `sources/`: HTTP only. No DB, no config (injected).
+- `sources/`: I/O only (HTTP + read-only RPC for `onchain/`). No DB, no config (injected). The `onchain/` readers only *read* contracts — no signing, distinct from Phase 3 execution.
 - `services/pools` + `services/rewards`: use `sources/`, write to `db/`.
 - `services/routes/analyzer.py`: **100% pure** — reads from `db/`, no I/O, no state. Testable without network.
 - `services/api`: reads `db/` or calls `analyzer`. Returns JSON.
@@ -194,7 +268,7 @@ Never serve synthetic/estimated data. On failure, serve the last good snapshot +
 Full DDL in Appendix A.
 
 **Tables:**
-- `pools_snapshot` — current state, 1 row/pool, UPSERT. Includes `quality_flag`, `lav_uncertain`, `status`, and the `/lendBorrow` fields (`total_supply_usd`, `debt_ceiling_usd`, `borrowable`, `borrow_factor`, `underlying_tokens`).
+- `pools_snapshot` — current state, 1 row/pool, UPSERT. Includes `quality_flag` (now incl. `high_utilization`), `lav_uncertain`, `status`, `reward_source` (`'defillama'|'onchain'|'none'`, see 2b.A), `available_liquidity` (= supply − borrow, see 2b.B), and the `/lendBorrow` fields (`total_supply_usd`, `debt_ceiling_usd`, `borrowable`, `borrow_factor`, `underlying_tokens`).
 - `pools_history` — append-only. PK `(pool_id, ts, source)` where `source ∈ {'live','chart_daily'}` lets daily backfill + live snapshots coexist.
 - `reward_token_prices` — price + LAV classification, current + historical.
 - `rate_aggregates` — 7d/30d rolling averages. **Exception to the raw rule**: stores effective (disposable, recomputed post-ingest and on LAV config change).
@@ -229,8 +303,10 @@ Unit: analyzer.py (math)  ~40%
 
 **Mandatory in Phase 1:**
 1. **Data sanity layer** (`validators.py` + `quality_flag`): detects absurd supply APY (e.g. >1000%), TVL crash (>X% inter-snapshot drop), impossible utilization (>100%), invalid negative rates. Flags, **never drops silently**. Flagged pool appears highlighted in the dashboard.
-2. **Golden regression**: 2026-05-25 payload frozen as fixture; locks that the ranking produces the known numbers (17.9% passive, 7.3% loop). Catches math regressions.
-3. **Join coverage assertion**: alerts if `join_rate` drops below ~50% of the historical norm (silent `/lendBorrow` breakage).
+2. **Utilization safety rules** (2b.B): flag `high_utilization` when UR > 92% (no-entry signal); UR ≥ 96% is a force-exit signal. Both per-pool configurable. `available_liquidity` surfaced in API + dashboard.
+3. **Golden regression**: 2026-05-25 payload frozen as fixture; locks that the ranking produces the known numbers (17.9% passive, 7.3% loop). Catches math regressions.
+4. **Join coverage assertion**: alerts if `join_rate` drops below ~50% of the historical norm (silent `/lendBorrow` breakage).
+5. **[Phase 1b] On-chain reward sanity**: computed reward APY for a known pool (Venus USDT) must land within tolerance of the live UI value — guards the emission math.
 
 **Recommended (Phase 1.5, documented):**
 4. Property-based testing (hypothesis): `net_apy ≤ gross_apy`, `effective_borrow_apr ≥ 0`, leverage monotonic.
@@ -285,29 +361,33 @@ Adjustable inputs: `principal` ($250k default), `hold_h` (7d default).
 
 ## 11. Size estimate
 
-~2,000 lines of production + ~400 of tests. Readable in an afternoon.
+Phase 1a ~2,000 lines of production + ~400 tests. Phase 1b adds ~400-600 (on-chain readers are protocol-specific; each adapter ~100-150 lines).
 
 | Module | ~Lines |
 |---|---|
 | sources/defillama/client.py | 80 |
-| services/pools/* (ingestor, validators, aggregator, snapshot) | 400 |
-| services/rewards/* | 150 |
+| sources/onchain/* (base + venus + aave_merit) [Phase 1b] | 400 |
+| services/pools/* (ingestor, validators incl. UR rules, aggregator, snapshot) | 450 |
+| services/rewards/* (prices, lav, onchain_apy [1b]) | 250 |
 | services/routes/analyzer.py | 200 |
 | services/api/* | 200 |
 | db/* | 150 |
 | web/dashboard.py | 300 |
 | main.py | 80 |
-| tests | 400 |
+| tests | 450 |
 
 ---
 
 ## 12. Open questions (resolve during implementation)
 
 1. **Definitive leverage formula** — 5.46x (0.855/10iter, our calculation) vs 6.60x (context). Pinned in a test; confirm with strategist which is intended (does the buffer reduce per-iteration LTV, or is it a separate reserve?).
-2. **Validator thresholds** — what % TVL crash triggers a flag? What APY is "absurd"? Calibrate with real data.
+2. **Validator thresholds** — what % TVL crash triggers a flag? What APY is "absurd"? UR no-entry/exit defaults are 92%/96% (Paul) — confirm per-pool overrides. Calibrate with real data.
 3. **`join_rate` baseline** — what is the historical norm for setting the alert? Measure in the first weeks.
-4. **LAV classification of new tokens** — ember, bitway, avantis show up as "B?". Classify as we investigate each program.
+4. **LAV classification of new tokens** — ember, bitway, avantis show up as "B?". Classify as we investigate each program (feeds the per-platform scheme doc, 2b.F).
 5. **Reward token resolution** — DefiLlama's `rewardTokens` are addresses; mapping address → symbol → CoinGecko price requires a table. Define the source of truth.
+6. **[Phase 1b] On-chain emission read per protocol** — each protocol exposes emission differently (Venus `venusSpeeds`, Aave Merit via its rewards controller / off-chain API). Confirm the read path + RPC provider per protocol. Which 2-3 protocols first? (Venus + Aave Merit are the highest value.)
+7. **DefiLlama Pro** — does the paid tier actually report reward APY for Venus/Aave? If yes, it may be cheaper than maintaining on-chain readers. Verify before committing to either (don't assume Pro fixes an adapter gap).
+8. **Cross-chain route model** — when Phase 2 enumerates cross-chain loops, the bridge cost + time + the exit-discount (2b.C) all feed net APY. Confirm the bridge cost source (Binance withdrawal fees table vs live).
 
 ---
 
@@ -324,10 +404,12 @@ CREATE TABLE pools_snapshot (
     tvl_usd           REAL NOT NULL,
     total_supply_usd  REAL,
     total_borrow_usd  REAL,
+    available_liquidity REAL,                      -- supply - borrow (2b.B exit-liquidity)
     debt_ceiling_usd  REAL,
     utilization       REAL,
     supply_apy_base   REAL NOT NULL DEFAULT 0,
     supply_apy_reward REAL NOT NULL DEFAULT 0,
+    reward_source     TEXT NOT NULL DEFAULT 'defillama',  -- 'defillama'|'onchain'|'none' (2b.A)
     borrow_apr_base   REAL,
     borrow_apr_reward REAL,
     ltv               REAL,
@@ -336,7 +418,7 @@ CREATE TABLE pools_snapshot (
     reward_tokens     TEXT,
     underlying_tokens TEXT,
     lav_uncertain     INTEGER NOT NULL DEFAULT 0,
-    quality_flag      TEXT NOT NULL DEFAULT 'ok',
+    quality_flag      TEXT NOT NULL DEFAULT 'ok',    -- 'ok'|'suspect_apy'|'tvl_crash'|'impossible_util'|'high_utilization'
     status            TEXT NOT NULL DEFAULT 'active',
     updated_at        INTEGER NOT NULL
 );
@@ -353,9 +435,11 @@ CREATE TABLE pools_history (
     tvl_usd           REAL,
     total_supply_usd  REAL,
     total_borrow_usd  REAL,
+    available_liquidity REAL,
     debt_ceiling_usd  REAL,
     supply_apy_base   REAL,
     supply_apy_reward REAL,
+    reward_source     TEXT,                       -- which source produced supply_apy_reward
     borrow_apr_base   REAL,
     borrow_apr_reward REAL,
     utilization       REAL,
