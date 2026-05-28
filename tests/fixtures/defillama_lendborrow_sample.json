@@ -1,0 +1,688 @@
+[
+  {
+    "pool": "27296bf9-617a-46e4-9d6d-eefc71e9e0b6",
+    "apyBaseBorrow": 4.88305,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 8232222,
+    "totalBorrowUsd": 5013664,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "9f3a6015-5045-4471-ba65-ad3dc7c38269",
+    "apyBaseBorrow": 3.86159,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 210371123,
+    "totalBorrowUsd": 122075849,
+    "debtCeilingUsd": null,
+    "ltv": 0.8,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0xcf6bb5389c92bdda8a3747ddb454cb7a64626c63"
+    ],
+    "underlyingTokens": [
+      "0x55d398326f99059fF775485246999027B3197955"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "3fdf7baa-8ca7-4ad5-bf0c-f934878c0c96",
+    "apyBaseBorrow": 0,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 7984370,
+    "totalBorrowUsd": 0,
+    "debtCeilingUsd": null,
+    "ltv": 0.9,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "FWhZyxJQas4s52kusCQRwgYRYkUhx9AfQYs3uhtEs9sQ"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "8fbe28b8-140d-4e37-8804-5d2aba4daded",
+    "apyBaseBorrow": 3.39529,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 484113532,
+    "totalBorrowUsd": 386835976,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "7e0661bf-8cf3-45e6-9424-31916d4c7b84",
+    "apyBaseBorrow": 4.21951,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 178498342,
+    "totalBorrowUsd": 150636678,
+    "debtCeilingUsd": null,
+    "ltv": 0.75,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "eaece65e-ffb2-4631-a95e-7f267cb2f1ba",
+    "apyBaseBorrow": 5.06433,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 63240209,
+    "totalBorrowUsd": 54840214,
+    "debtCeilingUsd": null,
+    "ltv": 0.8,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "db446cb6-2ec5-4fdd-9812-bdbeab125a31",
+    "apyBaseBorrow": 0.32,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 7555058,
+    "totalBorrowUsd": 4528767,
+    "debtCeilingUsd": null,
+    "ltv": 0.85,
+    "borrowable": null,
+    "mintedCoin": "WBTC",
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "d0e11625-79b9-40e3-b01f-a473af961995",
+    "apyBaseBorrow": 8.1043,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 4358059,
+    "totalBorrowUsd": 3090760,
+    "debtCeilingUsd": null,
+    "ltv": 0.8695652173913044,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "fa55aa2b-e244-4ce4-ab00-9e96b39df32b",
+    "apyBaseBorrow": 1.90209,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 170076042,
+    "totalBorrowUsd": 145645467,
+    "debtCeilingUsd": null,
+    "ltv": 0.91,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8"
+    ],
+    "underlyingTokens": [
+      "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "995b269a-8409-4c55-b97e-868f443b432e",
+    "apyBaseBorrow": 3.78179,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 99992693,
+    "totalBorrowUsd": 11641164,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "f4d5b566-e815-4ca2-bb07-7bcd8bc797f1",
+    "apyBaseBorrow": 3.55112,
+    "apyRewardBorrow": 0.12397,
+    "totalSupplyUsd": 206821080,
+    "totalBorrowUsd": 152716529,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0xc00e94Cb662C3520282E6f5717214004A7f26888"
+    ],
+    "underlyingTokens": [
+      "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "85247b13-8180-44e7-b38c-4d324cc68a92",
+    "apyBaseBorrow": 3.14803,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 19778868,
+    "totalBorrowUsd": 11734541,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0x354A6dA3fcde098F8389cad84b0182725c6C91dE"
+    ],
+    "underlyingTokens": [
+      "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "0fde8996-ecdf-441c-94a9-ec67403e9b8c",
+    "apyBaseBorrow": 3.31762,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 160137799,
+    "totalBorrowUsd": 133001451,
+    "debtCeilingUsd": null,
+    "ltv": 0.91,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "31a0cd94-b781-4e0d-a9f1-1702bc2c238f",
+    "apyBaseBorrow": 3.5485,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 99934339,
+    "totalBorrowUsd": 79963609,
+    "debtCeilingUsd": null,
+    "ltv": 0.89,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "20e45c3e-7de7-4d34-89e7-20858ecdf252",
+    "apyBaseBorrow": 5.98487,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 120305829,
+    "totalBorrowUsd": 107233295,
+    "debtCeilingUsd": null,
+    "ltv": 0.85,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0xdA5e1988097297dCdc1f90D4dFE7909e847CBeF6"
+    ],
+    "underlyingTokens": [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "3665ee7e-6c5d-49d9-abb7-c47ab5d9d4ac",
+    "apyBaseBorrow": 3.738,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 148212070,
+    "totalBorrowUsd": 101959251,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "86e18974-35ca-4948-9c82-694facf9d082",
+    "apyBaseBorrow": 5.10038,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 196438065,
+    "totalBorrowUsd": 149847348,
+    "debtCeilingUsd": null,
+    "ltv": 0.85,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0xdA5e1988097297dCdc1f90D4dFE7909e847CBeF6"
+    ],
+    "underlyingTokens": [
+      "0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "89eba1e5-1b1b-47b6-958b-38138a04c244",
+    "apyBaseBorrow": 4.07657,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 52505620,
+    "totalBorrowUsd": 32131192,
+    "debtCeilingUsd": null,
+    "ltv": 0.825,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0xcf6bb5389c92bdda8a3747ddb454cb7a64626c63"
+    ],
+    "underlyingTokens": [
+      "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "dde4c16c-504d-470b-9404-006287ce0906",
+    "apyBaseBorrow": 4.02,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 31068245,
+    "totalBorrowUsd": 20617234,
+    "debtCeilingUsd": null,
+    "ltv": 0.7,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "1e00ac2b-0c3c-4b1f-95be-9378f98d2b40",
+    "apyBaseBorrow": 3.75,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 164746437,
+    "totalBorrowUsd": 104378223,
+    "debtCeilingUsd": 149769479,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": "GHO",
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "7da72d09-56ca-4ec5-a45f-59114353e487",
+    "apyBaseBorrow": 3.96228,
+    "apyRewardBorrow": 0.1158,
+    "totalSupplyUsd": 338130570,
+    "totalBorrowUsd": 299724147,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0xc00e94Cb662C3520282E6f5717214004A7f26888"
+    ],
+    "underlyingTokens": [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "d9c395b9-00d0-4426-a6b3-572a6dd68e54",
+    "apyBaseBorrow": 3.54299,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 17555361,
+    "totalBorrowUsd": 12911467,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0x354A6dA3fcde098F8389cad84b0182725c6C91dE"
+    ],
+    "underlyingTokens": [
+      "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "15cf7c05-b5f0-4bde-8745-a791528c4381",
+    "apyBaseBorrow": 3.75721,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 16264375,
+    "totalBorrowUsd": 13749607,
+    "debtCeilingUsd": null,
+    "ltv": 0.75,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "d9fa8e14-0447-4207-9ae8-7810199dfa1f",
+    "apyBaseBorrow": 3.4726,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 187217725,
+    "totalBorrowUsd": 146281040,
+    "debtCeilingUsd": null,
+    "ltv": 0.75,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "29be6a85-414f-4a66-b075-98863278912a",
+    "apyBaseBorrow": 3.42326,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 58311516,
+    "totalBorrowUsd": 44913881,
+    "debtCeilingUsd": null,
+    "ltv": 0.75,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0x55d398326f99059fF775485246999027B3197955"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "41683a7c-20a2-4cd7-83a7-3ccedaad0db1",
+    "apyBaseBorrow": 2.73592,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 72559254,
+    "totalBorrowUsd": 39302725,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "21e1ac8a-b3aa-4576-9506-0b40137721a0",
+    "apyBaseBorrow": 2.82964,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 344521700,
+    "totalBorrowUsd": 219384800,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0x3a4de44B29995a3D8Cd02d46243E1563E55bCc8b"
+    ],
+    "underlyingTokens": [
+      "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "1e2030e0-0b74-4119-a03d-0f6a126ede33",
+    "apyBaseBorrow": 3.00744,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 7110316,
+    "totalBorrowUsd": 16100,
+    "debtCeilingUsd": null,
+    "ltv": 0.705,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8"
+    ],
+    "underlyingTokens": [
+      "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "e26ce7d9-db75-4aa4-b1db-cc21ae17bdfb",
+    "apyBaseBorrow": 3.94383,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 286886035,
+    "totalBorrowUsd": 189345154,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "6600934f-6323-447d-8a7d-67fbede8529d",
+    "apyBaseBorrow": 5.06175,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 18756695,
+    "totalBorrowUsd": 17083874,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "fa4d7ee4-0001-4133-9e8d-cf7d5d194a91",
+    "apyBaseBorrow": 4.86819,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 11217050,
+    "totalBorrowUsd": 8555087,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "d2141a59-c199-4be7-8d4b-c8223954836b",
+    "apyBaseBorrow": 6.98458,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 148049914,
+    "totalBorrowUsd": 140939408,
+    "debtCeilingUsd": null,
+    "ltv": 0.8,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "f981a304-bb6c-45b8-b0c5-fd2f515ad23a",
+    "apyBaseBorrow": 3.45517,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 2473678924,
+    "totalBorrowUsd": 1965976662,
+    "debtCeilingUsd": null,
+    "ltv": 0.75,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "546b3c0c-138d-4190-b46b-efa1765f1dd3",
+    "apyBaseBorrow": 4.91743,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 8263295,
+    "totalBorrowUsd": 6806192,
+    "debtCeilingUsd": null,
+    "ltv": 0.8,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "65ce8276-b4d9-41ba-9f6f-21fc374cf9bc",
+    "apyBaseBorrow": 4.50926,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 34154917,
+    "totalBorrowUsd": 30567060,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "d118f505-e75f-4152-bad3-49a2dc7482bf",
+    "apyBaseBorrow": 4.07136,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 16541210,
+    "totalBorrowUsd": 11432049,
+    "debtCeilingUsd": null,
+    "ltv": 0.75,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "32cb38a5-b9b9-441a-bf07-8fab47b999d3",
+    "apyBaseBorrow": 3.4824,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 15106621,
+    "totalBorrowUsd": 11836754,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0x85d86061e94CE01D3DA0f9EFa289c86ff136125a"
+    ],
+    "underlyingTokens": [
+      "0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "76b70b33-d8a4-4e61-8092-9bd1f2be2fc9",
+    "apyBaseBorrow": 1.7937,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 3576936,
+    "totalBorrowUsd": 1363415,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0x954eC713a3915B504a6F288563e5218F597e1895"
+    ],
+    "underlyingTokens": [
+      "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "125974d5-ad17-4a3a-b967-ebbf721fca22",
+    "apyBaseBorrow": 3.7081,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 9266322,
+    "totalBorrowUsd": 4748418,
+    "debtCeilingUsd": null,
+    "ltv": 0,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0x1a23b27aC7775B6220dC4F816b5c6A629E371f19"
+    ],
+    "underlyingTokens": [
+      "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "69cf831d-624a-4f23-b5e3-c0f63ad1fa01",
+    "apyBaseBorrow": 9.01252,
+    "apyRewardBorrow": 0,
+    "totalSupplyUsd": 15546417,
+    "totalBorrowUsd": 14053793,
+    "debtCeilingUsd": null,
+    "ltv": 0.88,
+    "borrowable": null,
+    "mintedCoin": null,
+    "rewardTokens": [
+      "0xA88594D404727625A9437C3f886C7643872296AE"
+    ],
+    "underlyingTokens": [
+      "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    ],
+    "borrowFactor": null
+  },
+  {
+    "pool": "aa70268e-4b52-42bf-a116-608b370f9501",
+    "apyBaseBorrow": 4.21441,
+    "apyRewardBorrow": null,
+    "totalSupplyUsd": 2035938511,
+    "totalBorrowUsd": 1876808884,
+    "debtCeilingUsd": null,
+    "ltv": 0.75,
+    "borrowable": true,
+    "mintedCoin": null,
+    "rewardTokens": null,
+    "underlyingTokens": [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    ],
+    "borrowFactor": null
+  }
+]
