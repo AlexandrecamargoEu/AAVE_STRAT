@@ -53,17 +53,24 @@ So `apyReward = 0` can mean two different things, and we must distinguish them:
 1. **The protocol genuinely pays no reward now** (Venus today) — DefiLlama is right.
 2. **The protocol/reward isn't tracked by DefiLlama** — a real gap. Two sub-cases below.
 
-The real, still-valid gaps:
+The real, verified gaps:
+- **DefiLlama misses BORROW-side incentives (the precise gap).** Cross-checked DefiLlama vs the **Merkl API** (`api.merkl.xyz/v4/opportunities`) on the same pool, Mantle aave-v3:
+  | | Supply reward | Borrow rebate |
+  |---|---|---|
+  | Merkl (truth) | USDC +4.48% | USDC **−1.37%** |
+  | DefiLlama | USDC +4.46% ✓ | **None** ✗ |
+  DefiLlama gets supply rewards right (matches Merkl) but reports `apyRewardBorrow = None` even where Merkl pays a 1.37–1.75% borrow rebate. **This is exactly what makes loops look worse than reality:** each borrow leg is ~1.4% too expensive in our calc; a two-leg ping-pong understates spread by ~2.8% — enough to flip several "negative" loops positive. This confirms Paul's "Aave USDT borrow 0–1%" — it's base minus a Merkl rebate DefiLlama can't see.
 - **Whole protocols not indexed:** Sonic Market V3 ($18.45M) is absent from DefiLlama (only tiny silo/aave pools on the Sonic chain). Confirmed.
-- **Off-chain incentive programs:** Aave **Merit** rebates are distributed off-chain via snapshots, so they appear in neither the on-chain borrow rate nor DefiLlama. *Unverified* — needs the Merit API specifically, not a generic on-chain read. Paul's "0–1% Aave USDT borrow" is the claim to check here.
+- **Venus XVS is NOT a gap** — it's genuinely 0 now (above).
 
-**Consequence (revised):** DefiLlama is a solid **discovery + base-rate + reward** source for indexed protocols. It is NOT complete coverage. The enrichment we actually need is:
-- a **protocol-API adapter** (e.g. Venus API) for richer per-pool data (live liquidity, collateral factor, liquidation threshold, utilization) AND to catch rewards the moment emissions turn back on;
-- a **Merit-specific reader** if off-chain incentive programs prove material.
+**Consequence (revised):** clean two-source architecture, both free APIs:
+- **DefiLlama** → pool discovery, TVL, base rates, **supply** rewards, utilization.
+- **Merkl** (`api.merkl.xyz/v4/opportunities?action=BORROW&status=LIVE`) → **borrow-side** incentives/rebates that DefiLlama misses. Match to pools by (chain, protocol, asset).
+- **Protocol APIs** (e.g. Venus) → optional enrichment (richer per-pool fields, catch rewards when emissions return). Lower urgency.
 
-**Requirement (revised, de-scoped):** Phase 1b is **no longer a mandatory on-chain emission reader to "fix" Venus** (there's nothing to fix today). It becomes an **optional protocol-API enrichment layer**, lower urgency, can sit at the Phase 1b/2 boundary. Keep the `reward_source ∈ {'defillama','protocol_api','none'}` field so the dashboard shows provenance. **Net effect: this SHRINKS Phase 1 back toward DefiLlama-discovery + dashboard.**
+**Requirement (revised):** Merkl borrow-rebate ingestion is a **Phase 1 source** (`sources/merkl/`), not optional — without it the loop spreads are systematically understated, which was the core "no positive loops" artifact. The on-chain emission reader is **dropped** from Phase 1 (Venus has nothing to read today; Merkl covers the Aave incentives via API). Keep `reward_source ∈ {'defillama','merkl','protocol_api','none'}`.
 
-> Lesson logged: verify reward claims against the protocol's own API/emission, never infer a hidden reward from a populated `rewardTokens` field. The PoC paid for itself by catching this before we built a reader for a non-existent gap.
+> Lessons logged: (1) never infer a hidden reward from a populated `rewardTokens` field — verify against the protocol/Merkl. (2) DefiLlama's blind spot is specifically the **borrow side**; supply rewards are fine. The two PoCs (Venus API + Merkl cross-check) cost an hour and turned a vague "DefiLlama is blind" into a precise, sourced, fixable gap.
 
 ### B. Utilization safety rules (from Paul, concrete thresholds)
 
@@ -106,17 +113,17 @@ Expanding the accepted stables from 6 to ~26 (added USDS, PYUSD, GHO, CRVUSD, RL
 
 ### Net effect on phasing
 
-- **Phase 1a** (ships first): DefiLlama discovery + base rates + history + dashboard, with explicit "base only / likely understated" flags and the utilization safety rules. Honest about what it doesn't yet know.
-- **Phase 1b**: on-chain reward reader for the top protocols (Venus, Aave Merit) → correct numbers. This is the difference between a misleading tool and a useful one.
+- **Phase 1a** (ships first): DefiLlama (discovery + base + supply rewards) **+ Merkl (borrow rebates)** + history + dashboard + utilization safety rules. With both sources, loop spreads are correct, not understated.
+- **Phase 1b** (optional): protocol-API enrichment (Venus etc.) for richer per-pool fields + catching rewards when emissions return. Not on the critical path.
 - **Phase 2** (unchanged scope, reinforced priority): cross-chain routes, delta-neutral volatile loops, broader protocol coverage, Binance bridging.
 
 ---
 
 ## 3. Phase 1 scope
 
-**Phase 1a (data + dashboard, base rates):** DefiLlama ingestion (2 endpoints), sanity validation incl. utilization safety rules, SQLite persistence with history, 7d/30d aggregates, passive + loop ranking, REST API, Streamlit dashboard, reward token prices + LAV classification. Dashboard flags base-only numbers as "likely understated" where DefiLlama reports no reward.
+**Phase 1a (data + dashboard):** DefiLlama ingestion (2 endpoints) **+ Merkl ingestion** for borrow-side rebates (see 2b.A — without it loop spreads are systematically understated), sanity validation incl. utilization safety rules, SQLite persistence with history, 7d/30d aggregates, passive + loop ranking, REST API, Streamlit dashboard, reward token prices + LAV classification. `reward_source` per pool shows provenance (`defillama`/`merkl`/`none`).
 
-**Phase 1b (protocol-API enrichment — optional, de-scoped after PoC):** the PoC (28-mai) showed DefiLlama's reward numbers are correct for indexed protocols (Venus genuinely pays 0 XVS now), so 1b is NOT a mandatory reward-fix. It becomes optional enrichment via protocol APIs (e.g. `api.venus.io`) for richer per-pool data (live liquidity, collateral factor, liquidation threshold) and to catch rewards when emissions return. Adds `reward_source` per pool. Can slide to the 1b/Phase-2 boundary. See Section 2b.A.
+**Phase 1b (protocol-API enrichment — optional):** the Venus PoC (28-mai) showed DefiLlama's supply reward numbers are correct (Venus genuinely pays 0 XVS now), so no on-chain emission reader is needed. 1b is optional enrichment via protocol APIs (e.g. `api.venus.io`) for richer per-pool fields (live liquidity, collateral factor, liquidation threshold) and to catch rewards when emissions return. Can slide to the 1b/Phase-2 boundary.
 
 **Out of scope (future phases):**
 - On-chain *execution* (supply/borrow/repay transactions) — Phase 3
@@ -126,9 +133,9 @@ Expanding the accepted stables from 6 to ~26 (added USDS, PYUSD, GHO, CRVUSD, RL
 - Telegram/Slack alerts — Phase 2 (health endpoint already exposes the data)
 - Sub-hour RPC polling — Phase 4
 - Backtesting — Phase 4
-- `liquidation_threshold`, `oracle_source`, `e_mode_enabled` (require deeper on-chain reads) — Phase 2/3
+- `liquidation_threshold`, `oracle_source`, `e_mode_enabled` (require deeper on-chain reads or protocol APIs) — Phase 1b/2
 
-**Read-only on-chain reads ARE in Phase 1b** (reward emission rates). This is distinct from Phase 3 execution (signing transactions) — Phase 1b only *reads* contracts.
+**No on-chain reads in Phase 1** — both data sources (DefiLlama + Merkl) are free HTTP APIs. Protocol APIs (Phase 1b) are also HTTP. On-chain reads only appear if/when we add direct RPC in Phase 4.
 
 ---
 
@@ -176,13 +183,12 @@ AAVE_STRAT/
 │   ├── models.py                    # declarative tables
 │   └── migrations/001_initial_schema.sql
 ├── sources/
-│   ├── defillama/client.py          # /pools + /lendBorrow + /chart (DISCOVERY only)
+│   ├── defillama/client.py          # /pools + /lendBorrow + /chart (discovery, base, supply rewards)
+│   ├── merkl/client.py              # /v4/opportunities — BORROW-side rebates DefiLlama misses (2b.A)
 │   ├── coingecko/client.py          # reward token prices
 │   ├── dexscreener/client.py        # fallback prices
-│   └── onchain/                     # [Phase 1b] reward emission readers (read-only)
-│       ├── base.py                  # RewardReader protocol/interface
-│       ├── venus.py                 # Comptroller venusSpeeds × XVS price ÷ TVL
-│       └── aave_merit.py            # Merit rebate reader
+│   └── protocol_api/                # [Phase 1b, optional] richer per-pool enrichment
+│       └── venus.py                 # api.venus.io: liquidity, collateral factor, liq threshold
 ├── services/
 │   ├── pools/
 │   │   ├── ingestor.py              # async run() 60min: fetch+JOIN+validate+persist
@@ -191,7 +197,7 @@ AAVE_STRAT/
 │   │   └── snapshot.py              # upsert snapshot + insert history
 │   ├── rewards/
 │   │   ├── ingestor.py              # async run() 15min: prices
-│   │   ├── onchain_apy.py           # [Phase 1b] reward APY via sources/onchain/
+│   │   ├── merkl_match.py           # match Merkl borrow rebates to pools by (chain,protocol,asset)
 │   │   └── lav.py                   # bucket + discount = f(exit_time, sell_liquidity)
 │   ├── routes/
 │   │   └── analyzer.py              # PURE: effective rates, loops (cross-chain-ready), ranking
@@ -204,11 +210,11 @@ AAVE_STRAT/
 │   ├── bootstrap_db.py              # schema + configs + triggers backfill
 │   └── backfill_history.py          # /chart/{uuid} for 90d
 └── tests/
-    ├── fixtures/                    # captured DefiLlama payloads + onchain reads (offline)
+    ├── fixtures/                    # captured DefiLlama + Merkl payloads (offline)
     ├── test_defillama_client.py
+    ├── test_merkl_match.py          # borrow rebate matched to right pool
     ├── test_validators.py           # incl. utilization thresholds
     ├── test_pools_ingestor.py
-    ├── test_onchain_reward.py       # [Phase 1b] emission math vs known UI value
     ├── test_analyzer.py             # heart of the suite
     └── test_api.py
 ```
@@ -221,7 +227,7 @@ config → sources → services → api → web
                db ←──────┘
 ```
 
-- `sources/`: I/O only (HTTP + read-only RPC for `onchain/`). No DB, no config (injected). The `onchain/` readers only *read* contracts — no signing, distinct from Phase 3 execution.
+- `sources/`: HTTP only (DefiLlama, Merkl, CoinGecko, protocol APIs). No DB, no config (injected). No contract signing anywhere in Phase 1.
 - `services/pools` + `services/rewards`: use `sources/`, write to `db/`.
 - `services/routes/analyzer.py`: **100% pure** — reads from `db/`, no I/O, no state. Testable without network.
 - `services/api`: reads `db/` or calls `analyzer`. Returns JSON.
@@ -237,10 +243,11 @@ Swapping SQLite→QuestDB touches only `db/`. Swapping Streamlit→HTML touches 
 
 ```
 [cron 60min] pools_ingestor.run()
-  → GET /pools + GET /lendBorrow  (parallel via asyncio.gather)
-  → JOIN by pool UUID
+  → GET defillama /pools + /lendBorrow + merkl /v4/opportunities  (parallel via asyncio.gather)
+  → JOIN defillama supply+borrow by pool UUID
+  → merkl_match: overlay borrow rebates onto matched pools (set borrow_apr_reward, reward_source='merkl')
   → filters (TVL>=$1M, stable, chain not excluded)
-  → VALIDATE (validators.py → quality_flag per pool)
+  → VALIDATE (validators.py → quality_flag per pool, incl. high_utilization)
   → snapshot.py: BEGIN; UPSERT pools_snapshot; INSERT pools_history; COMMIT
   → aggregator.py (chained): recompute rate_aggregates 7d/30d
 ```
@@ -280,7 +287,7 @@ Never serve synthetic/estimated data. On failure, serve the last good snapshot +
 Full DDL in Appendix A.
 
 **Tables:**
-- `pools_snapshot` — current state, 1 row/pool, UPSERT. Includes `quality_flag` (now incl. `high_utilization`), `lav_uncertain`, `status`, `reward_source` (`'defillama'|'onchain'|'none'`, see 2b.A), `available_liquidity` (= supply − borrow, see 2b.B), and the `/lendBorrow` fields (`total_supply_usd`, `debt_ceiling_usd`, `borrowable`, `borrow_factor`, `underlying_tokens`).
+- `pools_snapshot` — current state, 1 row/pool, UPSERT. Includes `quality_flag` (now incl. `high_utilization`), `lav_uncertain`, `status`, `reward_source` (`'defillama'|'merkl'|'protocol_api'|'none'`, see 2b.A), `borrow_apr_reward` now populated from Merkl where DefiLlama returns null, `available_liquidity` (= supply − borrow, see 2b.B), and the `/lendBorrow` fields (`total_supply_usd`, `debt_ceiling_usd`, `borrowable`, `borrow_factor`, `underlying_tokens`).
 - `pools_history` — append-only. PK `(pool_id, ts, source)` where `source ∈ {'live','chart_daily'}` lets daily backfill + live snapshots coexist.
 - `reward_token_prices` — price + LAV classification, current + historical.
 - `rate_aggregates` — 7d/30d rolling averages. **Exception to the raw rule**: stores effective (disposable, recomputed post-ingest and on LAV config change).
@@ -373,14 +380,15 @@ Adjustable inputs: `principal` ($250k default), `hold_h` (7d default).
 
 ## 11. Size estimate
 
-Phase 1a ~2,000 lines of production + ~400 tests. Phase 1b adds ~400-600 (on-chain readers are protocol-specific; each adapter ~100-150 lines).
+Phase 1a ~2,100 lines of production + ~450 tests. Phase 1b (optional protocol-API enrichment) adds ~150 per protocol.
 
 | Module | ~Lines |
 |---|---|
 | sources/defillama/client.py | 80 |
-| sources/onchain/* (base + venus + aave_merit) [Phase 1b] | 400 |
+| sources/merkl/client.py | 80 |
+| sources/protocol_api/* [Phase 1b, optional] | 150 |
 | services/pools/* (ingestor, validators incl. UR rules, aggregator, snapshot) | 450 |
-| services/rewards/* (prices, lav, onchain_apy [1b]) | 250 |
+| services/rewards/* (prices, lav, merkl_match) | 250 |
 | services/routes/analyzer.py | 200 |
 | services/api/* | 200 |
 | db/* | 150 |
@@ -397,8 +405,8 @@ Phase 1a ~2,000 lines of production + ~400 tests. Phase 1b adds ~400-600 (on-cha
 3. **`join_rate` baseline** — what is the historical norm for setting the alert? Measure in the first weeks.
 4. **LAV classification of new tokens** — ember, bitway, avantis show up as "B?". Classify as we investigate each program (feeds the per-platform scheme doc, 2b.F).
 5. **Reward token resolution** — DefiLlama's `rewardTokens` are addresses; mapping address → symbol → CoinGecko price requires a table. Define the source of truth.
-6. **[Phase 1b] On-chain emission read per protocol** — each protocol exposes emission differently (Venus `venusSpeeds`, Aave Merit via its rewards controller / off-chain API). Confirm the read path + RPC provider per protocol. Which 2-3 protocols first? (Venus + Aave Merit are the highest value.)
-7. **DefiLlama Pro** — does the paid tier actually report reward APY for Venus/Aave? If yes, it may be cheaper than maintaining on-chain readers. Verify before committing to either (don't assume Pro fixes an adapter gap).
+6. **Merkl ↔ DefiLlama pool matching** — Merkl identifies opportunities by (chainId, action, name/identifier); DefiLlama by pool UUID. Need a reliable match on (chain, protocol, asset, action). Some Merkl opps say "looping required" — confirm which ones map cleanly to a plain supply/borrow pool. (This is the one new integration risk Phase 1 carries.)
+7. **Merkl reward token LAV** — Merkl borrow rebates are paid in tokens with their own liquidity/vesting. Apply the same LAV discount; classify the reward tokens Merkl uses.
 8. **Cross-chain route model** — when Phase 2 enumerates cross-chain loops, the bridge cost + time + the exit-discount (2b.C) all feed net APY. Confirm the bridge cost source (Binance withdrawal fees table vs live).
 
 ---
@@ -421,7 +429,7 @@ CREATE TABLE pools_snapshot (
     utilization       REAL,
     supply_apy_base   REAL NOT NULL DEFAULT 0,
     supply_apy_reward REAL NOT NULL DEFAULT 0,
-    reward_source     TEXT NOT NULL DEFAULT 'defillama',  -- 'defillama'|'onchain'|'none' (2b.A)
+    reward_source     TEXT NOT NULL DEFAULT 'defillama',  -- 'defillama'|'merkl'|'protocol_api'|'none' (2b.A)
     borrow_apr_base   REAL,
     borrow_apr_reward REAL,
     ltv               REAL,
