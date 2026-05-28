@@ -33,8 +33,8 @@ def main():
     keep_uuids = {p["pool"] for p in supply_subset}
     borrow_subset = [b for b in borrow if b.get("pool") in keep_uuids]
 
-    (out / "defillama_pools_sample.json").write_text(json.dumps({"data": supply_subset}, indent=2))
-    (out / "defillama_lendborrow_sample.json").write_text(json.dumps(borrow_subset, indent=2))
+    (out / "defillama_pools_sample.json").write_text(json.dumps({"data": supply_subset}, indent=2), encoding="utf-8")
+    (out / "defillama_lendborrow_sample.json").write_text(json.dumps(borrow_subset, indent=2), encoding="utf-8")
 
     print(f"supply: {len(supply_subset)} | borrow: {len(borrow_subset)}")
 

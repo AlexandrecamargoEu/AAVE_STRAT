@@ -58,7 +58,7 @@ def join_supply_borrow(supply: list[dict], borrow: list[dict]) -> list[dict]:
     Borrow records without a supply record are dropped — they have no metadata
     (chain, symbol) and can't be ranked alone.
     """
-    borrow_by_pool = {b["pool"]: b for b in borrow}
+    borrow_by_pool = {b["pool"]: b for b in borrow if b.get("pool")}
     merged: list[dict] = []
     for p in supply:
         b = borrow_by_pool.get(p.get("pool"))
