@@ -32,23 +32,25 @@ def test_pipeline_produces_at_least_some_pools(golden):
 
 
 def test_passive_top_result_is_reproducible(golden):
-    """The same payload must always produce the same #1 passive route."""
+    """The same payload must always produce the same #1 passive route.
+
+    This is a REGRESSION GUARD. The locked values below were captured from the
+    first run against the 2026-05-28 fixture. If this test fails:
+      1. Inspect the diff (math/LAV/filter change?)
+      2. If the change is intentional, update the locked values consciously
+      3. Never silently 'fix' by recapturing — that defeats the point
+    """
     pools = _pipeline(golden)
     ranked = rank_passive_supply(pools)
     if not ranked:
         pytest.skip("no passive routes in sample (regime change at capture time)")
     top = ranked[0]
-    # Lock the top route's identity: any change to math/filter/LAV must consciously update this assertion.
-    # If this test fails, INVESTIGATE the diff before bumping the expected values.
-    locked_chain = top.chain
-    locked_project = top.project
-    locked_symbol = top.symbol
-    locked_apy_rounded = round(top.effective_apy, 2)
-    print(f"\n[GOLDEN] passive top: {locked_chain}/{locked_project}/{locked_symbol} = {locked_apy_rounded}%")
-    # The lock is the value the implementer captures the first time this test runs.
-    # On subsequent runs, this assertion guards against unintended math drift.
-    assert (top.chain, top.project, top.symbol) == (locked_chain, locked_project, locked_symbol)
-    assert round(top.effective_apy, 2) == locked_apy_rounded
+    print(f"\n[GOLDEN] passive top: {top.chain}/{top.project}/{top.symbol} = {round(top.effective_apy, 2)}%")
+    # LOCKED — captured 2026-05-28, see fixture golden_payload_20260525.json
+    assert top.chain == "Ethereum"
+    assert top.project == "ember-protocol"
+    assert top.symbol == "USDC"
+    assert round(top.effective_apy, 2) == 12.52
 
 
 def test_cross_chain_carry_returns_results(golden):
