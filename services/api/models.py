@@ -7,10 +7,13 @@ class HealthResponse(BaseModel):
     last_snapshot_at: int | None
     snapshot_age_s: int | None
     stale: bool
-    pool_count_in_scope: int
+    pool_count_total: int          # all pools in pools_snapshot (active + inactive)
+    pool_count_in_scope: int       # only status='active' pools
     join_rate: float | None
+    lav_coverage_pct: float | None  # share of in-scope pools with lav_uncertain=0
     quality_flags: dict[str, int]
-    reward_active_pools: int       # spec regime signal
+    reward_active_pools: int
+    last_error: str | None = None
 
 
 class PassiveRoute(BaseModel):
@@ -57,3 +60,41 @@ class PoolHistoryPoint(BaseModel):
     borrow_apr_reward: float | None
     tvl_usd: float | None
     utilization: float | None
+
+
+class PoolSummary(BaseModel):
+    """Compact row for pool browser (GET /pools/snapshot)."""
+    pool_id: str
+    chain: str
+    project: str
+    symbol: str
+    tvl_usd: float
+    supply_apy_base: float
+    supply_apy_reward: float
+    borrow_apr_base: float | None
+    borrow_apr_reward: float | None
+    quality_flag: str
+    lav_uncertain: int
+
+
+class PoolsSnapshotPage(BaseModel):
+    total: int
+    offset: int
+    limit: int
+    items: list[PoolSummary]
+
+
+class RewardsCoverageResponse(BaseModel):
+    pools_in_scope: int
+    pools_with_classified_reward: int        # lav_uncertain = 0
+    lav_coverage_pct: float | None           # = classified / in_scope
+    pools_with_merkl_borrow_rebate: int      # reward_source = 'merkl'
+    reward_active_pools: int                 # supply_apy_reward > 0
+
+
+class ChainSummary(BaseModel):
+    chain: str
+    pool_count: int
+    avg_supply_apy_effective: float | None
+    avg_borrow_apr_effective: float | None
+    avg_spread: float | None

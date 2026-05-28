@@ -77,3 +77,119 @@ async def test_invalid_query_param_returns_422(app):
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         resp = await ac.get("/api/codee/routes/passive?limit=invalid")
     assert resp.status_code == 422
+
+
+async def test_health_includes_new_fields(app):
+    """Gap 5: HealthResponse now includes pool_count_total, lav_coverage_pct, last_error."""
+    app_, db = app
+    import time
+    now = int(time.time())
+    await db.execute(
+        """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd, lav_uncertain, updated_at)
+           VALUES (?, 'BSC', 'aave-v3', 'USDC', 1e7, 0, ?)""",
+        ("u1", now),
+    )
+    await db.execute(
+        """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd, lav_uncertain, updated_at, status)
+           VALUES (?, 'BSC', 'unknown', 'USDT', 1e7, 1, ?, 'inactive')""",
+        ("u2", now),
+    )
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.get("/api/codee/health")
+    body = resp.json()
+    assert body["pool_count_total"] == 2          # active + inactive
+    assert body["pool_count_in_scope"] == 1        # only active
+    # 1 active pool, lav_uncertain=0 -> 100% coverage
+    assert body["lav_coverage_pct"] == 1.0
+    assert body["last_error"] is None
+
+
+async def test_pools_snapshot_endpoint_paginates(app):
+    app_, db = app
+    import time
+    now = int(time.time())
+    for i in range(5):
+        await db.execute(
+            """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd, updated_at)
+               VALUES (?, 'BSC', 'aave-v3', 'USDC', ?, ?)""",
+            (f"p{i}", (5 - i) * 1e6, now),
+        )
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.get("/api/codee/pools/snapshot?limit=3&offset=1")
+    body = resp.json()
+    assert body["total"] == 5
+    assert body["offset"] == 1
+    assert body["limit"] == 3
+    assert len(body["items"]) == 3
+    # Sorted by TVL desc — first page item is p1 (2nd-highest TVL)
+    assert body["items"][0]["pool_id"] == "p1"
+
+
+async def test_rewards_coverage_endpoint(app):
+    app_, db = app
+    import time
+    now = int(time.time())
+    await db.execute(
+        """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd, lav_uncertain, supply_apy_reward, reward_source, updated_at)
+           VALUES (?, 'BSC', 'aave-v3', 'USDC', 1e7, 0, 1.5, 'defillama', ?)""",
+        ("a", now),
+    )
+    await db.execute(
+        """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd, lav_uncertain, supply_apy_reward, reward_source, updated_at)
+           VALUES (?, 'Mantle', 'aave-v3', 'USDC', 1e7, 0, 0, 'merkl', ?)""",
+        ("b", now),
+    )
+    await db.execute(
+        """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd, lav_uncertain, supply_apy_reward, reward_source, updated_at)
+           VALUES (?, 'Sui', 'unknown', 'USDT', 1e7, 1, 0, 'defillama', ?)""",
+        ("c", now),
+    )
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.get("/api/codee/rewards/coverage")
+    body = resp.json()
+    assert body["pools_in_scope"] == 3
+    assert body["pools_with_classified_reward"] == 2   # a and b have lav_uncertain=0
+    assert body["pools_with_merkl_borrow_rebate"] == 1 # only b
+    assert body["reward_active_pools"] == 1            # only a has supply_apy_reward > 0
+    assert body["lav_coverage_pct"] == pytest.approx(2 / 3)
+
+
+async def test_chains_summary_endpoint(app):
+    app_, db = app
+    import time
+    now = int(time.time())
+    # Seed: 2 pools with a 30d aggregate each
+    await db.execute(
+        """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd, updated_at)
+           VALUES (?, 'BSC', 'aave-v3', 'USDC', 1e7, ?)""",
+        ("a", now),
+    )
+    await db.execute(
+        """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd, updated_at)
+           VALUES (?, 'BSC', 'venus', 'USDT', 1e7, ?)""",
+        ("b", now),
+    )
+    await db.execute(
+        """INSERT INTO rate_aggregates (pool_id, window, supply_apy_effective_avg, borrow_apr_effective_avg, sample_count, computed_at)
+           VALUES (?, '30d', 5.0, 3.0, 30, ?)""",
+        ("a", now),
+    )
+    await db.execute(
+        """INSERT INTO rate_aggregates (pool_id, window, supply_apy_effective_avg, borrow_apr_effective_avg, sample_count, computed_at)
+           VALUES (?, '30d', 7.0, 4.0, 30, ?)""",
+        ("b", now),
+    )
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.get("/api/codee/chains/summary")
+    body = resp.json()
+    assert len(body) == 1
+    bsc = body[0]
+    assert bsc["chain"] == "BSC"
+    assert bsc["pool_count"] == 2
+    assert bsc["avg_supply_apy_effective"] == pytest.approx(6.0)
+    assert bsc["avg_borrow_apr_effective"] == pytest.approx(3.5)
+    assert bsc["avg_spread"] == pytest.approx(2.5)

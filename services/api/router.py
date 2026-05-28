@@ -10,6 +10,7 @@ from config.config import settings
 from db.sqlite_client import SqliteClient
 from services.api.models import (
     HealthResponse, PassiveRoute, LoopRoute, CrossChainRoute, PoolHistoryPoint,
+    PoolSummary, PoolsSnapshotPage, RewardsCoverageResponse, ChainSummary,
 )
 from services.routes.analyzer import (
     enumerate_same_chain_loops, rank_passive_supply, cross_chain_carry,
@@ -78,6 +79,24 @@ async def health(db: SqliteClient = Depends(get_db)):
     ))[0]
     join_rate = (n_borrow / n_active) if n_active else None
 
+    # Total pools (all statuses, not just active)
+    total_row = await db.fetch_one("SELECT COUNT(*) FROM pools_snapshot")
+    pool_count_total = total_row[0] if total_row else 0
+
+    # LAV coverage: share of in-scope pools with lav_uncertain=0
+    if n_active > 0:
+        cov_row = await db.fetch_one(
+            "SELECT COUNT(*) FROM pools_snapshot WHERE status='active' AND lav_uncertain=0"
+        )
+        lav_coverage_pct = (cov_row[0] / n_active) if cov_row else None
+    else:
+        lav_coverage_pct = None
+
+    # last_error placeholder: hook for Phase 2 error tracking. Today the ingestor
+    # logs but does not persist its last exception. Leaving as None is honest;
+    # populating it would require a new table or in-memory state we don't yet have.
+    last_error_msg: str | None = None
+
     if last is None:
         status_str = "warming_up"
     elif stale:
@@ -88,10 +107,13 @@ async def health(db: SqliteClient = Depends(get_db)):
     return HealthResponse(
         status=status_str,
         last_snapshot_at=last, snapshot_age_s=age, stale=stale,
+        pool_count_total=pool_count_total,
         pool_count_in_scope=n_active,
         join_rate=join_rate,
+        lav_coverage_pct=lav_coverage_pct,
         quality_flags=dict(qf_count),
         reward_active_pools=n_reward,
+        last_error=last_error_msg,
     )
 
 
@@ -161,3 +183,84 @@ async def pool_history(pool_id: str, db: SqliteClient = Depends(get_db),
         borrow_apr_base=r[4], borrow_apr_reward=r[5],
         tvl_usd=r[6], utilization=r[7],
     ) for r in rows]
+
+
+@router.get("/pools/snapshot", response_model=PoolsSnapshotPage)
+async def pools_snapshot(db: SqliteClient = Depends(get_db),
+                         offset: int = Query(0, ge=0),
+                         limit: int = Query(100, ge=1, le=500)):
+    """Paginated list of in-scope (active) pools."""
+    total_row = await db.fetch_one("SELECT COUNT(*) FROM pools_snapshot WHERE status='active'")
+    total = total_row[0] if total_row else 0
+    rows = await db.fetch_all("""
+        SELECT pool_id, chain, project, symbol, tvl_usd,
+               supply_apy_base, supply_apy_reward,
+               borrow_apr_base, borrow_apr_reward,
+               quality_flag, lav_uncertain
+        FROM pools_snapshot
+        WHERE status='active'
+        ORDER BY tvl_usd DESC
+        LIMIT ? OFFSET ?
+    """, (limit, offset))
+    items = [PoolSummary(
+        pool_id=r[0], chain=r[1], project=r[2], symbol=r[3],
+        tvl_usd=r[4], supply_apy_base=r[5], supply_apy_reward=r[6],
+        borrow_apr_base=r[7], borrow_apr_reward=r[8],
+        quality_flag=r[9], lav_uncertain=r[10],
+    ) for r in rows]
+    return PoolsSnapshotPage(total=total, offset=offset, limit=limit, items=items)
+
+
+@router.get("/rewards/coverage", response_model=RewardsCoverageResponse)
+async def rewards_coverage(db: SqliteClient = Depends(get_db)):
+    """Coverage stats: LAV classification + Merkl rebate footprint."""
+    n_active = (await db.fetch_one(
+        "SELECT COUNT(*) FROM pools_snapshot WHERE status='active'"
+    ))[0]
+    n_classified = (await db.fetch_one(
+        "SELECT COUNT(*) FROM pools_snapshot WHERE status='active' AND lav_uncertain=0"
+    ))[0]
+    n_merkl = (await db.fetch_one(
+        "SELECT COUNT(*) FROM pools_snapshot WHERE status='active' AND reward_source='merkl'"
+    ))[0]
+    n_reward = (await db.fetch_one(
+        "SELECT COUNT(*) FROM pools_snapshot WHERE status='active' AND supply_apy_reward > 0"
+    ))[0]
+    pct = (n_classified / n_active) if n_active else None
+    return RewardsCoverageResponse(
+        pools_in_scope=n_active,
+        pools_with_classified_reward=n_classified,
+        lav_coverage_pct=pct,
+        pools_with_merkl_borrow_rebate=n_merkl,
+        reward_active_pools=n_reward,
+    )
+
+
+@router.get("/chains/summary", response_model=list[ChainSummary])
+async def chains_summary(db: SqliteClient = Depends(get_db)):
+    """Per-chain aggregate from rate_aggregates 30d window.
+
+    Joins rate_aggregates with pools_snapshot to get per-pool chain, averages
+    across pools per chain. Pools without a 30d aggregate are excluded.
+    """
+    rows = await db.fetch_all("""
+        SELECT ps.chain,
+               COUNT(*) AS n,
+               AVG(ra.supply_apy_effective_avg) AS avg_supply,
+               AVG(ra.borrow_apr_effective_avg) AS avg_borrow
+        FROM rate_aggregates ra
+        JOIN pools_snapshot ps ON ps.pool_id = ra.pool_id
+        WHERE ra.window='30d' AND ps.status='active'
+        GROUP BY ps.chain
+        ORDER BY n DESC
+    """)
+    out = []
+    for chain, n, sup, bor in rows:
+        spread = (sup - bor) if (sup is not None and bor is not None) else None
+        out.append(ChainSummary(
+            chain=chain, pool_count=n,
+            avg_supply_apy_effective=sup,
+            avg_borrow_apr_effective=bor,
+            avg_spread=spread,
+        ))
+    return out
