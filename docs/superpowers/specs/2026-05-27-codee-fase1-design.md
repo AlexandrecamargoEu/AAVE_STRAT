@@ -99,7 +99,9 @@ Borrowing BTC and depositing the *same* BTC on another platform is **net-zero pr
 
 Our snapshot only enumerated same-chain loops. Paul's best examples are cross-chain (deposit on Sonic, borrow on a cheap chain; BTC moved across chains; "2 Aave chains with USDT borrow 0–1%, deposit 3–5% elsewhere").
 
-**Decision:** full cross-chain route enumeration needs bridge cost + time modeling (and eventually Binance) → that stays **Phase 2**. But the **data model must not assume same-chain** — `analyzer` route objects carry per-leg chain, and the schema already stores per-pool chain. We avoid baking in a same-chain assumption we'd have to rip out.
+**Decision:** full cross-chain route enumeration needs bridge cost + time modeling → **Phase 2**. The Phase 1a cross-chain *radar* (per-asset spread ceiling) goes in now. The **data model must not assume same-chain** — `analyzer` route objects carry per-leg chain, and the schema already stores per-pool chain. We avoid baking in a same-chain assumption we'd have to rip out.
+
+**Bridge rules (Paul confirmed 28-mai):** the executability gate is **bridge cost ≤ $1**. Binance is the canonical bridge — withdraw to chain A, redeposit, withdraw to chain B — so the chains that matter for *executable* cross-chain are those Binance supports for the relevant stable. Chains without Binance withdrawal (or with bridge cost > $1) are visible in the radar as ceilings but flagged uneconomical. `config/chains.json` carries `bridge_cost_usd` per chain (sentinel ∞ for unsupported). When Phase 2 enumerates executable routes, this gate filters.
 
 **Evidence (`demo_loops_with_merkl.py`, 28-mai):** overlaying Merkl borrow rebates onto same-chain loops improved spreads (best loop 7.33% → 9.33% gross APY) but flipped **0** loops positive — the big rebates land on chains (Mantle, Plasma, Cronos) with no same-chain partner pool. The **cross-chain carry ceiling** (max supply anywhere − min net-borrow anywhere, with Merkl) tells the real story: USDC **+13.2%** (Canto 13.5% supply / Cronos 0.28% borrow), USDT **+4.6%**, GHO **+5.2%**, USDE **+5.0%**. These are pre-bridge-cost, pre-LAV ceilings — but they confirm Paul's thesis: the live opportunity is cross-chain carry, not same-chain loops. Phase 1 same-chain ranking is the monitoring foundation; Phase 2 cross-chain is the product.
 
@@ -112,6 +114,29 @@ Paul: "write out each platform's shitcoin scheme — how long to sell XVS, how o
 ### G. Wider stablecoin set
 
 Expanding the accepted stables from 6 to ~26 (added USDS, PYUSD, GHO, CRVUSD, RLUSD, AUSD, USDe, etc.) grew in-scope pools from 13 → 108. `config/stable_symbols.json` uses the wider set.
+
+### H. Leverage is per-pool, not a constant (Paul confirmed 28-mai)
+
+My initial 5.46x (0.855 per iter × 10) was wrong as a global constant. Paul: *"each platform has a different LTV% per asset, which we'll need to discount 5% from"*.
+
+**Rule:** for each pool, take the platform's actual LTV from DefiLlama's `/lendBorrow` (`ltv` field, or Venus API `collateralFactorMantissa`) and subtract 5% buffer to get the per-iteration effective LTV. Leverage for a same-chain ping-pong is bounded by the **lower** of the two platforms' effective LTVs (the binding constraint). E.g. Aave USDC LTV 0.75 + Venus USDT LTV 0.80 → loop binding LTV = 0.75 − 0.05 = 0.70 per iter → 10-iter leverage ≈ 3.50x. A different pair could give 5.5x. **The number is per-route, not a global.**
+
+**Impact on `analyzer.py`:** the leverage function becomes `compute_leverage(eff_ltv: float, n_iter: int) -> float`. Pinned tests check the formula across multiple inputs (e.g. 0.85/10 ≈ 5.46x, 0.70/10 ≈ 3.50x), not a single number. Each route in the ranking shows its own leverage in the output.
+
+Resolves open question #1 in Section 12.
+
+### I. Chain/stable allow list — start permissive, exclude as we learn (Paul confirmed 28-mai)
+
+Paul: *"don't exclude ETH L1 or Tron, both are relatively cheap chains now... start with all considered."* So:
+- `config/chains.json` starts with **no blacklist** — every chain DefiLlama indexes is allowed in discovery. We add to the blacklist as we observe issues (untrusted contracts, bridge cost > $1, etc.).
+- Per-chain field `bridge_cost_usd`: cost to move a stable on/off via Binance (Binance is the canonical bridge — see Paul's #1). Chains Binance doesn't support get a sentinel (e.g. ∞) so the cross-chain analyzer flags them uneconomical (gate: bridge cost ≤ $1 to consider for execution; the radar still shows them as ceilings).
+- `config/stable_symbols.json` stays wide. Exclusions case-by-case after observing depeg/risk.
+
+### J. High APY = needs_review, not suspect (Paul confirmed 28-mai)
+
+Paul: *"sometimes APY does go to crazy levels temporarily so big % might be real. We need to check the >50% cases each time they come up."*
+
+`validators.py` rule change: above 50% supply APY, flag `quality_flag = 'needs_review'`, **don't filter out**. Dashboard highlights these for manual inspection. The "suspect_apy" semantics (DefiLlama bug) only applies to clear nonsense (e.g. APY > 10,000% or impossible combinations like APY > 100% with utilization < 10%).
 
 ### Net effect on phasing
 
@@ -178,7 +203,7 @@ AAVE_STRAT/
 ├── .env.example
 ├── config/
 │   ├── config.py                    # Config class, reads .env
-│   ├── chains.json                  # gas_per_tx, excluded flag, RPC url per chain
+│   ├── chains.json                  # gas_per_tx, bridge_cost_usd (Binance withdraw), excluded flag (default false — 2b.I)
 │   ├── stable_symbols.json          # wider stables set (~26, see 2b.G)
 │   ├── lav_buckets.json             # token symbol -> A/B/C
 │   └── projects.json                # project -> reward token + scheme fields (see 2b.F)
@@ -248,7 +273,7 @@ Swapping SQLite→QuestDB touches only `db/`. Swapping Streamlit→HTML touches 
   → GET defillama /pools + /lendBorrow + merkl /v4/opportunities  (parallel via asyncio.gather)
   → JOIN defillama supply+borrow by pool UUID
   → merkl_match: overlay borrow rebates onto matched pools (set borrow_apr_reward, reward_source='merkl')
-  → filters (TVL>=$1M, stable, chain not excluded)
+  → filters (TVL>=$1M, stable, chain not explicitly excluded — default no exclusions per 2b.I)
   → VALIDATE (validators.py → quality_flag per pool, incl. high_utilization)
   → snapshot.py: BEGIN; UPSERT pools_snapshot; INSERT pools_history; COMMIT
   → aggregator.py (chained): recompute rate_aggregates 7d/30d
@@ -314,7 +339,7 @@ Unit: analyzer.py (math)  ~40%
 
 ### Coverage by level
 
-- **Unit `analyzer.py`** (target ≥95%): effective supply/borrow APY with LAV (buckets A/B/C); borrow floor at 0; **leverage formula pinned by test** (pin 5.46x for 0.855/10iter — resolves the 5.46 vs 6.60 discrepancy in the context); 4-leg loop enumeration; edge cases (negative spread doesn't crash, pool without borrow, reward 0).
+- **Unit `analyzer.py`** (target ≥95%): effective supply/borrow APY with LAV (buckets A/B/C); borrow floor at 0; **leverage formula tested across inputs** (per-pool from platform LTV − 5% buffer, 2b.H — e.g. 0.855/10 → 5.46x, 0.70/10 → 3.50x); 4-leg loop enumeration with binding LTV across the two legs; cross-chain carry ranking; edge cases (negative spread doesn't crash, pool without borrow, reward 0).
 - **Contract `defillama/client.py`**: parse fixtures; JOIN by UUID; schema drift.
 - **Integration `ingestor`/`aggregator`** (SQLite tmpfile): idempotency (2x ingest → 1 snapshot, 2 history rows); inactive pool not deleted; recompute post-LAV-change.
 - **API `router.py`** (TestClient): cold start → 503 `warming_up`; invalid param → 422; staleness flag.
@@ -322,7 +347,7 @@ Unit: analyzer.py (math)  ~40%
 ### Additional validations (decided during brainstorm)
 
 **Mandatory in Phase 1:**
-1. **Data sanity layer** (`validators.py` + `quality_flag`): detects absurd supply APY (e.g. >1000%), TVL crash (>X% inter-snapshot drop), impossible utilization (>100%), invalid negative rates. Flags, **never drops silently**. Flagged pool appears highlighted in the dashboard.
+1. **Data sanity layer** (`validators.py` + `quality_flag`): detects clear nonsense (e.g. APY >10,000%, utilization >100%, invalid negative rates) → `quality_flag='impossible'`; flags **high-APY (>50%) as `needs_review`** (per Paul, 2b.J — high APY is often real, don't filter, surface); TVL crash (>X% inter-snapshot drop) → `tvl_crash`. **Never drops silently** — flagged pools highlighted in the dashboard for manual inspection.
 2. **Utilization safety rules** (2b.B): flag `high_utilization` when UR > 92% (no-entry signal); UR ≥ 96% is a force-exit signal. Both per-pool configurable. `available_liquidity` surfaced in API + dashboard.
 3. **Golden regression**: 2026-05-25 payload frozen as fixture; locks that the ranking produces the known numbers (17.9% passive, 7.3% loop). Catches math regressions.
 4. **Join coverage assertion**: alerts if `join_rate` drops below ~50% of the historical norm (silent `/lendBorrow` breakage).
@@ -402,13 +427,13 @@ Phase 1a ~2,100 lines of production + ~450 tests. Phase 1b (optional protocol-AP
 
 ## 12. Open questions (resolve during implementation)
 
-1. **Definitive leverage formula** — 5.46x (0.855/10iter, our calculation) vs 6.60x (context). Pinned in a test; confirm with strategist which is intended (does the buffer reduce per-iteration LTV, or is it a separate reserve?).
-2. **Validator thresholds** — what % TVL crash triggers a flag? What APY is "absurd"? UR no-entry/exit defaults are 92%/96% (Paul) — confirm per-pool overrides. Calibrate with real data.
+1. **Leverage formula — RESOLVED (Paul 28-mai, see 2b.H):** per-pool, using each platform's LTV from DefiLlama minus 5% buffer; binding LTV = lower of the two legs.
+2. **Validator thresholds** — TVL crash % and lower-bound for "obvious nonsense" APY (e.g. >10,000%). UR no-entry/exit defaults 92%/96% (Paul). High-APY (>50%) is `needs_review`, not filtered (Paul, 2b.J). Calibrate other thresholds with real data.
 3. **`join_rate` baseline** — what is the historical norm for setting the alert? Measure in the first weeks.
-4. **LAV classification of new tokens** — ember, bitway, avantis show up as "B?". Classify as we investigate each program (feeds the per-platform scheme doc, 2b.F).
-5. **Reward token resolution** — DefiLlama's `rewardTokens` are addresses; mapping address → symbol → CoinGecko price requires a table. Define the source of truth.
+4. **LAV classification of new tokens** — ember, bitway, avantis show up as "B?". Classify as we investigate each program. **Pending follow-up to Paul (2b.F):** concrete payout/vesting/sell-liquidity data for the top 3-5 platforms.
+5. **Chain/stable allow list — RESOLVED (Paul 28-mai, see 2b.I):** start permissive, exclude case-by-case as we learn.
 6. **Merkl ↔ DefiLlama pool matching** — Merkl identifies opportunities by (chainId, action, name/identifier); DefiLlama by pool UUID. Need a reliable match on (chain, protocol, asset, action). Some Merkl opps say "looping required" — confirm which ones map cleanly to a plain supply/borrow pool. (This is the one new integration risk Phase 1 carries.)
-7. **Merkl reward token LAV** — Merkl borrow rebates are paid in tokens with their own liquidity/vesting. Apply the same LAV discount; classify the reward tokens Merkl uses.
+7. **Merkl reward token LAV** — Merkl borrow rebates are paid in tokens with their own liquidity/vesting. Apply the same LAV discount; classify the reward tokens Merkl uses (folds into #4).
 8. **Cross-chain route model** — when Phase 2 enumerates cross-chain loops, the bridge cost + time + the exit-discount (2b.C) all feed net APY. Confirm the bridge cost source (Binance withdrawal fees table vs live).
 
 ---
@@ -440,7 +465,7 @@ CREATE TABLE pools_snapshot (
     reward_tokens     TEXT,
     underlying_tokens TEXT,
     lav_uncertain     INTEGER NOT NULL DEFAULT 0,
-    quality_flag      TEXT NOT NULL DEFAULT 'ok',    -- 'ok'|'suspect_apy'|'tvl_crash'|'impossible_util'|'high_utilization'
+    quality_flag      TEXT NOT NULL DEFAULT 'ok',    -- 'ok'|'needs_review'|'impossible'|'tvl_crash'|'high_utilization'
     status            TEXT NOT NULL DEFAULT 'active',
     updated_at        INTEGER NOT NULL
 );
