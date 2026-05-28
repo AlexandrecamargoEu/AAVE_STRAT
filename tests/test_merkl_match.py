@@ -56,3 +56,22 @@ def test_overlay_no_match_leaves_pool_alone():
     rebates = build_rebate_lookup(SAMPLE_OPPS)
     overlaid = overlay_rebates(pools, rebates)
     assert overlaid[0]["apyRewardBorrow"] is None
+
+
+def test_zero_apr_opportunity_is_dropped():
+    """Merkl opps with apr=0 must NOT clobber apyRewardBorrow=None on a matched pool."""
+    opps = [{
+        "chain": {"name": "Mantle"},
+        "protocol": {"id": "aave"},
+        "tokens": [{"symbol": "USDC"}],
+        "action": "BORROW",
+        "apr": 0,
+    }]
+    rebates = build_rebate_lookup(opps)
+    # zero-APR keys must NOT be in the lookup
+    assert ("mantle", "aave", "USDC") not in rebates
+    # overlay leaves the pool unchanged
+    pools = [{"chain": "Mantle", "project": "aave-v3", "symbol": "USDC",
+              "apyBaseBorrow": 3.31, "apyRewardBorrow": None}]
+    overlaid = overlay_rebates(pools, rebates)
+    assert overlaid[0]["apyRewardBorrow"] is None

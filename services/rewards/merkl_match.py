@@ -6,7 +6,6 @@ Protocol id matching: Merkl uses 'aave', DefiLlama uses 'aave-v3' — we try the
 full project string first, then the prefix before '-' (handles aave-v3/-v2,
 compound-v3, morpho-blue, etc.).
 """
-from collections import defaultdict
 
 
 def _norm_chain(s: str | None) -> str:
@@ -22,20 +21,26 @@ def _norm_sym(s: str | None) -> str:
 
 
 def build_rebate_lookup(opps: list[dict]) -> dict[tuple[str, str, str], float]:
-    """Returns {(chain, protocol, symbol): max_apr}. Picks max if multiple opps match."""
-    out: dict[tuple[str, str, str], float] = defaultdict(float)
+    """Returns {(chain, protocol, symbol): max_apr}. Picks max if multiple opps match.
+
+    Opportunities with apr <= 0 are skipped — a zero-APR Merkl entry would
+    silently clobber a pool's `apyRewardBorrow=None` if inserted.
+    """
+    out: dict[tuple[str, str, str], float] = {}
     for o in opps:
+        apr = float(o.get("apr") or 0)
+        if apr <= 0:
+            continue
         chain = _norm_chain((o.get("chain") or {}).get("name"))
         proto = _norm_proto((o.get("protocol") or {}).get("id"))
-        apr = float(o.get("apr") or 0)
         for t in o.get("tokens") or []:
             sym = _norm_sym(t.get("symbol"))
             if not (chain and proto and sym):
                 continue
             key = (chain, proto, sym)
-            if apr > out[key]:
+            if apr > out.get(key, 0):
                 out[key] = apr
-    return dict(out)
+    return out
 
 
 def overlay_rebates(pools: list[dict], rebates: dict[tuple[str, str, str], float]) -> list[dict]:
