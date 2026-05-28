@@ -3,7 +3,7 @@
 Models are used for type-safe inserts/queries. Schema is the source of truth —
 if you change a column, change BOTH the migration SQL and this file.
 """
-from sqlalchemy import Column, Integer, Float as Real, Text
+from sqlalchemy import Column, Integer, REAL as Real, Text
 from sqlalchemy.orm import declarative_base
 
 
