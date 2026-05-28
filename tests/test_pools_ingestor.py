@@ -96,3 +96,20 @@ async def test_ingestor_flags_high_utilization(db):
     await ing.run_once(ts=1716800000)
     flag = await db.fetch_one("SELECT quality_flag FROM pools_snapshot WHERE pool_id=?", ("hu",))
     assert flag == ("high_utilization",)
+
+
+async def test_ingestor_flags_lav_uncertain_for_unknown_token_project(db):
+    """A pool from an unknown project (no primary_reward in config/projects.json)
+    or whose primary_reward isn't in lav_buckets.json should be flagged lav_uncertain=1."""
+    supply = [
+        _supply_pool("known", "BSC", "aave-v3", "USDC"),       # AAVE -> bucket A -> KNOWN
+        _supply_pool("unknown", "Sui", "some-new-protocol", "USDC"),  # unknown project -> UNKNOWN
+    ]
+    borrow = [_borrow_pool("known"), _borrow_pool("unknown")]
+    ing = PoolsIngestor(db, StubDefiLlama(supply, borrow), StubMerkl([]))
+    await ing.run_once(ts=1716800000)
+
+    known_flag = await db.fetch_one("SELECT lav_uncertain FROM pools_snapshot WHERE pool_id=?", ("known",))
+    unknown_flag = await db.fetch_one("SELECT lav_uncertain FROM pools_snapshot WHERE pool_id=?", ("unknown",))
+    assert known_flag == (0,)
+    assert unknown_flag == (1,)

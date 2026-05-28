@@ -10,12 +10,13 @@ import asyncio
 import logging
 import time
 
-from config.config import settings, load_chains, load_stable_symbols
+from config.config import settings, load_chains, load_stable_symbols, load_projects
 from db.sqlite_client import SqliteClient
 from sources.defillama.client import DefiLlamaClient, join_supply_borrow
 from sources.merkl.client import MerklClient
 from services.rewards.merkl_match import build_rebate_lookup, overlay_rebates
 from services.pools.validators import classify_pool
+from services.rewards.lav import is_token_known
 from services.pools.snapshot import apply_snapshot
 from services.pools.aggregator import compute_aggregates
 
@@ -90,6 +91,7 @@ class PoolsIngestor:
         return out
 
     def _validate(self, pools: list[dict]) -> list[dict]:
+        projects = load_projects()
         out = []
         for p in pools:
             flag = classify_pool(p)
@@ -98,5 +100,13 @@ class PoolsIngestor:
             # overlay_rebates sets reward_source_borrow; snapshot reads reward_source
             if "reward_source_borrow" in p2 and "reward_source" not in p2:
                 p2["reward_source"] = p2["reward_source_borrow"]
+
+            # Set lav_uncertain=1 if the pool's primary reward token isn't in our LAV config.
+            # This happens for new/unclassified protocols — we still discount conservatively (bucket B default)
+            # but the flag tells the dashboard to render "B?" instead of "B".
+            proj = projects.get(p2.get("project") or "")
+            reward_token = (proj or {}).get("primary_reward")
+            p2["lav_uncertain"] = 0 if is_token_known(reward_token) else 1
+
             out.append(p2)
         return out

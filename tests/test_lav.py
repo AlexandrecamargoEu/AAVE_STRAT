@@ -30,3 +30,17 @@ def test_discount_for_b_is_12_5_percent():
 
 def test_discount_unknown_default():
     assert abs(discount_for_token("RANDOMCOIN") - 0.125) < 1e-9
+
+
+def test_is_token_known_returns_true_for_known():
+    from services.rewards.lav import is_token_known
+    assert is_token_known("AAVE") is True
+    assert is_token_known("aave") is True
+    assert is_token_known("XVS") is True
+
+
+def test_is_token_known_returns_false_for_unknown_or_none():
+    from services.rewards.lav import is_token_known
+    assert is_token_known("RANDOMCOIN") is False
+    assert is_token_known(None) is False
+    assert is_token_known("") is False

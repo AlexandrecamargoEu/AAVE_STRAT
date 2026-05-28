@@ -40,3 +40,14 @@ def discount_for_token(symbol: str | None) -> float:
     if bucket is None:
         return default_discount
     return bucket_to_discount[bucket]
+
+
+def is_token_known(symbol: str | None) -> bool:
+    """True if the token has an explicit bucket assignment (not falling back to default).
+
+    Returns False for None and for symbols not in any bucket's token list.
+    """
+    if not symbol:
+        return False
+    sym_to_bucket, _, _, _ = _lav_index()
+    return symbol.upper() in sym_to_bucket
