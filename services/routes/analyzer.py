@@ -75,7 +75,7 @@ def compute_leverage(per_iter_ltv_value: float, n_iter: int = N_ITER_DEFAULT) ->
 # --- Route value object + ranking functions --------------------------------
 from dataclasses import dataclass
 from collections import defaultdict
-from itertools import combinations
+from itertools import combinations, permutations
 
 
 @dataclass(frozen=True)
@@ -131,7 +131,7 @@ def enumerate_same_chain_loops(pools: list[dict], n_iter: int = N_ITER_DEFAULT) 
         if len(platforms) < 2 or len(assets) < 2:
             continue
         for pa, pb in combinations(platforms, 2):
-            for ax, ay in combinations(assets, 2):
+            for ax, ay in permutations(assets, 2):
                 sX_A = mp.get((pa, ax)); bY_A = mp.get((pa, ay))
                 sY_B = mp.get((pb, ay)); bX_B = mp.get((pb, ax))
                 if not all([sX_A, bY_A, sY_B, bX_B]):

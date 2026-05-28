@@ -72,3 +72,25 @@ def test_enumerate_skips_pools_without_borrow_data():
         _pool("Base", "aave-v3", "USDT", base=3.0, borrow_base=None),
     ]
     assert enumerate_same_chain_loops(pools) == []
+
+
+def test_enumerate_loops_includes_both_asset_directions():
+    """Distinct loop topology for (X→Y) vs (Y→X) — must enumerate both."""
+    # Asymmetric rates: USDC supply is high on Aave, USDT supply is high on Venus
+    # Borrow rates are NOT mirror-symmetric so the two directions yield different spreads
+    pools = [
+        _pool("BSC", "aave-v3",         "USDC", base=6.0, borrow_base=2.0, ltv=0.75),
+        _pool("BSC", "aave-v3",         "USDT", base=1.0, borrow_base=8.0, ltv=0.75),
+        _pool("BSC", "venus-core-pool", "USDC", base=2.0, borrow_base=4.0, ltv=0.80),
+        _pool("BSC", "venus-core-pool", "USDT", base=5.0, borrow_base=3.0, ltv=0.80),
+    ]
+    loops = enumerate_same_chain_loops(pools)
+    # We expect at least 2 routes for the single (aave-v3, venus-core-pool) pair:
+    # one with asset_x=USDC asset_y=USDT, and one with asset_x=USDT asset_y=USDC
+    pairs_seen = {(l.asset_x, l.asset_y) for l in loops}
+    assert ("USDC", "USDT") in pairs_seen
+    assert ("USDT", "USDC") in pairs_seen
+    # And their spreads should differ (different rate composition)
+    r1 = next(l for l in loops if l.asset_x == "USDC" and l.asset_y == "USDT")
+    r2 = next(l for l in loops if l.asset_x == "USDT" and l.asset_y == "USDC")
+    assert r1.spread != r2.spread
