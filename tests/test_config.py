@@ -5,7 +5,7 @@ from config.config import (
 
 
 def test_settings_defaults_load():
-    assert settings.MIN_TVL_USD == 1_000_000
+    assert settings.MIN_TVL_USD == 10_000
     assert settings.SNAPSHOT_INTERVAL_MIN == 60
     assert settings.STALENESS_BANNER_HOURS == 3
 

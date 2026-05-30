@@ -49,6 +49,7 @@ class CrossChainRoute(BaseModel):
     borrow_apr: float
     spread: float
     pre_bridge_ceiling: bool = True
+    available_liquidity_usd: float | None = None
 
 
 class PoolHistoryPoint(BaseModel):

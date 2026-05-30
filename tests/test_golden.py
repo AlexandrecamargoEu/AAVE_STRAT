@@ -21,6 +21,8 @@ def _pipeline(golden):
     overlaid = overlay_rebates(joined, build_rebate_lookup(golden["merkl_borrow"]))
     # Filter to stables for tractable golden testing
     stables = {"USDT", "USDC", "USD1", "USDE", "DAI", "GHO", "PYUSD"}
+    # Fixed golden subset — independent of the production MIN_TVL_USD floor (now $10k).
+    # This threshold is intentionally kept at $1M to lock the regression set.
     pools = [p for p in overlaid
              if (p.get("symbol") or "").upper() in stables
              and (p.get("tvlUsd") or 0) >= 1_000_000]

@@ -47,3 +47,35 @@ def test_cross_chain_skips_pools_missing_borrow_side():
     ]
     rows = cross_chain_carry(pools)
     assert rows == []
+
+
+def test_cross_chain_exposes_min_available_liquidity():
+    """available_liquidity_usd = min(supply-pool tvl, borrow-pool tvl)."""
+    pools = [
+        _p("Canto",  "canto-lending", "USDC", base=13.5, borrow_base=15.0, tvl=2_000_000),
+        _p("Cronos", "tectonic",      "USDC", base=2.0,  borrow_base=0.5,  tvl=300_000),
+    ]
+    rows = cross_chain_carry(pools)
+    usdc = next(r for r in rows if r.symbol == "USDC")
+    assert usdc.available_liquidity_usd == pytest.approx(300_000)
+
+
+def test_cross_chain_available_liquidity_none_when_tvl_missing():
+    pools = [
+        _p("Canto",  "canto-lending", "USDC", base=13.5, borrow_base=15.0, tvl=None),
+        _p("Cronos", "tectonic",      "USDC", base=2.0,  borrow_base=0.5,  tvl=None),
+    ]
+    rows = cross_chain_carry(pools)
+    usdc = next(r for r in rows if r.symbol == "USDC")
+    assert usdc.available_liquidity_usd is None
+
+
+def test_cross_chain_available_liquidity_partial_none():
+    """If one leg has tvl and the other doesn't, avail = the present leg's tvl."""
+    pools = [
+        _p("Canto",  "canto-lending", "USDC", base=13.5, borrow_base=15.0, tvl=2_000_000),
+        _p("Cronos", "tectonic",      "USDC", base=2.0,  borrow_base=0.5,  tvl=None),
+    ]
+    rows = cross_chain_carry(pools)
+    usdc = next(r for r in rows if r.symbol == "USDC")
+    assert usdc.available_liquidity_usd == pytest.approx(2_000_000)
