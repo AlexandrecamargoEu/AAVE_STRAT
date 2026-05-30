@@ -32,7 +32,15 @@ def get_db() -> SqliteClient:
 
 
 async def _load_pools(db: SqliteClient) -> list[dict]:
-    """Snapshot rows as dicts the analyzer expects (DefiLlama-shaped)."""
+    """Snapshot rows as dicts the analyzer expects (DefiLlama-shaped).
+
+    Note: `tvlUsd` is DefiLlama's TVL, which for a lending pool is already the
+    *net* available liquidity (supplied − borrowed) — e.g. Aave Sonic USDC reports
+    tvlUsd ≈ $0.28M against $3.5M supplied / $3.2M borrowed. It's NOT NULL for every
+    pool, so the UI liquidity slider filters on it (via tvl_usd / min_tvl_usd /
+    available_liquidity_usd). The exact net column `available_liquidity` (= tsu − tbu)
+    is nullable for supply-only pools, so it's intentionally not used as the slider field.
+    """
     rows = await db.fetch_all("""
         SELECT pool_id, chain, project, symbol, tvl_usd,
                supply_apy_base, supply_apy_reward,
