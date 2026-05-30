@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     SNAPSHOT_INTERVAL_MIN: int = 60
     API_HOST: str = "127.0.0.1"
     API_PORT: int = 8000
-    MIN_TVL_USD: float = 1_000_000
+    MIN_TVL_USD: float = 10_000              # env: CODEE_MIN_TVL_USD (dust floor / slider min)
     PRINCIPAL_DEFAULT: float = 250_000
     HOLD_HOURS_DEFAULT: int = 168
     STALENESS_BANNER_HOURS: int = 3

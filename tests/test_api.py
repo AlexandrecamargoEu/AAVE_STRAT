@@ -157,6 +157,42 @@ async def test_rewards_coverage_endpoint(app):
     assert body["lav_coverage_pct"] == pytest.approx(2 / 3)
 
 
+async def test_crosschain_endpoint_includes_available_liquidity(app):
+    """GET /routes/crosschain exposes available_liquidity_usd = min(supply tvl, borrow tvl)."""
+    app_, db = app
+    import time
+    now = int(time.time())
+    # Canto: high supply rate, has borrow side; tvl_usd 2e6
+    await db.execute(
+        """INSERT INTO pools_snapshot
+           (pool_id, chain, project, symbol, tvl_usd,
+            supply_apy_base, supply_apy_reward,
+            borrow_apr_base, borrow_apr_reward,
+            updated_at)
+           VALUES (?, 'Canto', 'canto-lending', 'USDC', 2000000,
+                   13.5, 0.0, 15.0, NULL, ?)""",
+        ("canto-usdc", now),
+    )
+    # Cronos: cheap borrow; tvl_usd 3e5
+    await db.execute(
+        """INSERT INTO pools_snapshot
+           (pool_id, chain, project, symbol, tvl_usd,
+            supply_apy_base, supply_apy_reward,
+            borrow_apr_base, borrow_apr_reward,
+            updated_at)
+           VALUES (?, 'Cronos', 'tectonic', 'USDC', 300000,
+                   2.0, 0.0, 0.5, NULL, ?)""",
+        ("cronos-usdc", now),
+    )
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.get("/api/codee/routes/crosschain")
+    assert resp.status_code == 200
+    body = resp.json()
+    usdc = next(r for r in body if r["symbol"] == "USDC")
+    assert usdc["available_liquidity_usd"] == pytest.approx(3e5)
+
+
 async def test_chains_summary_endpoint(app):
     app_, db = app
     import time

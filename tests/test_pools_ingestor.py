@@ -54,20 +54,25 @@ async def test_ingestor_full_pipeline_persists_filtered_pools(db):
     supply = [
         _supply_pool("u1", "BSC", "aave-v3", "USDC", base=2.6),
         _supply_pool("u2", "BSC", "aave-v3", "USDT", base=2.4),
-        # below TVL filter
+        # $500k — above the new $10k dust floor, now KEPT
         _supply_pool("u3", "BSC", "aave-v3", "DAI", tvl=500_000),
         # non-stable -> filtered
         _supply_pool("u4", "BSC", "aave-v3", "WBNB"),
+        # sub-$10k dust pool -> filtered
+        _supply_pool("u5", "BSC", "aave-v3", "TUSD", tvl=5_000),
     ]
-    borrow = [_borrow_pool("u1"), _borrow_pool("u2"), _borrow_pool("u3"), _borrow_pool("u4")]
+    borrow = [
+        _borrow_pool("u1"), _borrow_pool("u2"), _borrow_pool("u3"),
+        _borrow_pool("u4"), _borrow_pool("u5"),
+    ]
     merkl = [_merkl_opp("Mantle", "aave", "USDC", 1.37)]  # won't match BSC pools
 
     ing = PoolsIngestor(db, StubDefiLlama(supply, borrow), StubMerkl(merkl))
     n = await ing.run_once(ts=1716800000)
 
-    assert n == 2  # u1 + u2; u3 (TVL low) and u4 (not stable) filtered
+    assert n == 3  # u1 + u2 + u3; u4 (not stable) and u5 (TVL < $10k dust) filtered
     rows = await db.fetch_all("SELECT pool_id, symbol FROM pools_snapshot ORDER BY pool_id")
-    assert rows == [("u1", "USDC"), ("u2", "USDT")]
+    assert rows == [("u1", "USDC"), ("u2", "USDT"), ("u3", "DAI")]
 
 
 async def test_ingestor_overlays_merkl_borrow_rebate(db):

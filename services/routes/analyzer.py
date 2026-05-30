@@ -164,6 +164,7 @@ class CrossChainCarry:
     borrow_apr: float
     spread: float
     pre_bridge_ceiling: bool = True   # always True in Phase 1a — no bridge cost applied
+    available_liquidity_usd: float | None = None
 
 
 def cross_chain_carry(pools: list[dict]) -> list[CrossChainCarry]:
@@ -172,31 +173,35 @@ def cross_chain_carry(pools: list[dict]) -> list[CrossChainCarry]:
 
     Pre-bridge-cost ceiling — the executable filter (bridge <= $1) is Phase 2.
     """
-    sup_by_asset: dict[str, list[tuple[float, str, str]]] = defaultdict(list)
-    bor_by_asset: dict[str, list[tuple[float, str, str]]] = defaultdict(list)
+    # tuples: (apy, chain, project, tvlUsd)
+    sup_by_asset: dict[str, list[tuple[float, str, str, float | None]]] = defaultdict(list)
+    bor_by_asset: dict[str, list[tuple[float, str, str, float | None]]] = defaultdict(list)
     for p in pools:
         sym = (p.get("symbol") or "").upper()
         chain = p.get("chain") or ""
         proj = p.get("project") or ""
-        sup_by_asset[sym].append((effective_supply_apy(p), chain, proj))
+        tvl = float(p["tvlUsd"]) if p.get("tvlUsd") is not None else None
+        sup_by_asset[sym].append((effective_supply_apy(p), chain, proj, tvl))
         if p.get("apyBaseBorrow") is not None:
-            bor_by_asset[sym].append((effective_borrow_apr(p), chain, proj))
+            bor_by_asset[sym].append((effective_borrow_apr(p), chain, proj, tvl))
 
     out: list[CrossChainCarry] = []
     for sym, sup_list in sup_by_asset.items():
         bor_list = bor_by_asset.get(sym, [])
         if not bor_list:
             continue
-        best_sup = max(sup_list)
-        cheap_bor = min(bor_list)
+        best_sup = max(sup_list, key=lambda t: t[0])
+        cheap_bor = min(bor_list, key=lambda t: t[0])
         if best_sup[1] == cheap_bor[1]:
             # same chain — skip (covered by same-chain loop ranking)
             continue
+        avail = min((t for t in (best_sup[3], cheap_bor[3]) if t is not None), default=None)
         out.append(CrossChainCarry(
             symbol=sym,
             supply_chain=best_sup[1], supply_project=best_sup[2], supply_apy=best_sup[0],
             borrow_chain=cheap_bor[1], borrow_project=cheap_bor[2], borrow_apr=cheap_bor[0],
             spread=best_sup[0] - cheap_bor[0],
+            available_liquidity_usd=avail,
         ))
     out.sort(key=lambda r: r.spread, reverse=True)
     return out

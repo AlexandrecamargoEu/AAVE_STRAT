@@ -163,6 +163,7 @@ async def routes_crosschain(db: SqliteClient = Depends(get_db), limit: int = Que
         supply_chain=r.supply_chain, supply_project=r.supply_project, supply_apy=r.supply_apy,
         borrow_chain=r.borrow_chain, borrow_project=r.borrow_project, borrow_apr=r.borrow_apr,
         spread=r.spread, pre_bridge_ceiling=r.pre_bridge_ceiling,
+        available_liquidity_usd=r.available_liquidity_usd,
     ) for r in rows[:limit]]
 
 
