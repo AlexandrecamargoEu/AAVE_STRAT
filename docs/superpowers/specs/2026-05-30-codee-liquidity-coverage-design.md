@@ -1,8 +1,8 @@
-# Codee — Liquidity coverage: surface thin-liquidity pools instead of dropping them
+# Codee — Liquidity filter: surface thin-liquidity pools behind an adjustable slider
 
 **Date:** 2026-05-30
 **Status:** design — approved, pending spec review
-**Origin:** Alexandre noticed the Aave **Sonic Market** (USDC) was absent from the Loops/Passive views. Root cause: the $1M TVL gate silently drops it. Decision: stop silently dropping, and add a position-relative liquidity signal.
+**Origin:** Alexandre noticed the Aave **Sonic Market** (USDC) was absent from the Loops/Passive views. Root cause: the $1M TVL gate silently drops it. Decision: replace the hard gate with a user-controllable liquidity slider so the filter stops being "too restrictive."
 
 ---
 
@@ -15,105 +15,78 @@ Two things were discovered validating against live DefiLlama data:
 
 1. **DefiLlama's `tvlUsd` for a lending pool is *available liquidity* (supplied − borrowed), not market size.** The Aave Sonic USDC pool has **$3.51M supplied / $3.21M borrowed → $0.28M free** (`tvlUsd = $0.28M`, UR ≈ 91%). It's a real, sizable market with thin free liquidity — but the $1M gate treats the $0.28M free figure as "too small" and drops it.
 
-2. **Silently dropping violates the project convention** (`CLAUDE.md`: *"Never silently drop a pool — flag and surface it"*). The gate hides real opportunities (and their exit risk) instead of surfacing them.
+2. **Silently dropping violates the project convention** (`CLAUDE.md`: *"Never silently drop a pool — flag and surface it"*). The gate hides real opportunities instead of surfacing them, and the threshold is hard-coded — the user has no control.
 
-But naively removing the gate floods the UI: the stable+lendable universe is **909 pools**, of which **672 have < $50k free liquidity** (dead/dust pools). That buries the signal.
+Naively removing the gate floods the UI: the stable+lendable universe is **909 pools**, most of them dust. The fix is a low dust floor + an **adjustable slider** the user controls, defaulting to a sensible value.
 
 ### Live counts (2026-05-30, captured during design)
 
-| Free liquidity (`tvlUsd`) | Pools |
+| Free liquidity (`tvlUsd`) | Pools (cumulative ≥) |
 |---|---|
-| > $1M | 110 |
-| $250k–$1M | 64 |
-| $100k–$250k | (part of below) |
-| < $50k | 672 |
-| **≥ $100k (chosen floor)** | **209** |
-| < $100k (dropped as dust) | 700 |
+| ≥ $100k | 209 |
+| ≥ $50k | 237 |
+| **≥ $10k (dust floor)** | **323** |
+| total (no floor) | 909 |
 
-Sonic Aave USDC ($0.28M free) **survives** the $100k floor → appears, as intended.
+Sonic Aave USDC ($0.28M free) survives every threshold above → appears, as intended.
 
 ---
 
-## The metric: liquidity coverage, not absolute liquidity
+## Design (simple — it's just a better filter control)
 
-Absolute free liquidity is meaningless without position size. The right signal is
-**coverage = available_liquidity / position_size** — how many times over you can exit.
-
-- **≥ 5×** → 🟢 green — exit comfortably even if liquidity tightens or others exit with you
-- **2× – 5×** → 🟡 amber — fits, but exit may be slow / slippy if utilization spikes
-- **< 2×** → 🔴 red — you barely fit (or don't) in the free liquidity; real exit risk
-
-**Rationale for the bands:** free liquidity is the most volatile quantity in a lending
-pool (it's what's left after borrows, and borrows/withdrawals move constantly). At 1×
-you exactly fill the free liquidity — pulling out pushes UR toward 100%, the rate model
-spikes, and you wait for borrowers to repay. 2× lets you exit after half the free
-liquidity is taken by others; 5× is real comfort. (Alexandre's own gut example — $50k
-position wanting ~$300k liquidity = 6× — lands squarely in green, confirming calibration.)
-
-**Coverage is position-relative and computed client-side**, using the principal the user
-already controls in the dashboard. It re-colors live as the principal changes — no fixed
-capital assumption. There is **no new server-side quality flag**; the server only exposes
-the raw `available_liquidity_usd`.
-
-**For loops**, the relevant position is the **total borrowed against the borrow-leg pool**
-(the borrow leg draws on that pool's free liquidity, and unwinding repays then withdraws) —
-not the principal. So the loop table colors coverage =
-`borrow_leg_available_liquidity / total_borrowed`, where
-`total_borrowed = principal × (leverage − 1)` (the cumulative debt the loop opens against
-the borrow-side pool).
-
----
-
-## Design
-
-### 1. Backend — replace the scope gate with a dust floor
+### 1. Backend — replace the hard gate with a low dust floor
 
 `services/pools/ingestor.py::_filter`:
 - Keep the stablecoin-symbol filter and the chain-exclusion filter unchanged.
-- Change the TVL filter semantics from "$1M scope gate" to a **dust floor**: drop only
-  pools with `tvlUsd < MIN_TVL_USD` where `MIN_TVL_USD` default is lowered **$1,000,000 → $100,000**.
-- This is a config default change (`config/config.py`, `MIN_TVL_USD`), no new field.
+- Change the TVL filter from a "$1M scope gate" to a **dust floor**: drop only pools with
+  `tvlUsd < MIN_TVL_USD`, default lowered **$1,000,000 → $10,000**.
+- This is a config default change (`config/config.py`, `MIN_TVL_USD`). The floor is the
+  absolute minimum stored, and the lower bound of the slider. Everything ≥ $10k is stored
+  (323 pools today); pure dust (< $10k) stays dropped.
 
 ### 2. Backend — expose available liquidity
 
 - The merged pool dict already carries `totalSupplyUsd` and `totalBorrowUsd` (from the
-  `/lendBorrow` join). Compute `available_liquidity_usd = totalSupplyUsd − totalBorrowUsd`
-  and persist/surface it.
+  `/lendBorrow` join). Compute `available_liquidity_usd = totalSupplyUsd − totalBorrowUsd`.
 - Add `available_liquidity_usd` (nullable float) to the API response models for the
-  passive, loops, and cross-chain endpoints (`services/api/models.py`), populated by
-  `analyzer.py` / the router from stored snapshot fields.
-- `analyzer.py` stays pure — it just passes through / computes the subtraction; no I/O.
+  passive, loops, and cross-chain endpoints (`services/api/models.py`), populated from the
+  stored snapshot fields. `analyzer.py` stays pure (just the subtraction / passthrough,
+  no I/O).
+- For loops, the relevant figure is the **borrow-leg** pool's available liquidity (the leg
+  that draws on free liquidity); surface that on the loop result.
 
-### 3. Frontend — "Liquidez" column colored by coverage (VT native CSS)
+### 3. Frontend — adjustable liquidity slider + plain column (VT native CSS)
 
-In Volume_tracker `web/index.html`, Codee tab (sub-tabs Passive / Loops / Cross-Chain):
-- Add a **Liquidez** column rendering `available_liquidity_usd` (e.g. `$0.28M`).
-- Color the cell by coverage vs the current position input: 🟢 ≥5× / 🟡 2–5× / 🔴 <2×.
-  - Passive & Cross-Chain: coverage = `available_liquidity_usd / principal`.
-  - Loops: coverage = `borrow_leg_available_liquidity / loan_size_per_loop`.
-- Use VT's existing palette (no new standalone styling — see memory `feedback-vt-native-styling`).
+In Volume_tracker `web/index.html`, Codee tab (Passive / Loops / Cross-Chain):
+- A **minimum-liquidity slider** styled like a price-range filter, range **$10k → max**
+  (max = the largest pool's free liquidity, or a sensible cap), **default $100k**.
+  - Default view shows only pools with free liquidity **> $100k** (209 today).
+  - Dragging down toward $10k reveals thinner pools (up to 323); dragging up tightens.
+  - Filtering is **client-side** over the already-loaded payload (323 pools is small).
+- A plain **Liquidez** column showing `available_liquidity_usd` (e.g. `$0.28M`) — **no color
+  coding** — so the user sees where each pool sits relative to the slider.
+- For loops, the slider filters on the **borrow-leg** available liquidity.
 
-### 4. Frontend — collapse the illiquid tail (anti-pollution, no silent drop)
+### 4. Keep `high_utilization` (UR > 92%) flag
 
-- Rows that are 🔴 (<2× at the current position) are **collapsed behind a toggle**:
-  `"+N pools de baixa liquidez"`. Default view shows green/amber only.
-- Because coverage is position-relative, the hidden set re-computes live as the principal
-  changes (tiny position → almost everything green/visible; large position → more hidden).
-- Nothing is dropped from the payload — collapsed rows are one click away.
-
-### 5. Keep `high_utilization` (UR > 92%) flag
-
-Orthogonal structural signal (pool-level tightness), independent of the user's position.
-Left exactly as-is in `validators.py`.
+Orthogonal structural signal, unchanged in `validators.py`.
 
 ---
 
+## Explicitly dropped (from the earlier draft of this spec)
+
+- ❌ Position-relative **coverage** metric (liquidity ÷ position).
+- ❌ Green / amber / red **color legend** (5× / 2× bands).
+- ❌ Collapsible "low-liquidity tail" toggle.
+
+The slider replaces all three with one simple, user-controllable filter. (Kept the field
+`available_liquidity_usd` and the dust-floor idea; everything else is simplified away.)
+
 ## Out of scope (YAGNI)
 
-- No new `QualityFlag` enum value (coverage is client-side & position-relative).
-- No staking-yield ingestion (the Sonic stS/S LST loop remains invisible — separate concern).
-- No change to the History tab / `strategy_history`.
-- No bridge-cost / cross-chain execution changes.
+- No new `QualityFlag` enum value.
+- No staking-yield ingestion (the Sonic stS/S LST loop stays invisible — separate concern).
+- No change to the History tab / `strategy_history`, bridge costs, or execution.
 
 ---
 
@@ -126,25 +99,26 @@ The code exists in two places:
   (`199.247.3.163`). Frontend lives in VT's `web/index.html` (native styling).
 
 **Decision:** implement in **`Volume_tracker`** (the deployed copy):
-- Backend changes → `Volume_tracker/codee/{config,services}/...`
-- Frontend changes → `Volume_tracker/web/index.html` (Codee tab).
+- Backend → `Volume_tracker/codee/{config,services}/...`
+- Frontend → `Volume_tracker/web/index.html` (Codee tab).
 
-Mirror the **backend** changes (ingestor filter, config default, API field, analyzer
-passthrough) back into **`AAVE_STRAT`** to keep the standalone repo in sync. The frontend
-change does **not** mirror (AAVE_STRAT's standalone UI is dead). Deploy to production via
-the same git-bundle path used for the integration.
+Mirror the **backend** changes (filter, config default, API field, analyzer passthrough)
+back into **`AAVE_STRAT`** to keep the standalone repo in sync. The frontend change does
+**not** mirror (AAVE_STRAT's standalone UI is dead). Deploy via the same git-bundle path
+used for the integration.
 
 ---
 
 ## Testing
 
-- **`test_filter` / ingestor:** a pool with `tvlUsd = $80k` is dropped; `$120k` is kept;
-  `$50M` kept. Boundary at exactly `$100k` (kept, `>=`). Stable + chain filters unchanged.
+- **ingestor `_filter`:** `tvlUsd = $8k` dropped; `$10k` kept (`>=` boundary); `$50M` kept.
+  Stable-symbol and chain-exclusion filters unchanged.
 - **API models:** `available_liquidity_usd = totalSupplyUsd − totalBorrowUsd`; null when
-  either input is null.
-- **analyzer purity:** the subtraction is pure, no I/O — covered by existing analyzer tests
-  + one new case asserting the field flows through ranking output.
-- **Golden regression** (`test_golden.py`): the new field changes the locked payload —
-  regenerate and review the diff (only the added field + the now-included sub-$1M pools
-  should appear).
-- All tests offline against fixtures, per project convention.
+  either input is null; loop result carries the borrow-leg figure.
+- **analyzer purity:** the subtraction is pure, no I/O — one new case asserting the field
+  flows through ranking output.
+- **Golden regression** (`test_golden.py`): the new field + the now-included sub-$1M pools
+  change the locked payload — regenerate and review the diff.
+- **Frontend:** manual check via `local_harness.py` (port 8011) — slider at default hides
+  ≤$100k pools, dragging to $10k reveals Sonic USDC; Liquidez column renders, no colors.
+- All backend tests offline against fixtures, per project convention.
