@@ -46,14 +46,19 @@ Sonic Aave USDC ($0.28M free) survives every threshold above → appears, as int
 
 ### 2. Backend — expose available liquidity
 
-- The merged pool dict already carries `totalSupplyUsd` and `totalBorrowUsd` (from the
-  `/lendBorrow` join). Compute `available_liquidity_usd = totalSupplyUsd − totalBorrowUsd`.
-- Add `available_liquidity_usd` (nullable float) to the API response models for the
-  passive, loops, and cross-chain endpoints (`services/api/models.py`), populated from the
-  stored snapshot fields. `analyzer.py` stays pure (just the subtraction / passthrough,
-  no I/O).
-- For loops, the relevant figure is the **borrow-leg** pool's available liquidity (the leg
-  that draws on free liquidity); surface that on the loop result.
+DefiLlama's `tvlUsd` for a lending pool **is** available liquidity (supplied − borrowed) —
+verified on Sonic USDC (`tvlUsd` $0.28M ≈ $3.52M − $3.21M). The existing API already
+surfaces it for two of the three views, so only cross-chain needs a new field:
+
+- **Passive** — reuse the existing `PassiveRoute.tvl_usd` (= the pool's `tvlUsd` = available
+  liquidity). No change.
+- **Loops** — reuse the existing `LoopRoute.min_tvl_usd` (= `min(tvlUsd)` across the loop's
+  legs = the binding available liquidity). No change.
+- **Cross-chain** — `CrossChainRoute` has no liquidity field. Add
+  `available_liquidity_usd: float | None` = `min(supply-pool tvlUsd, borrow-pool tvlUsd)`,
+  computed in `cross_chain_carry` (stays pure). Thread `tvlUsd` through the per-asset
+  supply/borrow tuples and select by APY via an explicit `key=` (avoids tuple-compare on
+  `None` tvl).
 
 ### 3. Frontend — adjustable liquidity slider + plain column (VT native CSS)
 
@@ -63,9 +68,11 @@ In Volume_tracker `web/index.html`, Codee tab (Passive / Loops / Cross-Chain):
   - Default view shows only pools with free liquidity **> $100k** (209 today).
   - Dragging down toward $10k reveals thinner pools (up to 323); dragging up tightens.
   - Filtering is **client-side** over the already-loaded payload (323 pools is small).
-- A plain **Liquidez** column showing `available_liquidity_usd` (e.g. `$0.28M`) — **no color
-  coding** — so the user sees where each pool sits relative to the slider.
-- For loops, the slider filters on the **borrow-leg** available liquidity.
+- A plain **Liquidez** column on each table — **no color coding** — so the user sees where
+  each pool sits relative to the slider. The value per view: passive → `tvl_usd`
+  (relabel the existing "TVL" header to "Liquidez"), loops → `min_tvl_usd` (new column),
+  cross-chain → `available_liquidity_usd` (new column).
+- The slider filters each table on that same per-view liquidity field.
 
 ### 4. Keep `high_utilization` (UR > 92%) flag
 
@@ -113,12 +120,11 @@ used for the integration.
 
 - **ingestor `_filter`:** `tvlUsd = $8k` dropped; `$10k` kept (`>=` boundary); `$50M` kept.
   Stable-symbol and chain-exclusion filters unchanged.
-- **API models:** `available_liquidity_usd = totalSupplyUsd − totalBorrowUsd`; null when
-  either input is null; loop result carries the borrow-leg figure.
-- **analyzer purity:** the subtraction is pure, no I/O — one new case asserting the field
-  flows through ranking output.
-- **Golden regression** (`test_golden.py`): the new field + the now-included sub-$1M pools
-  change the locked payload — regenerate and review the diff.
+- **cross-chain analyzer:** `available_liquidity_usd = min(supply-pool tvlUsd,
+  borrow-pool tvlUsd)`; None when both are None.
+- **Golden regression** (`test_golden.py`): **unaffected** — `_pipeline` hardcodes its own
+  `>= 1_000_000` filter independent of `settings.MIN_TVL_USD`, so the locked passive top
+  result does not change. No regeneration needed.
 - **Frontend:** manual check via `local_harness.py` (port 8011) — slider at default hides
   ≤$100k pools, dragging to $10k reveals Sonic USDC; Liquidez column renders, no colors.
 - All backend tests offline against fixtures, per project convention.
