@@ -7,7 +7,7 @@ Ordered by recommended priority. Status: `todo` unless noted.
 
 ## T0 — Symbol normalization (₮ glyph + variants) — **quick win, high impact**
 
-**Status:** todo · **Effort:** small · **Priority:** 1
+**Status:** ✅ DONE + DEPLOYED (31-mai-2026, both repos, server HEAD cbf23a4; in-scope 824→849, 10 USD₮/USD₮0 pools recovered incl. Xlayer $49M) · **Effort:** small · **Priority:** 1
 
 **Problem:** the symbol filter (`config/stable_symbols.json`, exact `.upper()` match) misses
 pools whose ticker uses Tether's stylized glyph `₮` (U+20AE) or other unicode variants.
@@ -31,7 +31,7 @@ excluded; display symbol preserved.
 
 ## T1 — Asset filter on the tables (Paul: "filter by asset… look up usdc only")
 
-**Status:** todo · **Effort:** small · **Priority:** 2
+**Status:** ✅ DONE + DEPLOYED (31-mai-2026, VT only; text input next to slider, client-side, ₮-normalized) · **Effort:** small · **Priority:** 2
 
 A symbol filter next to the liquidity slider, client-side, instant feedback (Paul liked the
 slider's live feel). Passive/cross-chain filter by `symbol`; loops by `asset_x`/`asset_y`.
