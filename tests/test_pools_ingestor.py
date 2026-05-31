@@ -130,3 +130,40 @@ async def test_ingestor_flags_lav_uncertain_for_unknown_token_project(db):
     unknown_flag = await db.fetch_one("SELECT lav_uncertain FROM pools_snapshot WHERE pool_id=?", ("unknown",))
     assert known_flag == (0,)
     assert unknown_flag == (1,)
+
+
+async def test_ingestor_keeps_eth_and_btc_class_pools(db):
+    """ETH/BTC starting-capital classes are now in scope, alongside stablecoins."""
+    supply = [
+        _supply_pool("e1", "Arbitrum", "aave-v3", "WETH", base=2.0, tvl=5_000_000),
+        _supply_pool("b1", "Avalanche", "aave-v3", "BTC.B", base=0.5, tvl=5_000_000),
+        _supply_pool("x1", "BSC", "pancake", "CAKE", base=9.0, tvl=5_000_000),  # not a class -> dropped
+    ]
+    borrow = [_borrow_pool("e1"), _borrow_pool("b1"), _borrow_pool("x1")]
+    ing = PoolsIngestor(db, StubDefiLlama(supply, borrow), StubMerkl([]))
+    n = await ing.run_once(ts=1716800000)
+    assert n == 2  # WETH + BTC.B kept; CAKE dropped
+    rows = await db.fetch_all("SELECT symbol FROM pools_snapshot ORDER BY pool_id")
+    assert rows == [("BTC.B",), ("WETH",)]
+
+
+class StubBinance:
+    def __init__(self, coins): self.coins = coins
+    async def __aenter__(self): return self
+    async def __aexit__(self, *a): pass
+    async def fetch_capital_config(self): return self.coins
+
+
+async def test_ingestor_writes_binance_withdraw_cache(db, tmp_path, monkeypatch):
+    """Each tick fetches capital/config and writes data/binance_withdraw.json (class->chains)."""
+    import json as _json
+    from config.config import settings
+    cache = tmp_path / "binance_withdraw.json"
+    monkeypatch.setattr(settings, "BINANCE_WITHDRAW_CACHE", str(cache), raising=False)
+    supply = [_supply_pool("e1", "Arbitrum", "aave-v3", "WETH", tvl=5_000_000)]
+    borrow = [_borrow_pool("e1")]
+    coins = [{"coin": "ETH", "networkList": [{"network": "ARBITRUM", "withdrawEnable": True}]}]
+    ing = PoolsIngestor(db, StubDefiLlama(supply, borrow), StubMerkl([]), binance=StubBinance(coins))
+    await ing.run_once(ts=1716800000)
+    saved = _json.loads(cache.read_text())
+    assert "Arbitrum" in saved["ETH"]

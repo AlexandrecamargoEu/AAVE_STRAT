@@ -7,13 +7,17 @@
   apply_snapshot -> aggregator
 """
 import asyncio
+import json
 import logging
 import time
+from pathlib import Path
 
-from config.config import settings, load_chains, load_stable_symbols, load_projects, normalize_symbol
+from config.config import settings, load_chains, load_stable_symbols, load_projects, normalize_symbol, asset_class, load_binance_networks, load_asset_classes
 from db.sqlite_client import SqliteClient
 from sources.defillama.client import DefiLlamaClient, join_supply_borrow
 from sources.merkl.client import MerklClient
+from sources.binance.client import BinanceClient
+from sources.binance.withdraw import build_withdrawable_chains
 from services.rewards.merkl_match import build_rebate_lookup, overlay_rebates
 from services.pools.validators import classify_pool
 from services.rewards.lav import is_token_known
@@ -33,10 +37,11 @@ class PoolsIngestor:
     runs; the last good snapshot remains servable.
     """
 
-    def __init__(self, db: SqliteClient, defillama=None, merkl=None):
+    def __init__(self, db: SqliteClient, defillama=None, merkl=None, binance=None):
         self.db = db
         self._defillama = defillama  # if None, use DefiLlamaClient() in run_once
         self._merkl = merkl
+        self._binance = binance
 
     async def run(self) -> None:
         """Long-running loop. Sleeps SNAPSHOT_INTERVAL_MIN between ticks."""
@@ -68,6 +73,17 @@ class PoolsIngestor:
         n = await apply_snapshot(self.db, validated, ts=ts)
         await compute_aggregates(self.db, now_ts=ts)
 
+        try:
+            binance = self._binance or BinanceClient()
+            async with binance:
+                coins = await binance.fetch_capital_config()
+            wmap = build_withdrawable_chains(coins, load_binance_networks(), list(load_asset_classes().keys()))
+            cache_path = Path(settings.BINANCE_WITHDRAW_CACHE)
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            cache_path.write_text(json.dumps({k: sorted(v) for k, v in wmap.items()}))
+        except Exception:
+            log.exception("[Ingestor] binance withdraw-map fetch failed (non-fatal)")
+
         log.info("[Ingestor] ingested %d in-scope pools (of %d joined, %d merkl rebates)",
                  n, len(joined), len(rebates))
         return n
@@ -81,7 +97,7 @@ class PoolsIngestor:
         out = []
         for p in pools:
             sym = normalize_symbol(p.get("symbol"))   # folds USD₮ -> USDT etc.
-            if sym not in stables:
+            if sym not in stables and asset_class(p.get("symbol")) is None:
                 continue
             if (p.get("tvlUsd") or 0) < min_tvl:
                 continue

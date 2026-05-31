@@ -1,0 +1,16 @@
+{
+  "ETH": "Ethereum",
+  "ARBITRUM": "Arbitrum",
+  "OPTIMISM": "OP Mainnet",
+  "MATIC": "Polygon",
+  "BSC": "BSC",
+  "BASE": "Base",
+  "AVAXC": "Avalanche",
+  "ZKSYNCERA": "ZKsync Era",
+  "LINEA": "Linea",
+  "SCROLL": "Scroll",
+  "MANTLE": "Mantle",
+  "CELO": "Celo",
+  "SONIC": "Sonic",
+  "OPBNB": "Opbnb"
+}

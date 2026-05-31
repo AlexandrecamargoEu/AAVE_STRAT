@@ -193,6 +193,71 @@ async def test_crosschain_endpoint_includes_available_liquidity(app):
     assert usdc["available_liquidity_usd"] == pytest.approx(3e5)
 
 
+async def test_passive_route_includes_entry_asset_classes(app):
+    app_, db = app
+    import time
+    now = int(time.time())
+    await db.execute(
+        """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd,
+           supply_apy_base, updated_at) VALUES (?, 'Arbitrum', 'aave-v3', 'WETH', 5e6, 2.0, ?)""",
+        ("e1", now))
+    await db.execute(
+        """INSERT INTO pools_snapshot (pool_id, chain, project, symbol, tvl_usd,
+           supply_apy_base, updated_at) VALUES (?, 'BSC', 'aave-v3', 'DAI', 5e6, 3.0, ?)""",
+        ("d1", now))
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.get("/api/codee/routes/passive")
+    body = resp.json()
+    weth = next(r for r in body if r["symbol"] == "WETH")
+    dai = next(r for r in body if r["symbol"] == "DAI")
+    assert weth["entry_asset_classes"] == ["ETH"]
+    assert dai["entry_asset_classes"] == []   # DAI is not a starting-capital class
+
+
+async def test_passive_route_binance_withdrawable_flag(app, tmp_path, monkeypatch):
+    app_, db = app
+    import time, json as _json
+    from config.config import settings
+    cache = tmp_path / "bw.json"
+    cache.write_text(_json.dumps({"ETH": ["Arbitrum"], "USDC": [], "USDT": [], "BTC": []}))
+    monkeypatch.setattr(settings, "BINANCE_WITHDRAW_CACHE", str(cache), raising=False)
+    now = int(time.time())
+    await db.execute("""INSERT INTO pools_snapshot (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,updated_at)
+                        VALUES ('e1','Arbitrum','aave-v3','WETH',5e6,2.0,?)""", (now,))
+    await db.execute("""INSERT INTO pools_snapshot (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,updated_at)
+                        VALUES ('e2','Sonic','aave-v3','WETH',5e6,2.0,?)""", (now,))
+    await db.execute("""INSERT INTO pools_snapshot (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,updated_at)
+                        VALUES ('d1','BSC','aave-v3','DAI',5e6,3.0,?)""", (now,))
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        body = (await ac.get("/api/codee/routes/passive")).json()
+    eth_arb = next(r for r in body if r["chain"] == "Arbitrum" and r["symbol"] == "WETH")
+    eth_sonic = next(r for r in body if r["chain"] == "Sonic" and r["symbol"] == "WETH")
+    dai = next(r for r in body if r["symbol"] == "DAI")
+    assert eth_arb["binance_withdrawable"] is True     # ETH withdrawable to Arbitrum
+    assert eth_sonic["binance_withdrawable"] is False  # ETH not withdrawable to Sonic
+    assert dai["binance_withdrawable"] is None         # DAI is not a class
+
+
+async def test_binance_withdrawable_none_when_map_all_empty(app, tmp_path, monkeypatch):
+    """No-creds degrade: an all-empty cache must yield None (not False) — nothing hidden."""
+    app_, db = app
+    import time, json as _json
+    from config.config import settings
+    cache = tmp_path / "bw_empty.json"
+    cache.write_text(_json.dumps({"USDC": [], "USDT": [], "ETH": [], "BTC": []}))
+    monkeypatch.setattr(settings, "BINANCE_WITHDRAW_CACHE", str(cache), raising=False)
+    now = int(time.time())
+    await db.execute("""INSERT INTO pools_snapshot (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,updated_at)
+                        VALUES ('e1','Arbitrum','aave-v3','WETH',5e6,2.0,?)""", (now,))
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        body = (await ac.get("/api/codee/routes/passive")).json()
+    weth = next(r for r in body if r["symbol"] == "WETH")
+    assert weth["binance_withdrawable"] is None
+
+
 async def test_chains_summary_endpoint(app):
     app_, db = app
     import time
