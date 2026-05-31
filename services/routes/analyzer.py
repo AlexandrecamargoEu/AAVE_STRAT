@@ -14,7 +14,7 @@ Leverage (spec 2b.H):
 """
 from functools import lru_cache
 
-from config.config import load_projects
+from config.config import load_projects, normalize_symbol
 from services.rewards.lav import discount_for_token
 
 
@@ -122,7 +122,7 @@ def enumerate_same_chain_loops(pools: list[dict], n_iter: int = N_ITER_DEFAULT) 
     for p in pools:
         if p.get("apyBaseBorrow") is None:
             continue
-        by_chain[p["chain"]][(p["project"], p["symbol"].upper())] = p
+        by_chain[p["chain"]][(p["project"], normalize_symbol(p["symbol"]))] = p
 
     out: list[Route] = []
     for chain, mp in by_chain.items():
@@ -177,7 +177,7 @@ def cross_chain_carry(pools: list[dict]) -> list[CrossChainCarry]:
     sup_by_asset: dict[str, list[tuple[float, str, str, float | None]]] = defaultdict(list)
     bor_by_asset: dict[str, list[tuple[float, str, str, float | None]]] = defaultdict(list)
     for p in pools:
-        sym = (p.get("symbol") or "").upper()
+        sym = normalize_symbol(p.get("symbol"))
         chain = p.get("chain") or ""
         proj = p.get("project") or ""
         tvl = float(p["tvlUsd"]) if p.get("tvlUsd") is not None else None

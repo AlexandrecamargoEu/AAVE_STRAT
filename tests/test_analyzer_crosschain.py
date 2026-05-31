@@ -29,6 +29,20 @@ def test_cross_chain_per_asset_best_supply_minus_cheapest_borrow():
     assert usdc.spread > 12.0
 
 
+def test_cross_chain_pairs_tether_glyph_with_usdt():
+    """USD₮ (one chain) and USDT (another) are the same asset post-normalization,
+    so they must pair into one cross-chain row (not two unmatched single-chain assets)."""
+    pools = [
+        _p("Celo",      "aave-v3", "USD₮", base=6.0, borrow_base=5.0, tvl=2_000_000),
+        _p("Avalanche", "aave-v3", "USDT", base=4.0, borrow_base=2.0, tvl=2_000_000),
+    ]
+    rows = cross_chain_carry(pools)
+    usdt = [r for r in rows if r.symbol == "USDT"]
+    assert len(usdt) == 1
+    assert usdt[0].supply_chain == "Celo"        # best supply (6.0)
+    assert usdt[0].borrow_chain == "Avalanche"   # cheapest borrow (2.0)
+
+
 def test_cross_chain_requires_different_chains():
     """If best supply and cheapest borrow are on the SAME chain, skip — that's a same-chain loop."""
     pools = [

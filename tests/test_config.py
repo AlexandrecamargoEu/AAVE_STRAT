@@ -36,3 +36,16 @@ def test_projects_has_aave_and_venus():
     p = load_projects()
     assert p["aave-v3"]["primary_reward"] == "AAVE"
     assert p["venus-core-pool"]["primary_reward"] == "XVS"
+
+
+def test_normalize_symbol_maps_tether_glyph_and_uppercases():
+    from config.config import normalize_symbol
+    # Tether's stylized ₮ (U+20AE) -> T, so DefiLlama's USD₮ / USD₮0 match our stable list
+    assert normalize_symbol("USD₮") == "USDT"
+    assert normalize_symbol("USD₮0") == "USDT0"
+    assert normalize_symbol("usdc") == "USDC"
+    # punctuation in legit tickers must be preserved (USDC.E / BTC.B are real symbols)
+    assert normalize_symbol("USDC.E") == "USDC.E"
+    assert normalize_symbol("BTC.B") == "BTC.B"
+    assert normalize_symbol(None) == ""
+    assert normalize_symbol("") == ""
