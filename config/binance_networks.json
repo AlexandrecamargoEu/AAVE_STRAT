@@ -6,11 +6,11 @@
   "BSC": "BSC",
   "BASE": "Base",
   "AVAXC": "Avalanche",
-  "ZKSYNCERA": "zkSync Era",
+  "ZKSYNCERA": "ZKsync Era",
   "LINEA": "Linea",
   "SCROLL": "Scroll",
   "MANTLE": "Mantle",
   "CELO": "Celo",
   "SONIC": "Sonic",
-  "OPBNB": "op_bnb"
+  "OPBNB": "Opbnb"
 }
