@@ -23,6 +23,8 @@ class PassiveRoute(BaseModel):
     effective_apy: float
     tvl_usd: float
     quality_flag: str
+    entry_asset_classes: list[str] = []
+    binance_withdrawable: bool | None = None
 
 
 class LoopRoute(BaseModel):
@@ -37,6 +39,8 @@ class LoopRoute(BaseModel):
     leverage: float
     gross_apy: float
     min_tvl_usd: float
+    entry_asset_classes: list[str] = []
+    binance_withdrawable: bool | None = None
 
 
 class CrossChainRoute(BaseModel):
@@ -50,6 +54,8 @@ class CrossChainRoute(BaseModel):
     spread: float
     pre_bridge_ceiling: bool = True
     available_liquidity_usd: float | None = None
+    entry_asset_classes: list[str] = []
+    binance_withdrawable: bool | None = None
 
 
 class PoolHistoryPoint(BaseModel):

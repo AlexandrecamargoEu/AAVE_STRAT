@@ -49,3 +49,16 @@ def test_normalize_symbol_maps_tether_glyph_and_uppercases():
     assert normalize_symbol("BTC.B") == "BTC.B"
     assert normalize_symbol(None) == ""
     assert normalize_symbol("") == ""
+
+
+def test_asset_class_maps_tickers_to_binance_classes():
+    from config.config import asset_class
+    assert asset_class("WETH") == "ETH"
+    assert asset_class("ETH") == "ETH"
+    assert asset_class("WBTC") == "BTC"
+    assert asset_class("BTCB") == "BTC"
+    assert asset_class("BTC.B") == "BTC"
+    assert asset_class("USD₮") == "USDT"     # glyph normalizes (T0) then matches
+    assert asset_class("USDC.E") == "USDC"
+    assert asset_class("DAI") is None         # a stable, but NOT a starting-capital class
+    assert asset_class(None) is None

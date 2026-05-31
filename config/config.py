@@ -4,6 +4,7 @@ Loads .env via pydantic-settings, JSON config files via plain json.
 Single source of truth — never read env vars or config files directly elsewhere.
 """
 import json
+from functools import lru_cache
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -24,6 +25,7 @@ class Settings(BaseSettings):
     PRINCIPAL_DEFAULT: float = 250_000
     HOLD_HOURS_DEFAULT: int = 168
     STALENESS_BANNER_HOURS: int = 3
+    BINANCE_WITHDRAW_CACHE: str = str(CONFIG_DIR.parent / "data" / "binance_withdraw.json")
 
 
 # Stylized glyphs some protocols use in tickers that must be folded back to ASCII
@@ -63,6 +65,31 @@ def load_chains() -> dict:
 
 def load_projects() -> dict:
     return _load_json("projects.json")
+
+
+def load_asset_classes() -> dict:
+    return _load_json("asset_classes.json")
+
+
+def load_binance_networks() -> dict:
+    return _load_json("binance_networks.json")
+
+
+@lru_cache(maxsize=1)
+def _ticker_to_class() -> dict[str, str]:
+    rev = {}
+    for cls, tickers in load_asset_classes().items():
+        for t in tickers:
+            rev[normalize_symbol(t)] = cls
+    return rev
+
+
+def asset_class(symbol: str | None) -> str | None:
+    """Binance starting-capital class (USDC/USDT/ETH/BTC) for a ticker, or None.
+    Matches on the normalized symbol (folds the ₮ glyph, etc.)."""
+    if not symbol:
+        return None
+    return _ticker_to_class().get(normalize_symbol(symbol))
 
 
 settings = Settings()

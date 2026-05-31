@@ -1,12 +1,14 @@
 """FastAPI endpoints. Reads from DB (and analyzer for derived rankings).
 No business logic here — orchestrates DB reads + analyzer calls + serialization.
 """
+import json
 import time
 from collections import Counter
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from config.config import settings
+from config.config import settings, asset_class
 from db.sqlite_client import SqliteClient
 from services.api.models import (
     HealthResponse, PassiveRoute, LoopRoute, CrossChainRoute, PoolHistoryPoint,
@@ -18,6 +20,33 @@ from services.routes.analyzer import (
 
 
 router = APIRouter(prefix="/api/codee")
+
+
+def _classes(*symbols: str | None) -> list[str]:
+    """Distinct Binance starting-capital classes among the given tickers, order-stable."""
+    out: list[str] = []
+    for s in symbols:
+        c = asset_class(s)
+        if c and c not in out:
+            out.append(c)
+    return out
+
+
+def _load_withdraw_map() -> dict[str, set]:
+    """Read the Binance withdraw cache (class -> set(chains)). Empty if absent/unreadable."""
+    try:
+        raw = json.loads(Path(settings.BINANCE_WITHDRAW_CACHE).read_text())
+        return {k: set(v) for k, v in raw.items()}
+    except Exception:
+        return {}
+
+
+def _withdrawable(classes: list[str], chain: str, wmap: dict[str, set]) -> bool | None:
+    """True/False if any class can/can't reach `chain`; None when no class, or the map
+    is absent/all-empty (no Binance data — never hide on missing data)."""
+    if not classes or not any(wmap.values()):
+        return None
+    return any(chain in wmap.get(c, set()) for c in classes)
 
 
 # Wire the DB instance at app startup (see main.py)
@@ -128,6 +157,7 @@ async def health(db: SqliteClient = Depends(get_db)):
 @router.get("/routes/passive", response_model=list[PassiveRoute])
 async def routes_passive(db: SqliteClient = Depends(get_db), limit: int = Query(50, le=500)):
     pools = await _load_pools(db)
+    wmap = _load_withdraw_map()
     ranked = rank_passive_supply(pools)
     out = []
     by_id = {(p["chain"], p["project"], p["symbol"]): p for p in pools}
@@ -137,6 +167,8 @@ async def routes_passive(db: SqliteClient = Depends(get_db), limit: int = Query(
             chain=r.chain, project=r.project, symbol=r.symbol,
             effective_apy=r.effective_apy, tvl_usd=r.min_tvl_usd,
             quality_flag=p["quality_flag"] if p else "ok",
+            entry_asset_classes=_classes(r.symbol),
+            binance_withdrawable=_withdrawable(_classes(r.symbol), r.chain, wmap),
         ))
     return out
 
@@ -145,6 +177,7 @@ async def routes_passive(db: SqliteClient = Depends(get_db), limit: int = Query(
 async def routes_loops(db: SqliteClient = Depends(get_db), limit: int = Query(50, le=500),
                        positive_only: bool = True):
     pools = await _load_pools(db)
+    wmap = _load_withdraw_map()
     loops = enumerate_same_chain_loops(pools)
     out = []
     for r in loops:
@@ -156,6 +189,8 @@ async def routes_loops(db: SqliteClient = Depends(get_db), limit: int = Query(50
             avg_supply=r.avg_supply, avg_borrow=r.avg_borrow,
             spread=r.spread, leverage=r.leverage, gross_apy=r.effective_apy,
             min_tvl_usd=r.min_tvl_usd,
+            entry_asset_classes=_classes(r.asset_x, r.asset_y),
+            binance_withdrawable=_withdrawable(_classes(r.asset_x, r.asset_y), r.chain, wmap),
         ))
         if len(out) >= limit:
             break
@@ -165,6 +200,7 @@ async def routes_loops(db: SqliteClient = Depends(get_db), limit: int = Query(50
 @router.get("/routes/crosschain", response_model=list[CrossChainRoute])
 async def routes_crosschain(db: SqliteClient = Depends(get_db), limit: int = Query(50, le=500)):
     pools = await _load_pools(db)
+    wmap = _load_withdraw_map()
     rows = cross_chain_carry(pools)
     return [CrossChainRoute(
         symbol=r.symbol,
@@ -172,6 +208,8 @@ async def routes_crosschain(db: SqliteClient = Depends(get_db), limit: int = Que
         borrow_chain=r.borrow_chain, borrow_project=r.borrow_project, borrow_apr=r.borrow_apr,
         spread=r.spread, pre_bridge_ceiling=r.pre_bridge_ceiling,
         available_liquidity_usd=r.available_liquidity_usd,
+        entry_asset_classes=_classes(r.symbol),
+        binance_withdrawable=_withdrawable(_classes(r.symbol), r.supply_chain, wmap),
     ) for r in rows[:limit]]
 
 

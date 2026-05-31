@@ -1,0 +1,6 @@
+{
+  "USDC": ["USDC", "USDC.E", "USDC.B"],
+  "USDT": ["USDT", "USDT0"],
+  "ETH":  ["ETH", "WETH"],
+  "BTC":  ["BTC", "WBTC", "BTCB", "BTC.B", "CBBTC"]
+}
