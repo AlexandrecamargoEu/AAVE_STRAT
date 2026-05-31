@@ -26,6 +26,23 @@ class Settings(BaseSettings):
     STALENESS_BANNER_HOURS: int = 3
 
 
+# Stylized glyphs some protocols use in tickers that must be folded back to ASCII
+# before matching/grouping. DefiLlama lists Tether as USD₮ / USD₮0 (₮ = U+20AE),
+# which would never equal "USDT"/"USDT0" under a plain .upper() compare.
+_SYMBOL_GLYPHS = {"₮": "T"}   # ₮ -> T
+
+
+def normalize_symbol(sym: str | None) -> str:
+    """Canonicalize a pool ticker for matching/grouping ONLY (display keeps the
+    original). Folds known stylized glyphs (e.g. ₮ -> T) and uppercases. Punctuation
+    is preserved on purpose — USDC.E and BTC.B are real symbols in our config."""
+    if not sym:
+        return ""
+    for glyph, repl in _SYMBOL_GLYPHS.items():
+        sym = sym.replace(glyph, repl)
+    return sym.upper()
+
+
 def _load_json(name: str):
     path = CONFIG_DIR / name
     with path.open(encoding="utf-8") as f:

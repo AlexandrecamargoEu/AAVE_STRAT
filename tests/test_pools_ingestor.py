@@ -103,6 +103,18 @@ async def test_ingestor_flags_high_utilization(db):
     assert flag == ("high_utilization",)
 
 
+async def test_ingestor_keeps_tether_glyph_symbol(db):
+    """USD₮ (Tether's ₮ glyph, U+20AE) normalizes to USDT and must be ingested, not dropped.
+    The original symbol is preserved in storage for display."""
+    supply = [_supply_pool("g1", "Celo", "aave-v3", "USD₮", base=0.64, tvl=2_000_000)]
+    borrow = [_borrow_pool("g1", base=1.89)]
+    ing = PoolsIngestor(db, StubDefiLlama(supply, borrow), StubMerkl([]))
+    n = await ing.run_once(ts=1716800000)
+    assert n == 1
+    row = await db.fetch_one("SELECT symbol FROM pools_snapshot WHERE pool_id='g1'")
+    assert row == ("USD₮",)   # original ticker kept for display, not rewritten to USDT
+
+
 async def test_ingestor_flags_lav_uncertain_for_unknown_token_project(db):
     """A pool from an unknown project (no primary_reward in config/projects.json)
     or whose primary_reward isn't in lav_buckets.json should be flagged lav_uncertain=1."""

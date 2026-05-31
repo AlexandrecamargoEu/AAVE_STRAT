@@ -10,7 +10,7 @@ import asyncio
 import logging
 import time
 
-from config.config import settings, load_chains, load_stable_symbols, load_projects
+from config.config import settings, load_chains, load_stable_symbols, load_projects, normalize_symbol
 from db.sqlite_client import SqliteClient
 from sources.defillama.client import DefiLlamaClient, join_supply_borrow
 from sources.merkl.client import MerklClient
@@ -80,7 +80,7 @@ class PoolsIngestor:
         min_tvl = settings.MIN_TVL_USD
         out = []
         for p in pools:
-            sym = (p.get("symbol") or "").upper()
+            sym = normalize_symbol(p.get("symbol"))   # folds USD₮ -> USDT etc.
             if sym not in stables:
                 continue
             if (p.get("tvlUsd") or 0) < min_tvl:
