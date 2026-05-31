@@ -53,7 +53,7 @@ flag + let the user toggle (consistent with "never silently drop").
 
 ## T3 — Starting-capital selector: USDC / USDT / ETH / BTC (Binance-withdrawable)
 
-**Status:** todo · **Effort:** medium · **Priority:** 4 · needs a short design pass
+**Status:** ✅ DONE + DEPLOYED (31-mai-2026, both repos, server HEAD 196895b). Anchor selector + universe expansion to ETH/BTC + signed Binance capital/config gate (withdraw map cached per tick; real map populated in prod). Spec `2026-05-31-codee-starting-capital-design.md`, plan `2026-05-31-codee-starting-capital.md`. · **Effort:** medium
 
 Paul: "options to use USDC/USDT/ETH/BTC as starting capital that Binance offers withdrawal
 options for." Two parts:
