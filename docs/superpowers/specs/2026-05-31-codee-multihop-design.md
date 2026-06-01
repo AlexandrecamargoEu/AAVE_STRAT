@@ -33,7 +33,50 @@ Today's `cross_chain_carry` is single-hop, same-asset. This adds the N-hop, cros
   per-leg health-factor risk; reward-coverage gap). No HF/liquidation modeling in the MVP.
 
 **Out of scope (YAGNI):** non-Binance bridges; assets outside the 4 classes; per-leg HF /
-liquidation simulation; reward-coverage fixes (Aave Merit etc.); execution.
+liquidation simulation; on-chain RewardsController coverage / non-Aave incentive feeds;
+execution. (Aave **Merit + Self** incentives ARE now in scope — added as a prerequisite source,
+§0 — because that's where the Celo WETH "4.2%" lives and it materially changes route viability.)
+
+---
+
+## 0. Prerequisite — ACI Merit reward source (include Merit + Self incentives)
+
+**Why:** the supply yields that drive route viability are understated whenever a pool has
+off-protocol incentives (Aave **Merit** + **Self**) — these are NOT in DefiLlama (`apyReward=null`),
+NOT in Merkl, and NOT in the on-chain RewardsController (verified: 0). They are exactly why Aave's
+UI shows Celo WETH at **4.22%** while we read 0.017%. Found a free public feed that carries them,
+so we ingest it and enrich effective supply APY **across all views** (passive/loops/cross-chain/
+multi-hop). Do this **before** the pathfinding so multi-hop viability uses the real yields.
+
+**Source:** `GET https://apps.aavechan.com/api/merit/aprs` (free, public, no key). Shape:
+```
+{"currentAPR": {"actionsAPR": {
+   "celo-supply-weth": 2.08, "self-celo-supply-weth": 2.08,
+   "celo-supply-usdt": 4.23, "self-celo-supply-usdt": 4.23,
+   "ethereum-sgho": 3.76, ... }}}
+```
+Keys: `<chain>-supply-<asset>` = Merit APR; `self-<chain>-supply-<asset>` = Self APR. Currently
+~7 non-null entries (sparse, targeted set). Verified live: Celo WETH = Merit 2.08 + Self 2.08
+(+ protocol 0.02 ≈ 4.22, matches the Aave UI exactly).
+
+**New module** `codee/sources/aci/client.py` (mirrors the Merkl client pattern: async ctx
+manager, stubbable). Fetched each ingest tick (campaigns expire). A small `config/aci_chains.json`
+maps ACI chain slugs → DefiLlama chain names (`celo→Celo, ethereum→Ethereum, avalanche→Avalanche,
+arbitrum→Arbitrum, base→Base, optimism→OP Mainnet`). A pure `parse_merit_aprs(payload, chain_map)`
+→ `{(chain, normalized_asset): {"merit": apr, "self": apr}}`.
+
+**Applying it** (in `analyzer.effective_supply_apy`, via an overlay like Merkl's `overlay_rebates`):
+- Add **Merit** APR to the pool's supply reward (claimable in aUSDT ≈ a stablecoin → bucket A,
+  ~no LAV discount).
+- Add **Self** APR too, but **tag it** `incentive_conditional=1` (gated on zkPoH verification +
+  capped at the first $35k of supply per user). Default: included; the UI can offer a toggle to
+  exclude gated incentives. Surface the split (protocol / Merit / Self) so the number is honest.
+- Pools with no ACI entry are unchanged.
+
+**Tests (offline):** `parse_merit_aprs` maps `celo-supply-weth`→`(Celo, WETH)` with merit+self;
+unknown chain slugs ignored; the overlay raises a Celo WETH pool's effective supply from ~0.02%
+to ~4.2% and sets `incentive_conditional` when Self is present; a pool with no ACI entry is
+untouched; empty/failed fetch → no change (graceful).
 
 ---
 

@@ -70,7 +70,7 @@ volatile-collateral loops" deferred to Phase 2 in CLAUDE.md). Brainstorm before 
 
 ## T4 — Multi-hop cross-chain chains (Paul: "we're missing many options")
 
-**Status:** todo · **Effort:** large · **Priority:** 5 · needs a dedicated spec
+**Status:** spec written (`docs/superpowers/specs/2026-05-31-codee-multihop-design.md`) — pending Paul review, then writing-plans. **Includes a prerequisite (§0): ACI Merit reward source** — ingest `apps.aavechan.com/api/merit/aprs` (free public; Merit + Self APR per `<chain>-supply-<asset>`) to enrich effective supply APY across ALL views (this is the source for the Celo WETH "4.2%" = Merit 2.08 + Self 2.08 + protocol 0.02; not in DefiLlama/Merkl/on-chain). · **Effort:** large · **Priority:** 5
 
 Today `cross_chain_carry` is **single-hop, same-asset, stablecoin-only**. Paul wants
 multi-leg, cross-asset chains across N chains, e.g.:
