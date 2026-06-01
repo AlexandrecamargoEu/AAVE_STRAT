@@ -70,7 +70,7 @@ volatile-collateral loops" deferred to Phase 2 in CLAUDE.md). Brainstorm before 
 
 ## T4 — Multi-hop cross-chain chains (Paul: "we're missing many options")
 
-**Status:** spec written (`docs/superpowers/specs/2026-05-31-codee-multihop-design.md`) — pending Paul review, then writing-plans. **Includes a prerequisite (§0): ACI Merit reward source** — ingest `apps.aavechan.com/api/merit/aprs` (free public; Merit + Self APR per `<chain>-supply-<asset>`) to enrich effective supply APY across ALL views (this is the source for the Celo WETH "4.2%" = Merit 2.08 + Self 2.08 + protocol 0.02; not in DefiLlama/Merkl/on-chain). · **Effort:** large · **Priority:** 5
+**Status:** spec written (`docs/superpowers/specs/2026-05-31-codee-multihop-design.md`) — pending Paul review, then writing-plans. **Includes a prerequisite (§0): supply-incentive coverage via 2 aggregators** — (A) extend the existing Merkl client to also pull `action=LEND` (supply incentives, ~17 protocols/call, with campaign timing); (B) new ACI Merit client `apps.aavechan.com/api/merit/aprs` (Aave off-protocol Merit+Self, which Merkl doesn't carry — the Celo WETH "4.2%" = Merit 2.08 + Self 2.08 + protocol 0.02). Both free/public/no-key, overlaid on `effective_supply_apy` (Self tagged conditional). Enriches ALL views. Avoids integrating ~50 per-protocol APIs. · **Effort:** large · **Priority:** 5
 
 Today `cross_chain_carry` is **single-hop, same-asset, stablecoin-only**. Paul wants
 multi-leg, cross-asset chains across N chains, e.g.:

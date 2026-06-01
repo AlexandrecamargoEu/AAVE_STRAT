@@ -39,44 +39,62 @@ execution. (Aave **Merit + Self** incentives ARE now in scope — added as a pre
 
 ---
 
-## 0. Prerequisite — ACI Merit reward source (include Merit + Self incentives)
+## 0. Prerequisite — supply-incentive coverage via TWO aggregators
 
-**Why:** the supply yields that drive route viability are understated whenever a pool has
-off-protocol incentives (Aave **Merit** + **Self**) — these are NOT in DefiLlama (`apyReward=null`),
-NOT in Merkl, and NOT in the on-chain RewardsController (verified: 0). They are exactly why Aave's
-UI shows Celo WETH at **4.22%** while we read 0.017%. Found a free public feed that carries them,
-so we ingest it and enrich effective supply APY **across all views** (passive/loops/cross-chain/
-multi-hop). Do this **before** the pathfinding so multi-hop viability uses the real yields.
+**Why:** supply yields drive route viability, but DefiLlama (`apyReward`) misses a whole class of
+incentives — off-protocol / merkle / conditional programs. Concretely, Aave's UI shows Celo WETH
+at **4.22%** while we read 0.017% (verified: not in DefiLlama, not in our current Merkl pull, not
+in the on-chain RewardsController = 0). Rather than integrate ~50 protocol APIs, we add **two
+aggregators** (one API → many protocols) and enrich `effective_supply_apy` **across all views**
+(passive/loops/cross-chain/multi-hop). Do this **before** the pathfinding so multi-hop viability
+uses real yields. Both are free public JSON, no key, fetched each ingest tick (campaigns expire →
+freshness matters; a hot 1-week incentive surfaces within ~1h).
 
-**Source:** `GET https://apps.aavechan.com/api/merit/aprs` (free, public, no key). Shape:
+### (A) Merkl — supply side (`action=LEND`)
+We already consume Merkl for BORROW rebates (`codee/sources/merkl/client.py`). **Extend it to also
+fetch supply incentives:** `GET https://api.merkl.xyz/v4/opportunities?action=LEND&status=LIVE&items=100&page=N`
+(`SUPPLY` is invalid → 500; **LEND** is the supply action). One call returns ~100 live supply
+incentives across **~17 protocols** (aave, morpho, euler, fluid, dolomite, gearbox, spectra,
+curvance, …). Useful fields: `apr`, `maxApr`, `protocol.id`, `tokens[].symbol`, `chain.name`,
+`tvl`, `latestCampaignStart`/`latestCampaignEnd` (campaign timing). Match to pools by the existing
+Merkl key `(chain.name normalized, protocol.id, token.symbol)` — same join `merkl_match.py` already
+does for borrow. Add a `fetch_supply_opportunities()` mirroring `fetch_borrow_opportunities()`
+(paginated, `action=LEND`).
+
+### (B) ACI Merit — Aave off-protocol (Merit + Self), which Merkl does NOT carry
+`GET https://apps.aavechan.com/api/merit/aprs` (free, public, no key). Shape:
 ```
 {"currentAPR": {"actionsAPR": {
    "celo-supply-weth": 2.08, "self-celo-supply-weth": 2.08,
    "celo-supply-usdt": 4.23, "self-celo-supply-usdt": 4.23,
    "ethereum-sgho": 3.76, ... }}}
 ```
-Keys: `<chain>-supply-<asset>` = Merit APR; `self-<chain>-supply-<asset>` = Self APR. Currently
-~7 non-null entries (sparse, targeted set). Verified live: Celo WETH = Merit 2.08 + Self 2.08
-(+ protocol 0.02 ≈ 4.22, matches the Aave UI exactly).
+Keys: `<chain>-supply-<asset>` = Merit APR; `self-<chain>-supply-<asset>` = Self APR. ~7 non-null
+entries (sparse, Aave-specific). Verified live: Celo WETH = Merit 2.08 + Self 2.08 (+ protocol
+0.02 ≈ 4.22, matches the Aave UI exactly). New module `codee/sources/aci/client.py` (mirrors the
+Merkl client: async ctx manager, stubbable). A small `config/aci_chains.json` maps ACI chain slugs
+→ DefiLlama chain names (`celo→Celo, ethereum→Ethereum, avalanche→Avalanche, arbitrum→Arbitrum,
+base→Base, optimism→OP Mainnet`). Pure `parse_merit_aprs(payload, chain_map)` →
+`{(chain, normalized_asset): {"merit": apr, "self": apr}}`.
 
-**New module** `codee/sources/aci/client.py` (mirrors the Merkl client pattern: async ctx
-manager, stubbable). Fetched each ingest tick (campaigns expire). A small `config/aci_chains.json`
-maps ACI chain slugs → DefiLlama chain names (`celo→Celo, ethereum→Ethereum, avalanche→Avalanche,
-arbitrum→Arbitrum, base→Base, optimism→OP Mainnet`). A pure `parse_merit_aprs(payload, chain_map)`
-→ `{(chain, normalized_asset): {"merit": apr, "self": apr}}`.
+### Applying both (overlay on `effective_supply_apy`, like Merkl's `overlay_rebates`)
+- Add the **Merkl LEND** APR and the **ACI Merit** APR to the pool's supply reward (claimable
+  tokens; stablecoin rewards → bucket A ~no LAV discount; non-stable reward tokens get the normal
+  LAV discount). If both sources hit the same pool, take the **max** (don't double-count the same
+  program surfaced twice), and `log()` the overlap.
+- Add the **Self** APR too but **tag it** `incentive_conditional=1` (gated on zkPoH verification +
+  capped at the first $35k/user). Default included; UI may offer a toggle to exclude gated.
+- Surface the split (protocol / Merkl / Merit / Self) so the number is honest. Pools with no
+  aggregator entry are unchanged (shown yield = floor; flag "may have incentives" is a later idea).
 
-**Applying it** (in `analyzer.effective_supply_apy`, via an overlay like Merkl's `overlay_rebates`):
-- Add **Merit** APR to the pool's supply reward (claimable in aUSDT ≈ a stablecoin → bucket A,
-  ~no LAV discount).
-- Add **Self** APR too, but **tag it** `incentive_conditional=1` (gated on zkPoH verification +
-  capped at the first $35k of supply per user). Default: included; the UI can offer a toggle to
-  exclude gated incentives. Surface the split (protocol / Merit / Self) so the number is honest.
-- Pools with no ACI entry are unchanged.
-
-**Tests (offline):** `parse_merit_aprs` maps `celo-supply-weth`→`(Celo, WETH)` with merit+self;
-unknown chain slugs ignored; the overlay raises a Celo WETH pool's effective supply from ~0.02%
-to ~4.2% and sets `incentive_conditional` when Self is present; a pool with no ACI entry is
-untouched; empty/failed fetch → no change (graceful).
+**Tests (offline):**
+- Merkl LEND: a stubbed `action=LEND` page joins to the right pool by `(chain, protocol, symbol)`
+  and raises its effective supply by the campaign APR; pagination stops on a short page.
+- ACI: `parse_merit_aprs` maps `celo-supply-weth`→`(Celo, WETH)` with merit+self; unknown chain
+  slugs ignored; the overlay raises a Celo WETH pool from ~0.02% to ~4.2% and sets
+  `incentive_conditional` when Self is present.
+- Overlap: a pool present in BOTH Merkl-LEND and ACI takes the max (no double-count).
+- A pool in neither is untouched; empty/failed fetch from either source → no change (graceful).
 
 ---
 
