@@ -37,6 +37,33 @@ liquidation simulation; on-chain RewardsController coverage / non-Aave incentive
 execution. (Aave **Merit + Self** incentives ARE now in scope — added as a prerequisite source,
 §0 — because that's where the Celo WETH "4.2%" lives and it materially changes route viability.)
 
+### Key design questions — alternatives considered
+
+Two questions defined the design; chosen option marked **[✓]** (open to revision on Paul's review).
+
+**Q1 — What counts as a valid "hop" (how to move the borrowed asset between chains)?**
+- **[✓] A. Binance-bridgeable only** — edge exists iff Binance allows *deposit* of the asset on
+  the source chain AND *withdraw* on the dest chain; cost from `chains.json`. Executable +
+  data-backed (reuses T3); **limits to Binance-supported assets/chains** (→ assets capped to the
+  4 majors USDC/USDT/ETH/BTC). *Why chosen:* only bridge we can both price (≤~$1) and guarantee.
+- **B. Any bridge (any asset/chain)** — borrow→move anywhere it exists. Much larger graph, exotic
+  routes, but **no feasibility/cost data for non-Binance bridges** → theoretical/likely non-executable.
+- **C. Hybrid (Binance OR same-token native bridge)** — also allow moving the asset to a chain
+  where it's the same canonical token (assume native bridge). More coverage, but **bridge cost is
+  imprecise** for the non-Binance edges.
+- *Linked sub-decision:* assets restricted to the **4 classes** (consequence of A). Alternative:
+  include major bridgeable stables (DAI/FRAX/…) too. **[open for Paul]**
+
+**Q2 — Where does the chain start, and what about the final borrowed asset (open = price risk)?**
+- **[✓] A. Root = T3 capital class; end on a supply** — root = chosen capital (USDC/USDT/ETH/BTC,
+  Binance-withdrawable); last hop only supplies (no borrow) → **no open position**. Clean/executable.
+- **B. Root = T3 capital; free final borrow** — allow ending by borrowing any asset (like Paul's
+  example ending in BTC.B). Captures "keep arbing" but **leaves an open short** → price risk (caveat).
+- **C. Enumerate all roots** — don't anchor on T3; any bridgeable asset as a start. More routes,
+  but loses the capital-selector integration and inflates the graph.
+- *Linked sub-decision:* depth cap **≤3 hops** (covers Paul's example). Alternatives: **≤2** (more
+  conservative given per-leg liquidation) or **≤4**. **[open for Paul]**
+
 ---
 
 ## 0. Prerequisite — supply-incentive coverage via TWO aggregators
