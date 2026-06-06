@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make the Multi-Hop view self-explanatory and the Max-hops selector useful: per-leg rates inline in the route, depth-diverse API results (top-K per hops level), retire the Cross-Chain sub-tab, and fix the multi-pool-per-symbol indexing bug.
+**Goal:** Make the Multi-Hop view self-explanatory and the Max-hops selector useful: per-leg rates inline in the route, a "vs Passive" column (the edge the extra hops add over just supplying leg 1), depth-diverse API results (top-K per hops level), and fix the multi-pool-per-symbol indexing bug. The Cross-Chain sub-tab STAYS (user's call, 06-jun — revisit after Paul uses Multi-Hop).
 
-**Architecture:** All ranking changes stay in the pure analyzer (`enumerate_multihop_paths`): dedupe pools to best-supply / cheapest-borrow per `(chain, project, symbol)`, carry per-leg rates through the beam state, and distribute the final `limit` across depths (quota `limit // max_hops` per level + backfill). The API exposes the legs (`supply_apy` per node + `borrows` list). The frontend renders rates inline in the Route cell and drops the Cross-Chain sub-tab (backend `/routes/crosschain`, analyzer fn and History chart stay untouched).
+**Architecture:** All ranking changes stay in the pure analyzer (`enumerate_multihop_paths`): dedupe pools to best-supply / cheapest-borrow per `(chain, project, symbol)`, carry per-leg rates through the beam state, and distribute the final `limit` across depths (quota `limit // max_hops` per level + backfill). The API exposes the legs (`supply_apy` per node + `borrows` list). The frontend renders rates inline in the Route cell and computes `vs Passive = net_apy − path[0].supply_apy` client-side. Nothing else in the dashboard changes.
 
 **Tech Stack:** Python 3.13, FastAPI, pydantic v2, pytest (offline); vanilla JS in `web/index.html`.
 
@@ -286,18 +286,19 @@ git commit -m "T4v1.1-2: /routes/multihop exposes per-leg supply APYs + borrow l
 
 ---
 
-### Task 3: Frontend — inline rates in Route, retire Cross-Chain sub-tab
+### Task 3: Frontend — inline rates in Route + "vs Passive" column
 
 **Files:**
-- Modify: `Volume_tracker/web/index.html` only
+- Modify: `Volume_tracker/web/index.html` only (the `VIEWS.multihop` entry; Cross-Chain sub-tab is NOT touched)
 
 No automated test; verify via harness in Step 4.
 
-- [ ] **Step 1: Remove the Cross-Chain sub-tab**
-- Delete the button line (~2635): `<button class="mm-routes-tab" data-codeetab="crosschain">Cross-Chain</button>`
-- Delete the whole `crosschain: { ... },` entry from the `VIEWS` object (~7840-7853).
-- Do NOT touch: the `/routes/crosschain` backend endpoint, `codeeSpreadClass` (used elsewhere — verify with grep; if it became unused, leave it anyway, it's 1 line), or the History chart series `best_crosschain_spread` (independent data source).
-- Grep for any other `crosschain` reference in the file (e.g. a default-tab fallback) — adjust if one selects the removed tab.
+- [ ] **Step 1: New columns** — in `VIEWS.multihop`, update:
+```javascript
+      cols: ['Route', 'Net APY', 'vs Passive', 'Hops', 'Bridge $', 'Liquidity'],
+      ralign: [1, 2, 3, 4, 5],
+```
+`vs Passive` = what the extra hops add over just supplying leg 1 (`net_apy − path[0].supply_apy`); ~0 for 1-hop rows by construction.
 
 - [ ] **Step 2: Inline per-leg rates in the multihop Route cell** — replace `VIEWS.multihop.row` with a function body that interleaves `path` and `borrows` (Paul's notation: `USDC·Base 4.2% →(USDC 2.1%)→ USDC·Sonic 9.5%`):
 ```javascript
@@ -311,29 +312,32 @@ No automated test; verify via harness in Step 4.
           route += segs[i];
         }
         if (d.incentive_conditional) route += ' ⚠';
+        const vsPassive = (d.net_apy != null && d.path && d.path[0] && d.path[0].supply_apy != null)
+          ? d.net_apy - d.path[0].supply_apy : null;
         return `<td>${route}</td>
         <td class="r">${codeeFmtApy(d.net_apy)}</td>
+        <td class="r">${codeeFmtApy(vsPassive)}</td>
         <td class="r">${d.hops}</td>
         <td class="r">$${Number(d.bridge_cost_usd).toFixed(2)}</td>
         <td class="r">${codeeFmtTvl(d.min_liquidity_usd)}</td>`;
       },
 ```
-(`·` = `·`, `→` = `→`, `⚠` = `⚠` — keep literal chars if the file already uses them literally; match the file's existing style. Other `row:` entries are single template literals — a function body is still a valid VIEWS value since `row(d)` is invoked as a function either way; verify how `row` is called in `renderCodeeTable` before assuming.)
+(`·` = `·`, `→` = `→`, `⚠` = `⚠` — keep literal chars if the file already uses them literally; match the file's existing style. Other `row:` entries are single template literals — a function body is still a valid VIEWS value since `row(d)` is invoked as a function either way; verify how `row` is called in `renderCodeeTable` before assuming. Confirm `codeeFmtApy(null)` renders a dash — it's the existing null-safe formatter.)
 
 - [ ] **Step 3: Static check**
-`grep -n "crosschain" web/index.html` → expect ONLY the History chart series line (`best_crosschain_spread`). `grep -c "codeeHopsSelect" web/index.html` → unchanged (2).
+`grep -n "vs Passive" web/index.html` → 1 hit in VIEWS.multihop cols. `grep -c 'data-codeetab="crosschain"' web/index.html` → still 1 (NOT removed). `grep -c "codeeHopsSelect" web/index.html` → unchanged (2).
 
 - [ ] **Step 4: Harness smoke test**
 Start `PYTHONIOENCODING=utf-8 .venv/Scripts/python -m codee.scripts.local_harness` (port 8011, background). Verify:
 - `curl -s http://127.0.0.1:8011/api/codee/routes/multihop` → 200 (fixtures may give `[]` — fine).
-- `curl -s http://127.0.0.1:8011/ | grep -c 'data-codeetab="crosschain"'` → 0.
-- `curl -s http://127.0.0.1:8011/ | grep -c 'data-codeetab="multihop"'` → 1.
+- `curl -s http://127.0.0.1:8011/ | grep -c 'data-codeetab="crosschain"'` → 1 (untouched).
+- `curl -s http://127.0.0.1:8011/ | grep -c 'vs Passive'` → 1.
 Kill the harness.
 
 - [ ] **Step 5: Commit**
 ```bash
 git add web/index.html
-git commit -m "T4v1.1-3: Multi-Hop shows per-leg rates inline; retire Cross-Chain sub-tab"
+git commit -m "T4v1.1-3: Multi-Hop — per-leg rates inline + vs-Passive column (Cross-Chain kept)"
 ```
 
 ---
@@ -356,13 +360,13 @@ git commit -m "T4 v1.1 (mirror): per-leg rates, depth-diverse limit, best-pool d
 
 - [ ] **Step 1:** Full suites green in both repos; merge branch → `main` (VT) / `master` (AAVE_STRAT, push).
 - [ ] **Step 2:** Deploy via `python scripts/_deploy.py` pattern (bundle from server HEAD `527c6fe`; note: run the bundle creation under Git Bash — `/tmp` doesn't exist for the Windows Python; reuse the one-off paramiko uploader approach from the T4 deploy if needed).
-- [ ] **Step 3:** Verify: service active; `/api/codee/routes/multihop?limit=200` returns a MIX of hops levels (1 AND 2 at minimum; 3/4 if any exist); response rows carry `path[].supply_apy` + `borrows[]`; dashboard `/dashboard` has NO `data-codeetab="crosschain"` and the Multi-Hop tab renders inline rates; Max-hops selector now visibly changes the table (depth diversity present). Hard-refresh reminder to the user.
+- [ ] **Step 3:** Verify: service active; `/api/codee/routes/multihop?limit=200` returns a MIX of hops levels (1 AND 2 at minimum; 3/4 if any exist); response rows carry `path[].supply_apy` + `borrows[]`; dashboard `/dashboard` STILL has the Cross-Chain sub-tab and the Multi-Hop view has the `vs Passive` column + inline rates; Max-hops selector now visibly changes the table (depth diversity present). Hard-refresh reminder to the user.
 
 ---
 
 ## Self-review notes
 
-- **Coverage:** item 1 (depth diversity) → Task 1 quota cut + Task 5 verify; item 2 (per-leg rates) → Tasks 1-3; item 3 (retire Cross-Chain) → Task 3; item 4 (indexing bug) → Task 1 dedupe (+ regression tests). T2 whitelist explicitly OUT of scope (user's call, 06-jun).
+- **Coverage:** item 1 (depth diversity) → Task 1 quota cut + Task 5 verify; item 2 (per-leg rates + vs Passive) → Tasks 1-3; item 3 (indexing bug) → Task 1 dedupe (+ regression tests). OUT of scope (user's calls, 06-jun): T2 whitelist; Cross-Chain tab removal (kept until Paul validates Multi-Hop).
 - **Type consistency:** `MultiHopPath.supply_apys: tuple[float]` aligned with `nodes`; `borrow_legs: tuple[(sym, apr)]` → `MultiHopBorrow`; router zips by index with a length guard; defaults `()` keep the dataclass backward-constructible.
 - **Behavioral notes:** with dedupe, junk multi-market platforms now also surface as 1-hop roots (e.g. the 590% peapods pool) — correct radar behavior ("never silently drop"), cleanliness is T2's job. The diversity quota changes the response composition for the same `limit`; the UI consumes it unchanged (client-side filters intact).
 - **Purity:** analyzer change is pure (no new imports); models/router additive; no DB/schema impact; golden test untouched.
