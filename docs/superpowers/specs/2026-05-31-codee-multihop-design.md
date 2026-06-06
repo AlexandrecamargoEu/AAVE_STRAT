@@ -16,7 +16,13 @@ chains by the **net leveraged carry on the initial capital**.
 Today's `cross_chain_carry` is single-hop, same-asset. This adds the N-hop, cross-asset graph.
 
 ### Confirmed decisions
-- **Depth:** ≤ **3 hops** default (one supply leg per hop; configurable up to 4 via setting).
+- **Depth:** backend enumerates ALL paths up to a **hard cap of 4 hops** (one supply leg per
+  hop), once. The UI gets a **"Max hops" selector** `[All · 1 · 2 · 3 · 4]` (default **All**)
+  that filters client-side on each route's `hops` field — instant, no recalculation, same
+  pattern as the liquidity slider / Capital selector. The best route always shows regardless of
+  its depth; selecting ≤N answers "best route if I only accept N positions". (This converts the
+  former "3 vs 2 vs 4" open question into a per-user UI preference — Paul's answer just sets the
+  default selection.)
 - **Assets:** every node's asset is one of the **4 Binance classes** (USDC/USDT/ETH/BTC) — they
   are the most-bridgeable/liquid and cover Paul's example (WETH=ETH, USDT, BTC.B=BTC). Reuses
   the T3 `asset_class` machinery. (Broadening to more bridgeable stables is a Phase-2 knob.)
@@ -61,8 +67,10 @@ Two questions defined the design; chosen option marked **[✓]** (open to revisi
   example ending in BTC.B). Captures "keep arbing" but **leaves an open short** → price risk (caveat).
 - **C. Enumerate all roots** — don't anchor on T3; any bridgeable asset as a start. More routes,
   but loses the capital-selector integration and inflates the graph.
-- *Linked sub-decision:* depth cap **≤3 hops** (covers Paul's example). Alternatives: **≤2** (more
-  conservative given per-leg liquidation) or **≤4**. **[open for Paul]**
+- *Linked sub-decision (RESOLVED):* backend computes up to a hard cap of **4 hops** once; the UI
+  "Max hops" selector `[All·1·2·3·4]` filters client-side (default All — the best route always
+  shows). Depth preference becomes a per-user UI choice, not an architecture decision; Paul's
+  answer ("3 realistic, or 2 max?") just sets the default selection.
 
 ---
 
@@ -150,8 +158,11 @@ A **path** is a sequence of nodes `(C0,P0,A0) → (C1,P1,A1) → … → (Cn,Pn,
 
 ## 2. Graph + algorithm (`services/routes/analyzer.py`, PURE)
 
-New pure function `enumerate_multihop_paths(pools, withdraw_map, deposit_map, *, max_hops=3,
-capital_class=None) -> list[MultiHopPath]`.
+New pure function `enumerate_multihop_paths(pools, withdraw_map, deposit_map, *, max_hops=4,
+capital_class=None) -> list[MultiHopPath]`. `max_hops=4` is the hard cap — the UI depth selector
+filters client-side on the returned `hops` field (no recompute). If request-time enumeration at
+depth 4 proves slow, cache the result per ingest tick (same pattern as the Binance withdraw map);
+decide in the plan after measuring.
 
 - **Index:** `by_cp[(chain, project)][normalized_asset] = pool` (only pools whose asset is in a
   Binance class). A `(chain, project)` with both a supply pool for A and a (borrow-side) pool for
@@ -200,18 +211,21 @@ Generalizes the same-chain loop math to a path. Initial capital `S0 = 1` (unit o
 
 ## 5. API + UI
 
-- **API:** `GET /api/codee/routes/multihop?capital=<class>&max_hops=3&limit=50` → list of
+- **API:** `GET /api/codee/routes/multihop?capital=<class>&limit=50` → list of
   `MultiHopRoute`: `{path: [{chain, project, symbol}], net_apy, hops, bridge_cost_usd,
-  min_liquidity_usd, entry_asset_classes}`. `capital` defaults to none (all classes);
-  `entry_asset_classes` = `[class(A0)]` so the T3 Capital selector filters these rows too.
-  (No `binance_withdrawable` field here — every emitted path is Binance-routable by construction,
-  so the flag would be trivially true.)
+  min_liquidity_usd, entry_asset_classes}`. Always enumerated to the hard cap (4); each route
+  carries its `hops` count so the client filters depth locally. `capital` defaults to none (all
+  classes); `entry_asset_classes` = `[class(A0)]` so the T3 Capital selector filters these rows
+  too. (No `binance_withdrawable` field here — every emitted path is Binance-routable by
+  construction, so the flag would be trivially true.)
 - **UI:** new sub-tab **"Multi-Hop"** in the Codee tab. Each row renders the path compactly:
   `USDC·Sonic → ETH·Celo → USDT·Avax` (asset·chain per node, arrow-joined) + columns
-  `Net APY`, `Hops`, `Bridge $`, `Liquidity`. Respects the liquidity slider (min_liquidity_usd)
-  and the Capital selector (entry_asset_classes). A loud caveat line: *"theoretical ceiling —
-  ignores bridge cost in APY (shown separately), per-leg liquidation risk, and unindexed supply
-  incentives."*
+  `Net APY`, `Hops`, `Bridge $`, `Liquidity`. Filter row gains a **"Max hops" selector**
+  `[All · 1 · 2 · 3 · 4]` (default All) filtering client-side on `hops` — instant, like the
+  liquidity slider; the best route always shows regardless of depth. Also respects the liquidity
+  slider (min_liquidity_usd) and the Capital selector (entry_asset_classes). A loud caveat line:
+  *"theoretical ceiling — ignores bridge cost in APY (shown separately), per-leg liquidation
+  risk, and unindexed supply incentives."*
 
 ---
 
