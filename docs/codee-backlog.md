@@ -41,13 +41,12 @@ Hide on rewards/history sub-tabs (like the slider).
 
 ## T2 — Actionable-protocol whitelist / flag (kills non-vanilla "junk")
 
-**Status:** todo · **Effort:** small–medium · **Priority:** 3
+**Status:** ✅ DONE + DEPLOYED (06-jun-2026, both repos; server HEAD `d614568`, AAVE_STRAT master `33594c5`). Plan `2026-06-06-codee-t2-actionable.md`. **Solution chosen over a hand-written whitelist:** DefiLlama protocol `category == "Lending"` as the self-maintaining base rule (618 Lending protocols live; validated 176/176 of our snapshot projects map; caught every junk case incl. peapods→Yield, y2k→Derivatives) + a 6-entry manual override file (`config/actionable_overrides.json`: include spark-savings/sky-lending/ethena-usde; exclude radiant-v2/credit/permapod — Alexandre's calls). Fail-open at every layer (DefiLlama outage → no filtering, never a blank radar; empty fetch keeps stale cache). Multi-hop graph filtered server-side; Passive carries `actionable` flag + UI hides non-lending by default behind a "Show non-lending" toggle with ✗ marker. **Verified live post-deploy: hops dist went {1:12, 2:38, 3:0, 4:0} → {1:50, 2:50, 3:50, 4:50}** (beam unblocked — the junk wall was also starving deep routes); no peapods/radiant in any path; top route now silo-v2 55.9% (real lender) vs fake 445% before; passive top1 = peapods 507.8% `actionable=false` (hidden by default, revealable). · **Effort:** small–medium · **Priority:** 3
 
 **Why:** Paul couldn't find the `peapods-finance` "USDC 507%" option on its UI — because
 peapods isn't a plain lending deposit (leveraged pods); the 507% isn't an executable supply
-APY. These pollute the radar. Add a project whitelist of "plain lending" protocols (or a flag
-for non-vanilla ones) so the dashboard can default to actionable pools. Don't hard-delete —
-flag + let the user toggle (consistent with "never silently drop").
+APY. These pollute the radar. Don't hard-delete — flag + let the user toggle (consistent
+with "never silently drop").
 
 ---
 
