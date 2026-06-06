@@ -229,9 +229,11 @@ def enumerate_multihop_paths(pools: list[dict], withdraw_map: dict, deposit_map:
     """Beam-search enumeration of supply->borrow->bridge->supply chains (spec section 2).
 
     A hop lives on ONE platform: supply A on (chain,project), borrow B on the SAME
-    (chain,project), Binance-bridge B (deposit on source chain AND withdraw on dest
-    chain, by B's class), supply B on the dest. Chains always end on a supply; the
-    dest chain must differ from the source. Beam search bounds the combinatorial
+    (chain,project), then supply B on a destination. The dest is either a DIFFERENT
+    platform on the SAME chain (a plain on-chain transfer — no Binance, zero bridge
+    cost) or a DIFFERENT chain reachable via Binance (deposit B on the source chain
+    AND withdraw B on the dest chain, by B's class — incurs that chain's bridge
+    cost). Chains always end on a supply. Beam search bounds the combinatorial
     blow-up: at each depth only the top `beam_width` partial paths (by net carry)
     are expanded; every retained partial path is also a terminal candidate
     (beam-dropped partials are not emitted). The final `limit` is distributed
@@ -296,14 +298,19 @@ def enumerate_multihop_paths(pools: list[dict], withdraw_map: dict, deposit_map:
             d = S * r
             for bsym, bpool in by_cp_borrow.get((chain, proj), {}).items():
                 bcls = asset_class(bsym)
-                if bcls is None or chain not in deposit_map.get(bcls, set()):
-                    continue                  # Binance can't take the borrowed asset off this chain
+                if bcls is None:
+                    continue
                 bor = effective_borrow_apr(bpool)
                 for (c2, p2, spool) in supply_nodes.get(bcls, []):
-                    if c2 == chain:
-                        continue              # must actually move chains
-                    if c2 not in withdraw_map.get(bcls, set()):
-                        continue
+                    same_chain = (c2 == chain)
+                    if same_chain and p2 == proj:
+                        continue              # back into the same platform = a loop, not a hop
+                    if not same_chain:
+                        # Binance bridge gates apply only when actually moving chains
+                        if chain not in deposit_map.get(bcls, set()):
+                            continue
+                        if c2 not in withdraw_map.get(bcls, set()):
+                            continue
                     nid = node_id(c2, p2, spool)
                     if nid in visited:
                         continue
@@ -312,7 +319,8 @@ def enumerate_multihop_paths(pools: list[dict], withdraw_map: dict, deposit_map:
                     new_liq = min(minliq, float(bpool.get("tvlUsd") or 0),
                                   float(spool.get("tvlUsd") or 0))
                     nxt.append((visited | {nid}, nodes + (nid,), (c2, p2, spool),
-                                d, new_net, bridge + float(bridge_costs.get(c2, 1.0)),
+                                d, new_net,
+                                bridge + (0.0 if same_chain else float(bridge_costs.get(c2, 1.0))),
                                 new_liq, entry, sups + (sup2,), bors + ((bsym, bor),)))
         frontier = nxt
 

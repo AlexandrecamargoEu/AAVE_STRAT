@@ -52,14 +52,14 @@ def test_root_requires_binance_withdrawable_chain():
     assert paths == []
 
 
-def test_max_hops_respected_and_same_chain_dest_excluded():
+def test_max_hops_respected_and_same_platform_dest_excluded():
     paths = enumerate_multihop_paths(POOLS, WMAP, DMAP, COSTS, capital_class="USDC", max_hops=1)
     assert all(p.hops == 1 for p in paths)
-    # dest == source chain is never allowed (must actually move chains)
+    # supplying the borrowed asset back into the SAME (chain, project) is never a hop
     full = enumerate_multihop_paths(POOLS, WMAP, DMAP, COSTS, capital_class="USDC")
     for p in full:
-        chains = [n[0] for n in p.nodes]
-        assert all(chains[i] != chains[i+1] for i in range(len(chains)-1))
+        pairs = [(n[0], n[1]) for n in p.nodes]
+        assert all(pairs[i] != pairs[i + 1] for i in range(len(pairs) - 1))
 
 
 def test_empty_maps_no_paths():
@@ -123,3 +123,39 @@ def test_limit_is_a_hard_cap_even_across_depths():
     assert any(p.hops == 3 for p in paths), "fixture must produce a 3-hop route"
     capped = enumerate_multihop_paths(pools, wmap, dmap, COSTS, capital_class="USDC", limit=2)
     assert len(capped) == 2
+
+
+def test_same_chain_cross_platform_hop_no_bridge_no_binance_gate():
+    # second platform on ChainA: borrow WETH on aave (2%), walk it across the street
+    # to morpho-blue on the SAME chain (6%). No Binance maps needed for that hop,
+    # no bridge cost. net = 10 + 0.75*(6-2) = 13.0
+    pools = POOLS + [_p("ChainA", "morpho-blue", "WETH", base=6.0, borrow_base=5.0)]
+    wmap = {"USDC": {"ChainA"}, "ETH": set(), "USDT": set(), "BTC": set()}   # Binance can't move ETH AT ALL
+    dmap = {"USDC": set(), "ETH": set(), "USDT": set(), "BTC": set()}
+    paths = enumerate_multihop_paths(pools, wmap, dmap, COSTS, capital_class="USDC")
+    two = [p for p in paths if p.hops == 2]
+    assert two, "same-chain hop must exist without any Binance route for the asset"
+    best = two[0]
+    assert best.nodes == (("ChainA", "aave-v3", "USDC"), ("ChainA", "morpho-blue", "WETH"))
+    assert best.net_apy == pytest.approx(13.0)
+    assert best.bridge_cost_usd == pytest.approx(0.0)      # on-chain transfer, not a bridge
+
+
+def test_cross_chain_hop_still_requires_binance_gates():
+    # WITHOUT a same-chain platform: the only dest is ChainB and Binance can't
+    # move ETH -> no 2-hop (the gates still bind cross-chain edges)
+    wmap = {"USDC": {"ChainA"}, "ETH": set(), "USDT": set(), "BTC": set()}
+    dmap = {"USDC": set(), "ETH": set(), "USDT": set(), "BTC": set()}
+    paths = enumerate_multihop_paths(POOLS, wmap, dmap, COSTS, capital_class="USDC")
+    assert all(p.hops == 1 for p in paths)
+
+
+def test_same_chain_hop_beats_bridge_detour():
+    # both a same-chain dest (6%) and a cross-chain dest (5%, costs bridge $) exist;
+    # the same-chain route must rank first (higher net) and carry zero bridge cost
+    pools = POOLS + [_p("ChainA", "morpho-blue", "WETH", base=6.0, borrow_base=5.0)]
+    paths = enumerate_multihop_paths(pools, WMAP, DMAP, COSTS, capital_class="USDC")
+    two = [p for p in paths if p.hops == 2]
+    assert two[0].nodes[-1] == ("ChainA", "morpho-blue", "WETH")
+    assert two[0].bridge_cost_usd == pytest.approx(0.0)
+    assert any(p.nodes[-1] == ("ChainB", "aave-v3", "WETH") for p in two)  # bridge route still emitted
