@@ -25,6 +25,7 @@ class PassiveRoute(BaseModel):
     quality_flag: str
     entry_asset_classes: list[str] = []
     binance_withdrawable: bool | None = None
+    incentive_conditional: bool = False
 
 
 class LoopRoute(BaseModel):
@@ -105,3 +106,19 @@ class ChainSummary(BaseModel):
     avg_supply_apy_effective: float | None
     avg_borrow_apr_effective: float | None
     avg_spread: float | None
+
+
+class MultiHopNode(BaseModel):
+    chain: str
+    project: str
+    symbol: str
+
+
+class MultiHopRoute(BaseModel):
+    path: list[MultiHopNode]
+    net_apy: float
+    hops: int
+    bridge_cost_usd: float
+    min_liquidity_usd: float
+    entry_asset_classes: list[str] = []
+    incentive_conditional: bool = False   # any leg has a Self-gated incentive

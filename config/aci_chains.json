@@ -1,0 +1,14 @@
+{
+  "ethereum": "Ethereum",
+  "celo": "Celo",
+  "avalanche": "Avalanche",
+  "arbitrum": "Arbitrum",
+  "base": "Base",
+  "optimism": "OP Mainnet",
+  "polygon": "Polygon",
+  "bsc": "BSC",
+  "sonic": "Sonic",
+  "scroll": "Scroll",
+  "linea": "Linea",
+  "mantle": "Mantle"
+}

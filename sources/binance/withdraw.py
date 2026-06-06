@@ -21,3 +21,22 @@ def build_withdrawable_chains(coin_list: list[dict], network_map: dict, classes:
             if chain:
                 out[coin].add(chain)
     return out
+
+
+def build_deposit_chains(coin_list: list[dict], network_map: dict, classes: list[str]) -> dict[str, set]:
+    """{class: set(chains where Binance ACCEPTS DEPOSITS of that coin)}. Mirrors
+    build_withdrawable_chains but keys on depositEnable (needed for the multi-hop
+    bridge gate: deposit on the source chain, withdraw on the destination)."""
+    out: dict[str, set] = {c: set() for c in classes}
+    wanted = set(classes)
+    for c in coin_list:
+        coin = c.get("coin")
+        if coin not in wanted:
+            continue
+        for net in (c.get("networkList") or []):
+            if not net.get("depositEnable"):
+                continue
+            chain = network_map.get(net.get("network"))
+            if chain:
+                out[coin].add(chain)
+    return out

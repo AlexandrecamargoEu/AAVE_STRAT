@@ -294,3 +294,56 @@ async def test_chains_summary_endpoint(app):
     assert bsc["avg_supply_apy_effective"] == pytest.approx(6.0)
     assert bsc["avg_borrow_apr_effective"] == pytest.approx(3.5)
     assert bsc["avg_spread"] == pytest.approx(2.5)
+
+
+async def test_passive_route_incentive_conditional_from_aci_cache(app, tmp_path, monkeypatch):
+    app_, db = app
+    import time, json as _json
+    from config.config import settings
+    cache = tmp_path / "aci.json"
+    cache.write_text(_json.dumps({"Celo|WETH": {"merit": 2.08, "self": 2.08},
+                                  "Celo|USDC": {"merit": 1.0, "self": 0.0}}))
+    monkeypatch.setattr(settings, "ACI_INCENTIVES_CACHE", str(cache), raising=False)
+    now = int(time.time())
+    await db.execute("""INSERT INTO pools_snapshot (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,updated_at)
+                        VALUES ('w1','Celo','aave-v3','WETH',5e6,4.2,?)""", (now,))
+    await db.execute("""INSERT INTO pools_snapshot (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,updated_at)
+                        VALUES ('u1','Celo','aave-v3','USDC',5e6,2.6,?)""", (now,))
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        body = (await ac.get("/api/codee/routes/passive")).json()
+    weth = next(r for r in body if r["symbol"] == "WETH")
+    usdc = next(r for r in body if r["symbol"] == "USDC")
+    assert weth["incentive_conditional"] is True    # self > 0
+    assert usdc["incentive_conditional"] is False   # merit only, no self
+
+
+async def test_multihop_endpoint_returns_paths(app, tmp_path, monkeypatch):
+    app_, db = app
+    import time, json as _json
+    from config.config import settings
+    bw = tmp_path / "bw.json"
+    bw.write_text(_json.dumps({"withdraw": {"USDC": ["ChainA"], "ETH": ["ChainB"]},
+                               "deposit":  {"USDC": ["ChainA"], "ETH": ["ChainA"]}}))
+    monkeypatch.setattr(settings, "BINANCE_WITHDRAW_CACHE", str(bw), raising=False)
+    monkeypatch.setattr(settings, "ACI_INCENTIVES_CACHE", str(tmp_path / "none.json"), raising=False)
+    now = int(time.time())
+    rows = [("a1", "ChainA", "aave-v3", "USDC", 4e6, 10.0, 4.0, 0.80),
+            ("a2", "ChainA", "aave-v3", "WETH", 3e6, 0.5, 2.0, 0.80),
+            ("b1", "ChainB", "aave-v3", "WETH", 2e6, 5.0, 3.0, 0.80)]
+    for pid, ch, pr, sym, tvl, sup, bor, ltv in rows:
+        await db.execute("""INSERT INTO pools_snapshot
+            (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,borrow_apr_base,ltv,updated_at)
+            VALUES (?,?,?,?,?,?,?,?,?)""", (pid, ch, pr, sym, tvl, sup, bor, ltv, now))
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.get("/api/codee/routes/multihop?capital=USDC")
+    assert resp.status_code == 200
+    body = resp.json()
+    two = [r for r in body if r["hops"] == 2]
+    assert two
+    best = two[0]
+    assert [n["chain"] for n in best["path"]] == ["ChainA", "ChainB"]
+    assert best["net_apy"] == pytest.approx(12.25)
+    assert best["entry_asset_classes"] == ["USDC"]
+    assert best["incentive_conditional"] is False

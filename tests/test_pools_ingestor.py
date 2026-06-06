@@ -18,6 +18,7 @@ class StubMerkl:
     async def __aenter__(self): return self
     async def __aexit__(self, *a): pass
     async def fetch_borrow_opportunities(self, max_pages=5): return self.opps
+    async def fetch_supply_opportunities(self, max_pages=5): return []
 
 
 @pytest.fixture
@@ -162,8 +163,50 @@ async def test_ingestor_writes_binance_withdraw_cache(db, tmp_path, monkeypatch)
     monkeypatch.setattr(settings, "BINANCE_WITHDRAW_CACHE", str(cache), raising=False)
     supply = [_supply_pool("e1", "Arbitrum", "aave-v3", "WETH", tvl=5_000_000)]
     borrow = [_borrow_pool("e1")]
-    coins = [{"coin": "ETH", "networkList": [{"network": "ARBITRUM", "withdrawEnable": True}]}]
+    coins = [{"coin": "ETH", "networkList": [
+        {"network": "ARBITRUM", "withdrawEnable": True, "depositEnable": True}]}]
     ing = PoolsIngestor(db, StubDefiLlama(supply, borrow), StubMerkl([]), binance=StubBinance(coins))
     await ing.run_once(ts=1716800000)
     saved = _json.loads(cache.read_text())
-    assert "Arbitrum" in saved["ETH"]
+    assert "Arbitrum" in saved["withdraw"]["ETH"]
+    assert "Arbitrum" in saved["deposit"]["ETH"]
+
+
+class StubMerklFull:
+    """Stub with BOTH borrow and supply (LEND) opportunity lists."""
+    def __init__(self, borrow_opps, supply_opps):
+        self.borrow_opps, self.supply_opps = borrow_opps, supply_opps
+    async def __aenter__(self): return self
+    async def __aexit__(self, *a): pass
+    async def fetch_borrow_opportunities(self, max_pages=5): return self.borrow_opps
+    async def fetch_supply_opportunities(self, max_pages=5): return self.supply_opps
+
+
+class StubAci:
+    def __init__(self, payload): self.payload = payload
+    async def __aenter__(self): return self
+    async def __aexit__(self, *a): pass
+    async def fetch_merit_aprs(self): return self.payload
+
+
+async def test_ingestor_applies_supply_incentives_and_writes_aci_cache(db, tmp_path, monkeypatch):
+    import json as _json
+    from config.config import settings
+    aci_cache = tmp_path / "aci.json"
+    monkeypatch.setattr(settings, "ACI_INCENTIVES_CACHE", str(aci_cache), raising=False)
+    monkeypatch.setattr(settings, "BINANCE_WITHDRAW_CACHE", str(tmp_path / "bw.json"), raising=False)
+
+    supply = [_supply_pool("w1", "Celo", "aave-v3", "WETH", base=0.02, tvl=2_000_000)]
+    borrow = [_borrow_pool("w1")]
+    aci_payload = {"currentAPR": {"actionsAPR": {
+        "celo-supply-weth": 2.08, "self-celo-supply-weth": 2.08}}}
+    ing = PoolsIngestor(db, StubDefiLlama(supply, borrow), StubMerklFull([], []),
+                        binance=StubBinance([]), aci=StubAci(aci_payload))
+    await ing.run_once(ts=1716800000)
+
+    row = await db.fetch_one(
+        "SELECT supply_apy_reward, reward_source FROM pools_snapshot WHERE pool_id='w1'")
+    assert row[0] == pytest.approx(4.16)       # merit+self landed in the stored reward
+    assert row[1] == "aci_merit"
+    saved = _json.loads(aci_cache.read_text())
+    assert saved["Celo|WETH"] == {"merit": 2.08, "self": 2.08}

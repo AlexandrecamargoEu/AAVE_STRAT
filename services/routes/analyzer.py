@@ -14,7 +14,7 @@ Leverage (spec 2b.H):
 """
 from functools import lru_cache
 
-from config.config import load_projects, normalize_symbol
+from config.config import asset_class, load_projects, normalize_symbol
 from services.rewards.lav import discount_for_token
 
 
@@ -205,3 +205,100 @@ def cross_chain_carry(pools: list[dict]) -> list[CrossChainCarry]:
         ))
     out.sort(key=lambda r: r.spread, reverse=True)
     return out
+
+
+# --- Multi-hop cross-chain carry (T4 spec) ----------------------------------
+
+
+@dataclass(frozen=True)
+class MultiHopPath:
+    nodes: tuple                 # ((chain, project, symbol), ...) one per supply leg
+    net_apy: float               # leveraged net carry % on the initial capital
+    hops: int                    # len(nodes)
+    bridge_cost_usd: float       # sum of dest-chain bridge costs
+    min_liquidity_usd: float     # thinnest tvlUsd among ALL pools used (supply + borrow legs)
+    entry_asset_class: str | None
+
+
+def enumerate_multihop_paths(pools: list[dict], withdraw_map: dict, deposit_map: dict,
+                             bridge_costs: dict, *, max_hops: int = 4,
+                             capital_class: str | None = None,
+                             beam_width: int = 300, limit: int = 200) -> list[MultiHopPath]:
+    """Beam-search enumeration of supply->borrow->bridge->supply chains (spec section 2).
+
+    A hop lives on ONE platform: supply A on (chain,project), borrow B on the SAME
+    (chain,project), Binance-bridge B (deposit on source chain AND withdraw on dest
+    chain, by B's class), supply B on the dest. Chains always end on a supply; the
+    dest chain must differ from the source. Beam search bounds the combinatorial
+    blow-up: at each depth only the top `beam_width` partial paths (by net carry)
+    are expanded; every retained partial path is also a terminal candidate
+    (beam-dropped partials are not emitted). Pure: no I/O.
+    """
+    # index: (chain, project) -> {normalized_symbol: pool}
+    by_cp: dict[tuple[str, str], dict[str, dict]] = {}
+    supply_nodes: dict[str, list[tuple[str, str, dict]]] = defaultdict(list)  # class -> [(chain, proj, pool)]
+    for p in pools:
+        cls = asset_class(p.get("symbol"))
+        if cls is None:
+            continue
+        key = (p.get("chain"), p.get("project"))
+        by_cp.setdefault(key, {})[normalize_symbol(p.get("symbol"))] = p
+        supply_nodes[cls].append((p.get("chain"), p.get("project"), p))
+
+    def node_id(chain, proj, pool):
+        return (chain, proj, normalize_symbol(pool.get("symbol")))
+
+    # state: (visited frozenset, nodes tuple, last(chain,proj,pool), S, net, bridge$, minliq, entry_cls)
+    frontier = []
+    emitted: list[MultiHopPath] = []
+    for (chain, proj), assets in by_cp.items():
+        for sym, pool in assets.items():
+            cls = asset_class(sym)
+            if capital_class is not None and cls != capital_class:
+                continue
+            if chain not in withdraw_map.get(cls, set()):
+                continue                      # can't withdraw the starting capital here
+            net = effective_supply_apy(pool)
+            nid = node_id(chain, proj, pool)
+            frontier.append((frozenset([nid]), (nid,), (chain, proj, pool),
+                             1.0, net, 0.0, float(pool.get("tvlUsd") or 0), cls))
+
+    for _depth in range(1, max_hops):         # expansions: hop 2 .. max_hops
+        frontier.sort(key=lambda s: s[4], reverse=True)
+        frontier = frontier[:beam_width]
+        nxt = []
+        for visited, nodes, (chain, proj, pool), S, net, bridge, minliq, entry in frontier:
+            emitted.append(MultiHopPath(nodes, net, len(nodes), bridge, minliq, entry))
+            r = per_iter_ltv(pool.get("ltv"))
+            if r <= 0:
+                continue
+            d = S * r
+            platform_assets = by_cp.get((chain, proj), {})
+            for bsym, bpool in platform_assets.items():
+                if bpool.get("apyBaseBorrow") is None:
+                    continue
+                bcls = asset_class(bsym)
+                if bcls is None or chain not in deposit_map.get(bcls, set()):
+                    continue                  # Binance can't take the borrowed asset off this chain
+                bor = effective_borrow_apr(bpool)
+                for (c2, p2, spool) in supply_nodes.get(bcls, []):
+                    if c2 == chain:
+                        continue              # must actually move chains
+                    if c2 not in withdraw_map.get(bcls, set()):
+                        continue
+                    nid = node_id(c2, p2, spool)
+                    if nid in visited:
+                        continue
+                    new_net = net - d * bor + d * effective_supply_apy(spool)
+                    new_liq = min(minliq, float(bpool.get("tvlUsd") or 0),
+                                  float(spool.get("tvlUsd") or 0))
+                    nxt.append((visited | {nid}, nodes + (nid,), (c2, p2, spool),
+                                d, new_net, bridge + float(bridge_costs.get(c2, 1.0)),
+                                new_liq, entry))
+        frontier = nxt
+
+    for visited, nodes, _last, S, net, bridge, minliq, entry in frontier:  # deepest level
+        emitted.append(MultiHopPath(nodes, net, len(nodes), bridge, minliq, entry))
+
+    emitted.sort(key=lambda p: p.net_apy, reverse=True)
+    return emitted[:limit]

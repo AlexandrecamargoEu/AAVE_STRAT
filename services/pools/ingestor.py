@@ -12,13 +12,16 @@ import logging
 import time
 from pathlib import Path
 
-from config.config import settings, load_chains, load_stable_symbols, load_projects, normalize_symbol, asset_class, load_binance_networks, load_asset_classes
+from config.config import settings, load_chains, load_stable_symbols, load_projects, normalize_symbol, asset_class, load_binance_networks, load_asset_classes, load_aci_chains
 from db.sqlite_client import SqliteClient
 from sources.defillama.client import DefiLlamaClient, join_supply_borrow
 from sources.merkl.client import MerklClient
+from sources.aci.client import AciClient
+from sources.aci.parse import parse_merit_aprs
 from sources.binance.client import BinanceClient
-from sources.binance.withdraw import build_withdrawable_chains
+from sources.binance.withdraw import build_withdrawable_chains, build_deposit_chains
 from services.rewards.merkl_match import build_rebate_lookup, overlay_rebates
+from services.rewards.supply_incentives import overlay_supply_incentives
 from services.pools.validators import classify_pool
 from services.rewards.lav import is_token_known
 from services.pools.snapshot import apply_snapshot
@@ -37,11 +40,12 @@ class PoolsIngestor:
     runs; the last good snapshot remains servable.
     """
 
-    def __init__(self, db: SqliteClient, defillama=None, merkl=None, binance=None):
+    def __init__(self, db: SqliteClient, defillama=None, merkl=None, binance=None, aci=None):
         self.db = db
         self._defillama = defillama  # if None, use DefiLlamaClient() in run_once
         self._merkl = merkl
         self._binance = binance
+        self._aci = aci
 
     async def run(self) -> None:
         """Long-running loop. Sleeps SNAPSHOT_INTERVAL_MIN between ticks."""
@@ -62,11 +66,25 @@ class PoolsIngestor:
             supply_task = asyncio.create_task(defillama.fetch_pools_supply())
             borrow_task = asyncio.create_task(defillama.fetch_pools_borrow())
             merkl_task = asyncio.create_task(merkl.fetch_borrow_opportunities())
-            supply, borrow, merkl_opps = await asyncio.gather(supply_task, borrow_task, merkl_task)
+            merkl_lend_task = asyncio.create_task(merkl.fetch_supply_opportunities())
+            supply, borrow, merkl_opps, merkl_lend = await asyncio.gather(
+                supply_task, borrow_task, merkl_task, merkl_lend_task)
+
+        # ACI Merit (off-protocol Aave supply incentives) — guarded; failure is non-fatal.
+        aci_map: dict = {}
+        try:
+            aci = self._aci or AciClient()
+            async with aci:
+                aci_payload = await aci.fetch_merit_aprs()
+            aci_map = parse_merit_aprs(aci_payload, load_aci_chains())
+        except Exception:
+            log.exception("[Ingestor] ACI merit fetch failed (non-fatal)")
 
         joined = join_supply_borrow(supply, borrow)
         rebates = build_rebate_lookup(merkl_opps)
         overlaid = overlay_rebates(joined, rebates)
+        lend_lookup = build_rebate_lookup(merkl_lend)
+        overlaid = overlay_supply_incentives(overlaid, lend_lookup, aci_map)
         filtered = self._filter(overlaid)
         validated = self._validate(filtered)
 
@@ -77,12 +95,26 @@ class PoolsIngestor:
             binance = self._binance or BinanceClient()
             async with binance:
                 coins = await binance.fetch_capital_config()
-            wmap = build_withdrawable_chains(coins, load_binance_networks(), list(load_asset_classes().keys()))
+            classes = list(load_asset_classes().keys())
+            networks = load_binance_networks()
+            wmap = build_withdrawable_chains(coins, networks, classes)
+            dmap = build_deposit_chains(coins, networks, classes)
             cache_path = Path(settings.BINANCE_WITHDRAW_CACHE)
             cache_path.parent.mkdir(parents=True, exist_ok=True)
-            cache_path.write_text(json.dumps({k: sorted(v) for k, v in wmap.items()}))
+            cache_path.write_text(json.dumps({
+                "withdraw": {k: sorted(v) for k, v in wmap.items()},
+                "deposit": {k: sorted(v) for k, v in dmap.items()},
+            }))
         except Exception:
             log.exception("[Ingestor] binance withdraw-map fetch failed (non-fatal)")
+
+        # Persist the ACI map as a JSON cache for read-time supply tagging (guarded).
+        try:
+            aci_cache = Path(settings.ACI_INCENTIVES_CACHE)
+            aci_cache.parent.mkdir(parents=True, exist_ok=True)
+            aci_cache.write_text(json.dumps({f"{c}|{s}": v for (c, s), v in aci_map.items()}))
+        except Exception:
+            log.exception("[Ingestor] ACI cache write failed (non-fatal)")
 
         log.info("[Ingestor] ingested %d in-scope pools (of %d joined, %d merkl rebates)",
                  n, len(joined), len(rebates))

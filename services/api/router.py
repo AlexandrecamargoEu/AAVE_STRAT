@@ -8,14 +8,16 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from config.config import settings, asset_class
+from config.config import settings, asset_class, normalize_symbol, load_chains
 from db.sqlite_client import SqliteClient
 from services.api.models import (
     HealthResponse, PassiveRoute, LoopRoute, CrossChainRoute, PoolHistoryPoint,
     PoolSummary, PoolsSnapshotPage, RewardsCoverageResponse, ChainSummary,
+    MultiHopNode, MultiHopRoute,
 )
 from services.routes.analyzer import (
     enumerate_same_chain_loops, rank_passive_supply, cross_chain_carry,
+    enumerate_multihop_paths,
 )
 
 
@@ -32,13 +34,37 @@ def _classes(*symbols: str | None) -> list[str]:
     return out
 
 
-def _load_withdraw_map() -> dict[str, set]:
-    """Read the Binance withdraw cache (class -> set(chains)). Empty if absent/unreadable."""
+def _load_bridge_maps() -> dict[str, dict[str, set]]:
+    """{'withdraw': {class:set(chains)}, 'deposit': {...}}. Backward compatible:
+    the pre-T4 cache was the flat withdraw-only dict."""
     try:
         raw = json.loads(Path(settings.BINANCE_WITHDRAW_CACHE).read_text())
-        return {k: set(v) for k, v in raw.items()}
+        if "withdraw" in raw:
+            return {"withdraw": {k: set(v) for k, v in raw["withdraw"].items()},
+                    "deposit": {k: set(v) for k, v in raw.get("deposit", {}).items()}}
+        return {"withdraw": {k: set(v) for k, v in raw.items()}, "deposit": {}}
+    except Exception:
+        return {"withdraw": {}, "deposit": {}}
+
+
+def _load_withdraw_map() -> dict[str, set]:
+    """Read the Binance withdraw map (class -> set(chains)). Empty if absent/unreadable."""
+    return _load_bridge_maps()["withdraw"]
+
+
+def _load_aci_map() -> dict[tuple[str, str], dict]:
+    """ACI incentive cache: {(chain, NORM_SYM): {'merit':x,'self':y}}. {} if absent."""
+    try:
+        raw = json.loads(Path(settings.ACI_INCENTIVES_CACHE).read_text())
+        return {(k.split("|")[0], k.split("|")[1]): v for k, v in raw.items()}
     except Exception:
         return {}
+
+
+def _is_conditional(chain: str, symbol: str, aci: dict) -> bool:
+    """True when an ACI 'self' (zkPoH-gated) incentive applies to this chain/asset."""
+    e = aci.get((chain, normalize_symbol(symbol)))
+    return bool(e and e.get("self"))
 
 
 def _withdrawable(classes: list[str], chain: str, wmap: dict[str, set]) -> bool | None:
@@ -158,6 +184,7 @@ async def health(db: SqliteClient = Depends(get_db)):
 async def routes_passive(db: SqliteClient = Depends(get_db), limit: int = Query(50, le=500)):
     pools = await _load_pools(db)
     wmap = _load_withdraw_map()
+    aci = _load_aci_map()
     ranked = rank_passive_supply(pools)
     out = []
     by_id = {(p["chain"], p["project"], p["symbol"]): p for p in pools}
@@ -169,6 +196,7 @@ async def routes_passive(db: SqliteClient = Depends(get_db), limit: int = Query(
             quality_flag=p["quality_flag"] if p else "ok",
             entry_asset_classes=_classes(r.symbol),
             binance_withdrawable=_withdrawable(_classes(r.symbol), r.chain, wmap),
+            incentive_conditional=_is_conditional(r.chain, r.symbol, aci),
         ))
     return out
 
@@ -211,6 +239,28 @@ async def routes_crosschain(db: SqliteClient = Depends(get_db), limit: int = Que
         entry_asset_classes=_classes(r.symbol),
         binance_withdrawable=_withdrawable(_classes(r.symbol), r.supply_chain, wmap),
     ) for r in rows[:limit]]
+
+
+@router.get("/routes/multihop", response_model=list[MultiHopRoute])
+async def routes_multihop(db: SqliteClient = Depends(get_db),
+                          capital: str | None = Query(None),
+                          limit: int = Query(50, le=200)):
+    """Multi-hop Binance-routable carry chains, enumerated to the hard 4-hop cap.
+    The client filters depth locally on each route's `hops` field."""
+    pools = await _load_pools(db)
+    maps = _load_bridge_maps()
+    aci = _load_aci_map()
+    bridge_costs = {c: (cfg.get("bridge_cost_usd") if cfg.get("bridge_cost_usd") is not None else 1.0)
+                    for c, cfg in load_chains()["chains"].items()}
+    paths = enumerate_multihop_paths(pools, maps["withdraw"], maps["deposit"], bridge_costs,
+                                     capital_class=capital, limit=limit)
+    return [MultiHopRoute(
+        path=[MultiHopNode(chain=c, project=pr, symbol=s) for (c, pr, s) in p.nodes],
+        net_apy=p.net_apy, hops=p.hops, bridge_cost_usd=p.bridge_cost_usd,
+        min_liquidity_usd=p.min_liquidity_usd,
+        entry_asset_classes=[p.entry_asset_class] if p.entry_asset_class else [],
+        incentive_conditional=any(_is_conditional(c, s, aci) for (c, _pr, s) in p.nodes),
+    ) for p in paths]
 
 
 @router.get("/pools/{pool_id}/history", response_model=list[PoolHistoryPoint])

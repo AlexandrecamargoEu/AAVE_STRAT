@@ -41,3 +41,20 @@ class MerklClient:
             if len(batch) < 100:
                 break
         return out
+
+    async def fetch_supply_opportunities(self, max_pages: int = 5) -> list[dict]:
+        """Paginates LIVE LEND (supply-side) opportunities. items=100 per page.
+        NOTE: Merkl's supply action is 'LEND' ('SUPPLY' is invalid and 500s)."""
+        assert self._session is not None
+        out: list[dict] = []
+        for page in range(max_pages):
+            url = f"{BASE_URL}?action=LEND&status=LIVE&items=100&page={page}"
+            async with self._session.get(url) as resp:
+                resp.raise_for_status()
+                batch = await resp.json()
+            if not batch:
+                break
+            out.extend(batch)
+            if len(batch) < 100:
+                break
+        return out
