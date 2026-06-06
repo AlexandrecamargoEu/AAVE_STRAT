@@ -38,3 +38,28 @@ async def test_live_fetch_pools():
     client = DefiLlamaClient()
     pools = await client.fetch_pools_supply()
     assert len(pools) > 1000
+
+
+async def test_fetch_protocol_categories_maps_slug_to_category():
+    payload = [
+        {"slug": "aave-v3", "category": "Lending", "tvl": 1},
+        {"slug": "peapods-finance", "category": "Yield"},
+        {"slug": "broken-entry"},                      # no category -> skipped
+        {"category": "Lending"},                       # no slug -> skipped
+    ]
+
+    class FakeResp:
+        async def __aenter__(self): return self
+        async def __aexit__(self, *a): pass
+        def raise_for_status(self): pass
+        async def json(self): return payload
+
+    class FakeSession:
+        def get(self, url):
+            assert "api.llama.fi/protocols" in url
+            return FakeResp()
+
+    from sources.defillama.client import DefiLlamaClient
+    c = DefiLlamaClient(session=FakeSession())
+    out = await c.fetch_protocol_categories()
+    assert out == {"aave-v3": "Lending", "peapods-finance": "Yield"}

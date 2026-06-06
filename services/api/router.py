@@ -8,8 +8,11 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from config.config import settings, asset_class, normalize_symbol, load_chains
+from config.config import (
+    settings, asset_class, normalize_symbol, load_chains, load_actionable_overrides,
+)
 from db.sqlite_client import SqliteClient
+from services.pools.actionable import is_actionable
 from services.api.models import (
     HealthResponse, PassiveRoute, LoopRoute, CrossChainRoute, PoolHistoryPoint,
     PoolSummary, PoolsSnapshotPage, RewardsCoverageResponse, ChainSummary,
@@ -57,6 +60,14 @@ def _load_aci_map() -> dict[tuple[str, str], dict]:
     try:
         raw = json.loads(Path(settings.ACI_INCENTIVES_CACHE).read_text())
         return {(k.split("|")[0], k.split("|")[1]): v for k, v in raw.items()}
+    except Exception:
+        return {}
+
+
+def _load_categories() -> dict[str, str]:
+    """Protocol-categories cache ({project: category}); {} if absent (fail-open)."""
+    try:
+        return json.loads(Path(settings.PROTOCOL_CATEGORIES_CACHE).read_text())
     except Exception:
         return {}
 
@@ -185,6 +196,8 @@ async def routes_passive(db: SqliteClient = Depends(get_db), limit: int = Query(
     pools = await _load_pools(db)
     wmap = _load_withdraw_map()
     aci = _load_aci_map()
+    cats = _load_categories()
+    ovr = load_actionable_overrides()
     ranked = rank_passive_supply(pools)
     out = []
     by_id = {(p["chain"], p["project"], p["symbol"]): p for p in pools}
@@ -197,6 +210,7 @@ async def routes_passive(db: SqliteClient = Depends(get_db), limit: int = Query(
             entry_asset_classes=_classes(r.symbol),
             binance_withdrawable=_withdrawable(_classes(r.symbol), r.chain, wmap),
             incentive_conditional=_is_conditional(r.chain, r.symbol, aci),
+            actionable=is_actionable(r.project, cats, ovr),
         ))
     return out
 
@@ -248,6 +262,9 @@ async def routes_multihop(db: SqliteClient = Depends(get_db),
     """Multi-hop Binance-routable carry chains, enumerated to the hard 4-hop cap.
     The client filters depth locally on each route's `hops` field."""
     pools = await _load_pools(db)
+    cats = _load_categories()
+    ovr = load_actionable_overrides()
+    pools = [p for p in pools if is_actionable(p.get("project"), cats, ovr)]
     maps = _load_bridge_maps()
     aci = _load_aci_map()
     bridge_costs = {c: (cfg.get("bridge_cost_usd") if cfg.get("bridge_cost_usd") is not None else 1.0)

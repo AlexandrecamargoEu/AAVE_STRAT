@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     STALENESS_BANNER_HOURS: int = 3
     BINANCE_WITHDRAW_CACHE: str = str(CONFIG_DIR.parent / "data" / "binance_withdraw.json")
     ACI_INCENTIVES_CACHE: str = str(CONFIG_DIR.parent / "data" / "aci_incentives.json")
+    PROTOCOL_CATEGORIES_CACHE: str = str(CONFIG_DIR.parent / "data" / "protocol_categories.json")
 
 
 # Stylized glyphs some protocols use in tickers that must be folded back to ASCII
@@ -78,6 +79,10 @@ def load_binance_networks() -> dict:
 
 def load_aci_chains() -> dict:
     return _load_json("aci_chains.json")
+
+
+def load_actionable_overrides() -> dict:
+    return _load_json("actionable_overrides.json")
 
 
 @lru_cache(maxsize=1)

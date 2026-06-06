@@ -353,3 +353,65 @@ async def test_multihop_endpoint_returns_paths(app, tmp_path, monkeypatch):
     assert len(best["borrows"]) == 1
     assert best["borrows"][0]["symbol"] == "WETH"
     assert best["borrows"][0]["borrow_apr"] == pytest.approx(2.0)
+
+
+async def test_multihop_excludes_non_actionable_protocols(app, tmp_path, monkeypatch):
+    app_, db = app
+    import time, json as _json
+    from config.config import settings
+    bw = tmp_path / "bw.json"
+    bw.write_text(_json.dumps({"withdraw": {"USDC": ["ChainA", "ChainB"]},
+                               "deposit":  {"USDC": ["ChainA"]}}))
+    cats = tmp_path / "cats.json"
+    cats.write_text(_json.dumps({"aave-v3": "Lending", "peapods-finance": "Yield"}))
+    monkeypatch.setattr(settings, "BINANCE_WITHDRAW_CACHE", str(bw), raising=False)
+    monkeypatch.setattr(settings, "PROTOCOL_CATEGORIES_CACHE", str(cats), raising=False)
+    monkeypatch.setattr(settings, "ACI_INCENTIVES_CACHE", str(tmp_path / "none.json"), raising=False)
+    now = int(time.time())
+    rows = [("a1", "ChainA", "aave-v3", "USDC", 4e6, 3.0, 2.0, 0.80),
+            ("x1", "ChainB", "peapods-finance", "USDC", 1e5, 507.0, None, None)]
+    for pid, ch, pr, sym, tvl, sup, bor, ltv in rows:
+        await db.execute("""INSERT INTO pools_snapshot
+            (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,borrow_apr_base,ltv,updated_at)
+            VALUES (?,?,?,?,?,?,?,?,?)""", (pid, ch, pr, sym, tvl, sup, bor, ltv, now))
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        body = (await ac.get("/api/codee/routes/multihop")).json()
+    projects = {n["project"] for r in body for n in r["path"]}
+    assert "peapods-finance" not in projects       # junk never enters the graph
+    assert "aave-v3" in projects                   # real lender does
+
+
+async def test_passive_routes_carry_actionable_flag(app, tmp_path, monkeypatch):
+    app_, db = app
+    import time, json as _json
+    from config.config import settings
+    cats = tmp_path / "cats.json"
+    cats.write_text(_json.dumps({"aave-v3": "Lending", "peapods-finance": "Yield"}))
+    monkeypatch.setattr(settings, "PROTOCOL_CATEGORIES_CACHE", str(cats), raising=False)
+    now = int(time.time())
+    await db.execute("""INSERT INTO pools_snapshot (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,updated_at)
+                        VALUES ('a1','Ethereum','aave-v3','USDC',5e6,3.0,?)""", (now,))
+    await db.execute("""INSERT INTO pools_snapshot (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,updated_at)
+                        VALUES ('x1','Sonic','peapods-finance','USDC',1e5,507.0,?)""", (now,))
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        body = (await ac.get("/api/codee/routes/passive")).json()
+    aave = next(r for r in body if r["project"] == "aave-v3")
+    pea = next(r for r in body if r["project"] == "peapods-finance")
+    assert aave["actionable"] is True
+    assert pea["actionable"] is False
+
+
+async def test_missing_categories_cache_fails_open(app, tmp_path, monkeypatch):
+    app_, db = app
+    import time
+    from config.config import settings
+    monkeypatch.setattr(settings, "PROTOCOL_CATEGORIES_CACHE", str(tmp_path / "absent.json"), raising=False)
+    now = int(time.time())
+    await db.execute("""INSERT INTO pools_snapshot (pool_id,chain,project,symbol,tvl_usd,supply_apy_base,updated_at)
+                        VALUES ('x1','Sonic','peapods-finance','USDC',1e5,507.0,?)""", (now,))
+    transport = ASGITransport(app=app_)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        body = (await ac.get("/api/codee/routes/passive")).json()
+    assert body[0]["actionable"] is True           # fail-open: no data, no judgement

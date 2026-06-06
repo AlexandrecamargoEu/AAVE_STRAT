@@ -26,6 +26,7 @@ class PassiveRoute(BaseModel):
     entry_asset_classes: list[str] = []
     binance_withdrawable: bool | None = None
     incentive_conditional: bool = False
+    actionable: bool = True               # False = not a plain lending deposit (T2)
 
 
 class LoopRoute(BaseModel):

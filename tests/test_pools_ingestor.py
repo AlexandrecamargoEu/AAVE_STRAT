@@ -5,12 +5,14 @@ from services.pools.ingestor import PoolsIngestor
 
 
 class StubDefiLlama:
+    categories: dict = {}
     def __init__(self, supply, borrow):
         self.supply, self.borrow = supply, borrow
     async def __aenter__(self): return self
     async def __aexit__(self, *a): pass
     async def fetch_pools_supply(self): return self.supply
     async def fetch_pools_borrow(self): return self.borrow
+    async def fetch_protocol_categories(self): return self.categories
 
 
 class StubMerkl:
@@ -210,3 +212,42 @@ async def test_ingestor_applies_supply_incentives_and_writes_aci_cache(db, tmp_p
     assert row[1] == "aci_merit"
     saved = _json.loads(aci_cache.read_text())
     assert saved["Celo|WETH"] == {"merit": 2.08, "self": 2.08}
+
+
+async def test_ingestor_writes_protocol_categories_cache(db, tmp_path, monkeypatch):
+    import json as _json
+    from config.config import settings
+    cache = tmp_path / "cats.json"
+    monkeypatch.setattr(settings, "PROTOCOL_CATEGORIES_CACHE", str(cache), raising=False)
+    monkeypatch.setattr(settings, "BINANCE_WITHDRAW_CACHE", str(tmp_path / "bw.json"), raising=False)
+    monkeypatch.setattr(settings, "ACI_INCENTIVES_CACHE", str(tmp_path / "aci.json"), raising=False)
+
+    supply = [_supply_pool("p1", "Ethereum", "aave-v3", "USDC", base=3.0, tvl=5_000_000)]
+    borrow = [_borrow_pool("p1")]
+    dl = StubDefiLlama(supply, borrow)
+    dl.categories = {"aave-v3": "Lending", "peapods-finance": "Yield"}
+    ing = PoolsIngestor(db, dl, StubMerkl([]), binance=StubBinance([]))
+    await ing.run_once(ts=1716800000)
+
+    saved = _json.loads(cache.read_text())
+    assert saved == {"aave-v3": "Lending", "peapods-finance": "Yield"}
+
+
+async def test_ingestor_keeps_stale_categories_cache_on_empty_fetch(db, tmp_path, monkeypatch):
+    import json as _json
+    from config.config import settings
+    cache = tmp_path / "cats.json"
+    cache.write_text(_json.dumps({"aave-v3": "Lending"}))      # pre-existing cache
+    monkeypatch.setattr(settings, "PROTOCOL_CATEGORIES_CACHE", str(cache), raising=False)
+    monkeypatch.setattr(settings, "BINANCE_WITHDRAW_CACHE", str(tmp_path / "bw.json"), raising=False)
+    monkeypatch.setattr(settings, "ACI_INCENTIVES_CACHE", str(tmp_path / "aci.json"), raising=False)
+
+    supply = [_supply_pool("p1", "Ethereum", "aave-v3", "USDC", base=3.0, tvl=5_000_000)]
+    borrow = [_borrow_pool("p1")]
+    dl = StubDefiLlama(supply, borrow)
+    dl.categories = {}                                          # fetch failed / empty
+    ing = PoolsIngestor(db, dl, StubMerkl([]), binance=StubBinance([]))
+    await ing.run_once(ts=1716800000)
+
+    saved = _json.loads(cache.read_text())
+    assert saved == {"aave-v3": "Lending"}                     # stale kept, NOT clobbered

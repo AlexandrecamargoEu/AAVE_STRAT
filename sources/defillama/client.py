@@ -12,6 +12,7 @@ import aiohttp
 SUPPLY_URL = "https://yields.llama.fi/pools"
 BORROW_URL = "https://yields.llama.fi/lendBorrow"
 CHART_URL_TMPL = "https://yields.llama.fi/chart/{pool_uuid}"
+PROTOCOLS_URL = "https://api.llama.fi/protocols"
 
 DEFAULT_TIMEOUT = aiohttp.ClientTimeout(total=40)
 USER_AGENT = "codee/0.1"
@@ -49,6 +50,16 @@ class DefiLlamaClient:
         url = CHART_URL_TMPL.format(pool_uuid=pool_uuid)
         payload = await self._get_json(url)
         return payload.get("data", []) if isinstance(payload, dict) else payload
+
+    async def fetch_protocol_categories(self) -> dict[str, str]:
+        """{project slug: category} from api.llama.fi/protocols (T2 actionable filter).
+        'Lending' category = plain lending platform. Entries lacking slug/category
+        are skipped; non-list payloads yield {}."""
+        data = await self._get_json(PROTOCOLS_URL)
+        if not isinstance(data, list):
+            return {}
+        return {p["slug"]: p["category"] for p in data
+                if isinstance(p, dict) and p.get("slug") and p.get("category")}
 
 
 def join_supply_borrow(supply: list[dict], borrow: list[dict]) -> list[dict]:

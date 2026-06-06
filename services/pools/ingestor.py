@@ -67,8 +67,17 @@ class PoolsIngestor:
             borrow_task = asyncio.create_task(defillama.fetch_pools_borrow())
             merkl_task = asyncio.create_task(merkl.fetch_borrow_opportunities())
             merkl_lend_task = asyncio.create_task(merkl.fetch_supply_opportunities())
-            supply, borrow, merkl_opps, merkl_lend = await asyncio.gather(
-                supply_task, borrow_task, merkl_task, merkl_lend_task)
+
+            async def _cats_safe():
+                try:
+                    return await defillama.fetch_protocol_categories()
+                except Exception:
+                    log.exception("[Ingestor] protocol categories fetch failed (non-fatal)")
+                    return {}
+            cats_task = asyncio.create_task(_cats_safe())
+
+            supply, borrow, merkl_opps, merkl_lend, categories = await asyncio.gather(
+                supply_task, borrow_task, merkl_task, merkl_lend_task, cats_task)
 
         # ACI Merit (off-protocol Aave supply incentives) — guarded; failure is non-fatal.
         aci_map: dict = {}
@@ -115,6 +124,16 @@ class PoolsIngestor:
             aci_cache.write_text(json.dumps({f"{c}|{s}": v for (c, s), v in aci_map.items()}))
         except Exception:
             log.exception("[Ingestor] ACI cache write failed (non-fatal)")
+
+        # Persist protocol categories cache — ONLY when non-empty, so a failed/empty
+        # fetch keeps the prior (stale) cache rather than clobbering it.
+        if categories:
+            try:
+                cats_cache = Path(settings.PROTOCOL_CATEGORIES_CACHE)
+                cats_cache.parent.mkdir(parents=True, exist_ok=True)
+                cats_cache.write_text(json.dumps(categories))
+            except Exception:
+                log.exception("[Ingestor] categories cache write failed (non-fatal)")
 
         log.info("[Ingestor] ingested %d in-scope pools (of %d joined, %d merkl rebates)",
                  n, len(joined), len(rebates))

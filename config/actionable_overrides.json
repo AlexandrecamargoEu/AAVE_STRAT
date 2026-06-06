@@ -1,0 +1,5 @@
+{
+  "_comment": "T2 manual exceptions to the category-based actionable rule (cat == 'Lending'). include: actionable despite non-Lending category. exclude: NOT actionable despite Lending category.",
+  "include": ["spark-savings", "sky-lending", "ethena-usde"],
+  "exclude": ["radiant-v2", "credit", "permapod"]
+}
