@@ -13,7 +13,7 @@ from db.sqlite_client import SqliteClient
 from services.api.models import (
     HealthResponse, PassiveRoute, LoopRoute, CrossChainRoute, PoolHistoryPoint,
     PoolSummary, PoolsSnapshotPage, RewardsCoverageResponse, ChainSummary,
-    MultiHopNode, MultiHopRoute,
+    MultiHopNode, MultiHopBorrow, MultiHopRoute,
 )
 from services.routes.analyzer import (
     enumerate_same_chain_loops, rank_passive_supply, cross_chain_carry,
@@ -255,7 +255,10 @@ async def routes_multihop(db: SqliteClient = Depends(get_db),
     paths = enumerate_multihop_paths(pools, maps["withdraw"], maps["deposit"], bridge_costs,
                                      capital_class=capital, limit=limit)
     return [MultiHopRoute(
-        path=[MultiHopNode(chain=c, project=pr, symbol=s) for (c, pr, s) in p.nodes],
+        path=[MultiHopNode(chain=c, project=pr, symbol=s,
+                           supply_apy=(p.supply_apys[i] if i < len(p.supply_apys) else None))
+              for i, (c, pr, s) in enumerate(p.nodes)],
+        borrows=[MultiHopBorrow(symbol=bs, borrow_apr=ba) for (bs, ba) in p.borrow_legs],
         net_apy=p.net_apy, hops=p.hops, bridge_cost_usd=p.bridge_cost_usd,
         min_liquidity_usd=p.min_liquidity_usd,
         entry_asset_classes=[p.entry_asset_class] if p.entry_asset_class else [],

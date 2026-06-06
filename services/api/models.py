@@ -112,10 +112,17 @@ class MultiHopNode(BaseModel):
     chain: str
     project: str
     symbol: str
+    supply_apy: float | None = None       # effective supply APY of this leg
+
+
+class MultiHopBorrow(BaseModel):
+    symbol: str                            # borrowed asset (normalized)
+    borrow_apr: float                      # effective borrow APR paid on that leg
 
 
 class MultiHopRoute(BaseModel):
     path: list[MultiHopNode]
+    borrows: list[MultiHopBorrow] = []     # one per transition (len == hops-1)
     net_apy: float
     hops: int
     bridge_cost_usd: float

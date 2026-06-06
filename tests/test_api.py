@@ -347,3 +347,9 @@ async def test_multihop_endpoint_returns_paths(app, tmp_path, monkeypatch):
     assert best["net_apy"] == pytest.approx(12.25)
     assert best["entry_asset_classes"] == ["USDC"]
     assert best["incentive_conditional"] is False
+    # v1.1: per-leg rates exposed
+    assert best["path"][0]["supply_apy"] == pytest.approx(10.0)
+    assert best["path"][1]["supply_apy"] == pytest.approx(5.0)
+    assert len(best["borrows"]) == 1
+    assert best["borrows"][0]["symbol"] == "WETH"
+    assert best["borrows"][0]["borrow_apr"] == pytest.approx(2.0)
