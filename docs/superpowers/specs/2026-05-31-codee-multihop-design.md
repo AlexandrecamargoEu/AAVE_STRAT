@@ -57,8 +57,14 @@ Two questions defined the design; chosen option marked **[✓]** (open to revisi
 - **C. Hybrid (Binance OR same-token native bridge)** — also allow moving the asset to a chain
   where it's the same canonical token (assume native bridge). More coverage, but **bridge cost is
   imprecise** for the non-Binance edges.
-- *Linked sub-decision:* assets restricted to the **4 classes** (consequence of A). Alternative:
-  include major bridgeable stables (DAI/FRAX/…) too. **[open for Paul]**
+- *Linked sub-decision (RESOLVED, data-grounded):* route assets stay restricted to the **4
+  classes** at launch. Live check (Binance chains, ≥$100k liquidity legs): best cross-chain carry
+  USDC **29.0%** / USDT **22.4%** vs DAI 5.0% / USDe 6.6% / USD1 5.8%; FDUSD/TUSD/PYUSD have **no
+  viable pair at all**. Stables are fungible — majors are listed on every chain with the deepest
+  pools, so for any chain pair there is almost always a major leg ≥ the niche-stable leg; adding
+  niche stables would add worse variants, not new winners. It's a config list
+  (`asset_classes.json`): **USDe/USD1 are the named watchlist** (only candidates with real carry +
+  Binance listing) — add an entry if a recurring route beats the majors.
 
 **Q2 — Where does the chain start, and what about the final borrowed asset (open = price risk)?**
 - **[✓] A. Root = T3 capital class; end on a supply** — root = chosen capital (USDC/USDT/ETH/BTC,
